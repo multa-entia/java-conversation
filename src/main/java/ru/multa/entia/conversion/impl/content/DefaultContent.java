@@ -1,5 +1,7 @@
 package ru.multa.entia.conversion.impl.content;
 
-// TODO: 28.09.2023 !!!
-public record DefaultContent(String type, String value) {
-}
+import ru.multa.entia.conversion.api.content.Content;
+import ru.multa.entia.conversion.api.type.Type;
+
+
+record DefaultContent(Type type, String value) implements Content {}

@@ -2,6 +2,7 @@ package ru.multa.entia.conversion.impl.type;
 
 import org.junit.jupiter.api.Test;
 import ru.multa.entia.conversion.api.type.Type;
+import ru.multa.entia.fakers.impl.Faker;
 import ru.multa.entia.results.api.result.Result;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -21,7 +22,7 @@ class DefaultTypeFactoryTest {
 
     @Test
     void shouldCheckCreation() {
-        String instance = "some.instance";
+        String instance = Faker.str_().random(5, 10);
         String expectedValue = instance.getClass().getName();
 
         Result<Type> result = new DefaultTypeFactory().create(instance);
