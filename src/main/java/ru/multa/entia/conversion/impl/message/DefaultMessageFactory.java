@@ -10,6 +10,7 @@ import java.util.function.Function;
 public class DefaultMessageFactory implements MessageFactory {
     public static final String KEY__IS_REQUEST = "default-message-factory-is-request";
     public static final String KEY__ID = "default-message-factory-id";
+    public static final boolean DEFAULT_IS_REQUEST = true;
 
     @Override
     public Result<Message> create(Object instance, Object... args) {
@@ -19,7 +20,23 @@ public class DefaultMessageFactory implements MessageFactory {
     public static class IsRequestGetter implements Function<Object[], Boolean>{
         @Override
         public Boolean apply(final Object[] args) {
-            return null;
+            if (args != null){
+                for (int i = 0; i < args.length; i++) {
+                    if (checkArgAsKey(args[i]) && checkPredictedIdArg(args, i+1)){
+                        return (Boolean) args[i+1];
+                    }
+                }
+            }
+
+            return DEFAULT_IS_REQUEST;
+        }
+
+        private boolean checkArgAsKey(final Object arg){
+            return arg != null && arg.getClass().equals(String.class) && arg.equals(KEY__IS_REQUEST);
+        }
+
+        private boolean checkPredictedIdArg(final Object[] args, final int idx){
+            return args.length > idx && args[idx] != null && args[idx].getClass().equals(Boolean.class);
         }
     }
 
