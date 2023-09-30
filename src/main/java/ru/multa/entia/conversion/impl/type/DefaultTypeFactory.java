@@ -6,7 +6,7 @@ import ru.multa.entia.results.api.result.Result;
 import ru.multa.entia.results.impl.result.DefaultResultBuilder;
 
 public class DefaultTypeFactory implements TypeFactory<Object> {
-    private static final String CODE = "conversation.factory.type.instance-is-null";
+    public static final String CODE = "conversation.factory.type.instance-is-null";
 
     @Override
     public Result<Type> create(Object instance, Object... args) {
