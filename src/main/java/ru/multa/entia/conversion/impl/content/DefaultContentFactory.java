@@ -3,10 +3,9 @@ package ru.multa.entia.conversion.impl.content;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.javatuples.Pair;
+import ru.multa.entia.conversion.api.SimpleFactory;
 import ru.multa.entia.conversion.api.content.Content;
-import ru.multa.entia.conversion.api.content.ContentFactory;
 import ru.multa.entia.conversion.api.type.Type;
-import ru.multa.entia.conversion.api.type.TypeFactory;
 import ru.multa.entia.conversion.api.value.Value;
 import ru.multa.entia.conversion.impl.type.DefaultTypeFactory;
 import ru.multa.entia.results.api.result.Result;
@@ -17,11 +16,11 @@ import ru.multa.entia.results.impl.seed.DefaultSeedBuilder;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-public class DefaultContentFactory implements ContentFactory {
+public class DefaultContentFactory implements SimpleFactory<Content> {
     public static final String CODE__BAD_PARENT = "conversation.factory.content.bad-parent";
     public static final String CODE__BAD_SERIALIZATION = "conversation.factory.content.bad-serialization";
 
-    private final TypeFactory<Object> typeFactory = new DefaultTypeFactory();
+    private final SimpleFactory<Type> typeFactory = new DefaultTypeFactory();
 
     @Override
     public Result<Content> create(final Object instance, final Object... args) {

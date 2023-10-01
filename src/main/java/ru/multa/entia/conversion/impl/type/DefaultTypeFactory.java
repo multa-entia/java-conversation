@@ -1,11 +1,11 @@
 package ru.multa.entia.conversion.impl.type;
 
+import ru.multa.entia.conversion.api.SimpleFactory;
 import ru.multa.entia.conversion.api.type.Type;
-import ru.multa.entia.conversion.api.type.TypeFactory;
 import ru.multa.entia.results.api.result.Result;
 import ru.multa.entia.results.impl.result.DefaultResultBuilder;
 
-public class DefaultTypeFactory implements TypeFactory<Object> {
+public class DefaultTypeFactory implements SimpleFactory<Type> {
     public static final String CODE = "conversation.factory.type.instance-is-null";
 
     @Override
