@@ -26,10 +26,9 @@ public class DefaultMessageFactory implements MessageFactory {
         Boolean isRequest = isRequestGetter.apply(args);
         Result<Content> result = contentFactory.create(instance, args);
 
-        // TODO: 01.10.2023 me-9
         return result.ok()
                 ? DefaultResultBuilder.<Message>ok(new DefaultMessage(id, isRequest, result.value()))
-                : DefaultResultBuilder.<Message>fail(result.seed().code(), result.seed().args());
+                : DefaultResultBuilder.<Message>fail(result.seed());
     }
 
     public static class IsRequestGetter implements Function<Object[], Boolean>{

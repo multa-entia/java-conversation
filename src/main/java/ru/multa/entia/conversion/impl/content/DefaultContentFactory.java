@@ -31,10 +31,9 @@ public class DefaultContentFactory implements ContentFactory {
         Pair<Seed, String> serializeResult = serialize(seed, instance);
 
         seed = serializeResult.getValue0();
-        // TODO: 01.10.2023 me-9
         return seed == null
                 ? DefaultResultBuilder.<Content>ok(new DefaultContent(result.value(), serializeResult.getValue1()))
-                : DefaultResultBuilder.<Content>fail(seed.code(), seed.args());
+                : DefaultResultBuilder.<Content>fail(seed);
     }
 
     private Seed checkParent(final Seed seed, final Object instance) {

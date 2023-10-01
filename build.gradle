@@ -24,7 +24,7 @@ ext {
     set('javaTuplesVersion', '1.2')
 
     set('javaFakersVersion', '0.1')
-    set('javaResultsVersion', '0.1')
+    set('javaResultsVersion', '0.2')
 }
 
 dependencies {
