@@ -11,11 +11,12 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class DefaultMessageTest {
+// TODO: 01.10.2023 rename
+class DefaultMessageTestOld {
 
     @Test
     void shouldCheckIdGetting_ifNull() {
-        DefaultMessage message = new DefaultMessage(null, false, null);
+        DefaultMessageOld message = new DefaultMessageOld(null, false, null);
 
         assertThat(message.id()).isNull();
     }
@@ -23,28 +24,28 @@ class DefaultMessageTest {
     @Test
     void shouldCheckIdGetting() {
         UUID expectedId = Faker.uuid_().random();
-        DefaultMessage message = new DefaultMessage(expectedId, false, null);
+        DefaultMessageOld message = new DefaultMessageOld(expectedId, false, null);
 
         assertThat(message.id()).isEqualTo(expectedId);
     }
 
     @Test
     void shouldCheckIsRequestGetting_ifFalse() {
-        DefaultMessage message = new DefaultMessage(null, false, null);
+        DefaultMessageOld message = new DefaultMessageOld(null, false, null);
 
         assertThat(message.isRequest()).isFalse();
     }
 
     @Test
     void shouldCheckIsRequestGetting() {
-        DefaultMessage message = new DefaultMessage(null, true, null);
+        DefaultMessageOld message = new DefaultMessageOld(null, true, null);
 
         assertThat(message.isRequest()).isTrue();
     }
 
     @Test
     void shouldCheckContentGetting_iNull() {
-        DefaultMessage message = new DefaultMessage(null, false, null);
+        DefaultMessageOld message = new DefaultMessageOld(null, false, null);
 
         assertThat(message.content()).isNull();
     }
@@ -52,7 +53,7 @@ class DefaultMessageTest {
     @Test
     void shouldCheckContentGetting() {
         TestContent expectedContent = new TestContent(Faker.str_().random());
-        DefaultMessage message = new DefaultMessage(null, false, expectedContent);
+        DefaultMessageOld message = new DefaultMessageOld(null, false, expectedContent);
 
         assertThat(message.content()).isEqualTo(expectedContent);
     }

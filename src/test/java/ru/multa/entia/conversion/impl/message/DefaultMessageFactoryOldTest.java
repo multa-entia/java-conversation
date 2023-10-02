@@ -5,7 +5,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import ru.multa.entia.conversion.api.content.Content;
-import ru.multa.entia.conversion.api.message.Message;
+import ru.multa.entia.conversion.api.message.MessageOld;
 import ru.multa.entia.conversion.api.value.Value;
 import ru.multa.entia.conversion.impl.content.DefaultContentFactory;
 import ru.multa.entia.conversion.impl.type.DefaultTypeFactory;
@@ -15,26 +15,27 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class DefaultMessageFactoryTest {
+// TODO: 01.10.2023 rename
+class DefaultMessageFactoryOldTest {
 
     @Test
     void shouldCheckIdGetting_ifArgsNull() {
-        UUID result = new DefaultMessageFactory.IdGetter().apply(null);
+        UUID result = new DefaultMessageFactoryOld.IdGetter().apply(null);
 
         assertThat(result).isNotNull();
     }
 
     @Test
     void shouldCheckIdGetting_ifArgsDoesNotContainKey() {
-        UUID result = new DefaultMessageFactory.IdGetter().apply(new Object[0]);
+        UUID result = new DefaultMessageFactoryOld.IdGetter().apply(new Object[0]);
 
         assertThat(result).isNotNull();
     }
 
     @Test
     void shouldCheckIdGetting_ifArgsDoesNotContainValue() {
-        Object[] args = new Object[]{DefaultMessageFactory.KEY__ID};
-        UUID result = new DefaultMessageFactory.IdGetter().apply(args);
+        Object[] args = new Object[]{DefaultMessageFactoryOld.KEY__ID};
+        UUID result = new DefaultMessageFactoryOld.IdGetter().apply(args);
 
         assertThat(result).isNotNull();
     }
@@ -42,46 +43,46 @@ class DefaultMessageFactoryTest {
     @Test
     void shouldCheckIdGetting() {
         UUID expectedId = UUID.randomUUID();
-        Object[] args = new Object[]{DefaultMessageFactory.KEY__ID, expectedId};
-        UUID result = new DefaultMessageFactory.IdGetter().apply(args);
+        Object[] args = new Object[]{DefaultMessageFactoryOld.KEY__ID, expectedId};
+        UUID result = new DefaultMessageFactoryOld.IdGetter().apply(args);
 
         assertThat(result).isEqualTo(expectedId);
     }
 
     @Test
     void shouldCheckIsRequestGetting_ifArgsNull() {
-        Boolean result = new DefaultMessageFactory.IsRequestGetter().apply(null);
+        Boolean result = new DefaultMessageFactoryOld.IsRequestGetter().apply(null);
 
-        assertThat(result).isEqualTo(DefaultMessageFactory.DEFAULT_IS_REQUEST);
+        assertThat(result).isEqualTo(DefaultMessageFactoryOld.DEFAULT_IS_REQUEST);
     }
 
     @Test
     void shouldCheckIsRequestGetting_ifArgsDoesNotContainKey() {
-        Boolean result = new DefaultMessageFactory.IsRequestGetter().apply(new Object[0]);
+        Boolean result = new DefaultMessageFactoryOld.IsRequestGetter().apply(new Object[0]);
 
-        assertThat(result).isEqualTo(DefaultMessageFactory.DEFAULT_IS_REQUEST);
+        assertThat(result).isEqualTo(DefaultMessageFactoryOld.DEFAULT_IS_REQUEST);
     }
 
     @Test
     void shouldCheckIsRequestGetting_ifArgsDoesNotContainValue() {
-        Object[] args = {DefaultMessageFactory.KEY__IS_REQUEST};
-        Boolean result = new DefaultMessageFactory.IsRequestGetter().apply(args);
+        Object[] args = {DefaultMessageFactoryOld.KEY__IS_REQUEST};
+        Boolean result = new DefaultMessageFactoryOld.IsRequestGetter().apply(args);
 
-        assertThat(result).isEqualTo(DefaultMessageFactory.DEFAULT_IS_REQUEST);
+        assertThat(result).isEqualTo(DefaultMessageFactoryOld.DEFAULT_IS_REQUEST);
     }
 
     @ParameterizedTest
     @ValueSource(booleans = {false, true})
     void shouldCheckIsRequestGetting(boolean expected) {
-        Object[] args = new Object[]{DefaultMessageFactory.KEY__IS_REQUEST, expected};
-        Boolean result = new DefaultMessageFactory.IsRequestGetter().apply(args);
+        Object[] args = new Object[]{DefaultMessageFactoryOld.KEY__IS_REQUEST, expected};
+        Boolean result = new DefaultMessageFactoryOld.IsRequestGetter().apply(args);
 
         assertThat(result).isEqualTo(expected);
     }
 
     @Test
     void shouldCheckCreation_ifInstanceIsNull() {
-        Result<Message> result = new DefaultMessageFactory().create(null);
+        Result<MessageOld> result = new DefaultMessageFactoryOld().create(null);
 
         assertThat(result.ok()).isFalse();
         assertThat(result.value()).isNull();
@@ -91,7 +92,7 @@ class DefaultMessageFactoryTest {
 
     @Test
     void shouldCheckCreation_ifInstanceIsNotChildOfValue() {
-        Result<Message> result = new DefaultMessageFactory().create(new BadParentTestValue());
+        Result<MessageOld> result = new DefaultMessageFactoryOld().create(new BadParentTestValue());
 
         assertThat(result.ok()).isFalse();
         assertThat(result.value()).isNull();
@@ -101,7 +102,7 @@ class DefaultMessageFactoryTest {
 
     @Test
     void shouldCheckCreation_ifSerializationError() {
-        Result<Message> result = new DefaultMessageFactory().create(new BadAccessTestValue());
+        Result<MessageOld> result = new DefaultMessageFactoryOld().create(new BadAccessTestValue());
 
         assertThat(result.ok()).isFalse();
         assertThat(result.value()).isNull();
@@ -119,15 +120,15 @@ class DefaultMessageFactoryTest {
         TestValue expectedValue = new TestValue(testValue);
         String expectedContentValue = String.format("{\"x\":%s}", testValue);
 
-        Result<Message> result = new DefaultMessageFactory().create(
+        Result<MessageOld> result = new DefaultMessageFactoryOld().create(
                 expectedValue,
-                DefaultMessageFactory.KEY__ID, expectedId,
-                DefaultMessageFactory.KEY__IS_REQUEST, isRequest
+                DefaultMessageFactoryOld.KEY__ID, expectedId,
+                DefaultMessageFactoryOld.KEY__IS_REQUEST, isRequest
         );
 
         assertThat(result.ok()).isTrue();
 
-        Message message = result.value();
+        MessageOld message = result.value();
         assertThat(message.id()).isEqualTo(expectedId);
         assertThat(message.isRequest()).isEqualTo(isRequest);
 

@@ -2,7 +2,7 @@ package ru.multa.entia.conversion.impl.message;
 
 import ru.multa.entia.conversion.api.SimpleFactory;
 import ru.multa.entia.conversion.api.content.Content;
-import ru.multa.entia.conversion.api.message.Message;
+import ru.multa.entia.conversion.api.message.MessageOld;
 import ru.multa.entia.conversion.impl.content.DefaultContentFactory;
 import ru.multa.entia.results.api.result.Result;
 import ru.multa.entia.results.impl.result.DefaultResultBuilder;
@@ -10,7 +10,8 @@ import ru.multa.entia.results.impl.result.DefaultResultBuilder;
 import java.util.UUID;
 import java.util.function.Function;
 
-public class DefaultMessageFactory implements SimpleFactory<Message> {
+// TODO: 01.10.2023 rename
+public class DefaultMessageFactoryOld implements SimpleFactory<MessageOld> {
     public static final String KEY__IS_REQUEST = "default-message-factory-is-request";
     public static final String KEY__ID = "default-message-factory-id";
     public static final boolean DEFAULT_IS_REQUEST = true;
@@ -20,14 +21,14 @@ public class DefaultMessageFactory implements SimpleFactory<Message> {
     private final SimpleFactory<Content> contentFactory = new DefaultContentFactory();
 
     @Override
-    public Result<Message> create(Object instance, Object... args) {
+    public Result<MessageOld> create(Object instance, Object... args) {
         UUID id = idGetter.apply(args);
         Boolean isRequest = isRequestGetter.apply(args);
         Result<Content> result = contentFactory.create(instance, args);
 
         return result.ok()
-                ? DefaultResultBuilder.<Message>ok(new DefaultMessage(id, isRequest, result.value()))
-                : DefaultResultBuilder.<Message>fail(result.seed());
+                ? DefaultResultBuilder.<MessageOld>ok(new DefaultMessageOld(id, isRequest, result.value()))
+                : DefaultResultBuilder.<MessageOld>fail(result.seed());
     }
 
     public static class IsRequestGetter implements Function<Object[], Boolean>{
