@@ -5,7 +5,7 @@ import ru.multa.entia.conversion.api.address.Address;
 import ru.multa.entia.results.api.result.Result;
 import ru.multa.entia.results.impl.result.DefaultResultBuilder;
 
-public class DefaultAddressFactory implements SimpleFactory<Address> {
+public class DefaultAddressFactory implements SimpleFactory<Object, Address> {
     public static final String CODE__IS_NULL = "conversation.factory.address.instance-is-null";
     public static final String CODE__IS_NOT_STRING = "conversation.factory.address.instance-is-not-string";
     public static final String CODE__IS_BLANK = "conversation.factory.address.instance-is-empty";

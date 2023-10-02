@@ -11,14 +11,14 @@ import java.util.UUID;
 import java.util.function.Function;
 
 // TODO: 01.10.2023 rename
-public class DefaultMessageFactoryOld implements SimpleFactory<MessageOld> {
-    public static final String KEY__IS_REQUEST = "default-message-factory-is-request";
-    public static final String KEY__ID = "default-message-factory-id";
+public class DefaultMessageFactoryOld implements SimpleFactory<Object, MessageOld> {
+    public static final String KEY__IS_REQUEST = "default-message-factory.is-request";
+    public static final String KEY__ID = "default-message-factory.id";
     public static final boolean DEFAULT_IS_REQUEST = true;
 
     private final Function<Object[], Boolean> isRequestGetter = new IsRequestGetter();
     private final Function<Object[], UUID> idGetter = new IdGetter();
-    private final SimpleFactory<Content> contentFactory = new DefaultContentFactory();
+    private final SimpleFactory<Object, Content> contentFactory = new DefaultContentFactory();
 
     @Override
     public Result<MessageOld> create(Object instance, Object... args) {

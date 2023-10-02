@@ -16,11 +16,11 @@ import ru.multa.entia.results.impl.seed.DefaultSeedBuilder;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-public class DefaultContentFactory implements SimpleFactory<Content> {
+public class DefaultContentFactory implements SimpleFactory<Object, Content> {
     public static final String CODE__BAD_PARENT = "conversation.factory.content.bad-parent";
     public static final String CODE__BAD_SERIALIZATION = "conversation.factory.content.bad-serialization";
 
-    private final SimpleFactory<Type> typeFactory = new DefaultTypeFactory();
+    private final SimpleFactory<Object, Type> typeFactory = new DefaultTypeFactory();
 
     @Override
     public Result<Content> create(final Object instance, final Object... args) {

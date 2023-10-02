@@ -5,7 +5,7 @@ import ru.multa.entia.conversion.api.type.Type;
 import ru.multa.entia.results.api.result.Result;
 import ru.multa.entia.results.impl.result.DefaultResultBuilder;
 
-public class DefaultTypeFactory implements SimpleFactory<Type> {
+public class DefaultTypeFactory implements SimpleFactory<Object, Type> {
     public static final String CODE = "conversation.factory.type.instance-is-null";
 
     @Override
