@@ -76,4 +76,39 @@ class DefaultConfirmationFactoryTest {
 
         assertThat(code).isEqualTo(expectedCode);
     }
+
+    @Test
+    void shouldCheckArgsGetter_ifArgsNull() {
+        Object[] args = new DefaultConfirmationFactory.ArgsGetter().apply(null);
+
+        assertThat(args).isEmpty();
+    }
+
+    @Test
+    void shouldCheckArgsGetter_ifKeyIsAbsence() {
+        Object[] args = new DefaultConfirmationFactory.ArgsGetter().apply(new Object[0]);
+
+        assertThat(args).isEmpty();
+    }
+
+    @Test
+    void shouldCheckArgsGetter_ifValueIsAbsence() {
+        Object[] inputArgs = {null, DefaultConfirmationFactory.KEY__ARGS};
+        Object[] args = new DefaultConfirmationFactory.ArgsGetter().apply(inputArgs);
+
+        assertThat(args).isEmpty();
+    }
+
+    @Test
+    void shouldCheckArgsGetter() {
+        String arg0 = Faker.str_().random();
+        String arg1 = Faker.str_().random();
+        String arg2 = Faker.str_().random();
+        Object[] expectedArgs = {arg0, arg1, arg2};
+
+        Object[] inputArgs = {null, DefaultConfirmationFactory.KEY__ARGS, arg0, arg1, arg2};
+        Object[] args = new DefaultConfirmationFactory.ArgsGetter().apply(inputArgs);
+
+        assertThat(args).isEqualTo(expectedArgs);
+    }
 }

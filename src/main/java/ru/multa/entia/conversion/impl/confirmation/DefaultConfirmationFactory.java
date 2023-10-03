@@ -6,6 +6,7 @@ import ru.multa.entia.conversion.api.message.Message;
 import ru.multa.entia.results.api.result.Result;
 
 import java.lang.reflect.Type;
+import java.util.Arrays;
 import java.util.function.Function;
 
 public class DefaultConfirmationFactory implements SimpleFactory<Message, Confirmation> {
@@ -62,7 +63,23 @@ public class DefaultConfirmationFactory implements SimpleFactory<Message, Confir
     public static class ArgsGetter implements Function<Object[], Object[]>{
         @Override
         public Object[] apply(final Object[] args) {
-            throw new RuntimeException("");
+
+            if (args != null){
+                int start = -1;
+                int length = args.length;
+                for (int i = 0; i < length; i++) {
+                    if (KEY__ARGS.equals(args[i])){
+                        start = i + 1;
+                        break;
+                    }
+                }
+
+                if (start != -1 && start < length){
+                    return Arrays.copyOfRange(args, start, length);
+                }
+            }
+
+            return new Object[0];
         }
     }
 }
