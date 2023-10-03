@@ -22,7 +22,7 @@ public class DefaultConfirmationFactory implements SimpleFactory<Message, Confir
         String decorate(String value);
     }
 
-    public static class DefaultFromDecoratorGetter implements Function<Object[], Decorator> {
+    public static class FromDecoratorGetter implements Function<Object[], Decorator> {
         @Override
         public Decorator apply(final Object[] args) {
             if (args != null){
@@ -43,14 +43,23 @@ public class DefaultConfirmationFactory implements SimpleFactory<Message, Confir
         }
     }
 
-    public static class DefaultCodeGetter implements Function<Object[], String> {
+    public static class CodeGetter implements Function<Object[], String> {
         @Override
         public String apply(final Object[] args) {
-            throw new RuntimeException("");
+            if (args != null){
+                int length = args.length;
+                for (int i = 0; i < length; i++) {
+                    if (KEY__CODE.equals(args[i]) && i+1 < length && args[i+1].getClass().equals(String.class)){
+                        return (String) args[i+1];
+                    }
+                }
+            }
+
+            return null;
         }
     }
 
-    public static class DefaultArgsGetter implements Function<Object[], Object[]>{
+    public static class ArgsGetter implements Function<Object[], Object[]>{
         @Override
         public Object[] apply(final Object[] args) {
             throw new RuntimeException("");
