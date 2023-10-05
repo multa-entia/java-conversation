@@ -30,14 +30,6 @@ public class DefaultMessageFactory implements SimpleFactory<Content, Message> {
     }
 
     // TODO: 05.10.2023 del
-//    public static class IdGetter implements Function<Object[], UUID> {
-//        @Override
-//        public UUID apply(final Object[] args) {
-//            throw new RuntimeException("");
-//        }
-//    }
-//
-//
 //    public static class ConversationGetter implements Function<Object[], UUID>{
 //        @Override
 //        public UUID apply(final Object[] args) {
