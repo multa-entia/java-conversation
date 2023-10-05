@@ -17,9 +17,11 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 public class DefaultContentFactory implements SimpleFactory<Object, Content> {
+    // TODO: 05.10.2023 use enum
     public static final String CODE__BAD_PARENT = "conversation.factory.content.bad-parent";
     public static final String CODE__BAD_SERIALIZATION = "conversation.factory.content.bad-serialization";
 
+    // TODO: 05.10.2023 through ctor
     private final SimpleFactory<Object, Type> typeFactory = new DefaultTypeFactory();
 
     @Override

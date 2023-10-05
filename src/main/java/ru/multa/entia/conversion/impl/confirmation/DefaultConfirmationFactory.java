@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.function.Function;
 
 public class DefaultConfirmationFactory implements SimpleFactory<Message, Confirmation> {
+    // TODO: 05.10.2023 use enum
     public static final String KEY__FROM_DECORATOR = "default-confirmation-factory.from-decorator";
     public static final String KEY__CODE = "default-confirmation-factory.code";
     public static final String KEY__ARGS = "default-confirmation-factory.args";
@@ -76,10 +77,12 @@ public class DefaultConfirmationFactory implements SimpleFactory<Message, Confir
         );
     }
 
+    // TODO: 05.10.2023 move to sep file
     public interface Decorator {
         Address decorate(Address value);
     }
 
+    // TODO: 05.10.2023 move to sep file
     public static class FromDecoratorGetter implements Function<Object[], Decorator> {
         @Override
         public Decorator apply(final Object[] args) {
@@ -101,6 +104,7 @@ public class DefaultConfirmationFactory implements SimpleFactory<Message, Confir
         }
     }
 
+    // TODO: 05.10.2023 move to sep file
     public static class CodeGetter implements Function<Object[], String> {
         @Override
         public String apply(final Object[] args) {
@@ -117,6 +121,7 @@ public class DefaultConfirmationFactory implements SimpleFactory<Message, Confir
         }
     }
 
+    // TODO: 05.10.2023 move to sep file
     public static class ArgsGetter implements Function<Object[], Object[]>{
         @Override
         public Object[] apply(final Object[] args) {
