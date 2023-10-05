@@ -65,6 +65,4 @@ public class DefaultMessageFactory implements SimpleFactory<Content, Message> {
 //            throw new RuntimeException("");
 //        }
 //    }
-
-//    content-checker ret result
 }

@@ -10,7 +10,7 @@ class DefaultContentChecker implements Function<Content, Result<Content>> {
     public static final String CODE = "message.factory.content-checker.content-is-null";
 
     @Override
-    public Result<Content> apply(Content content) {
+    public Result<Content> apply(final Content content) {
         return content != null
                 ? DefaultResultBuilder.<Content>ok(content)
                 : DefaultResultBuilder.<Content>fail(CODE);
