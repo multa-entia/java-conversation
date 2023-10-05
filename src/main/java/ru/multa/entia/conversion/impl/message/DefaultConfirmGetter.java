@@ -6,27 +6,27 @@ import ru.multa.entia.results.impl.result.DefaultResultBuilder;
 import java.util.UUID;
 import java.util.function.Function;
 
-class DefaultIdGetter implements Function<Object[], Result<UUID>> {
+class DefaultConfirmGetter implements Function<Object[], Result<Boolean>> {
 
     @Override
-    public Result<UUID> apply(final Object[] args) {
+    public Result<Boolean> apply(Object[] args) {
         if (args != null){
             int length = args.length;
             for (int i = 0; i < length; i++) {
                 if (checkKeyArg(args[i]) && checkValueArg(i, args)){
-                    return DefaultResultBuilder.<UUID>ok((UUID) args[i+1]);
+                    return DefaultResultBuilder.<Boolean>ok((Boolean) args[i+1]);
                 }
             }
         }
 
-        return DefaultResultBuilder.<UUID>ok(UUID.randomUUID());
+        return DefaultResultBuilder.<Boolean>ok(false);
     }
 
     private boolean checkKeyArg(final Object arg){
-        return DefaultMessageFactory.Keys.ID.equals(arg);
+        return DefaultMessageFactory.Keys.CONFIRM.equals(arg);
     }
 
     private boolean checkValueArg(final int idx, final Object[] args){
-        return idx+1 < args.length && args[idx+1] != null && args[idx+1].getClass().equals(UUID.class);
+        return idx+1 < args.length && args[idx+1] != null && args[idx+1].getClass().equals(Boolean.class);
     }
 }

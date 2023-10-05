@@ -7,7 +7,6 @@ import java.util.UUID;
 import java.util.function.Function;
 
 class DefaultConversationGetter implements Function<Object[], Result<UUID>> {
-    public static final String KEY = "conversation";
 
     @Override
     public Result<UUID> apply(final Object[] args) {
@@ -24,7 +23,7 @@ class DefaultConversationGetter implements Function<Object[], Result<UUID>> {
     }
 
     private boolean checkKeyArg(final Object arg){
-        return KEY.equals(arg);
+        return DefaultMessageFactory.Keys.CONVERSATION.equals(arg);
     }
 
     private boolean checkValueArg(final int idx, final Object[] args){

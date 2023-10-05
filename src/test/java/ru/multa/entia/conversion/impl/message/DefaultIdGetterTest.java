@@ -32,7 +32,7 @@ class DefaultIdGetterTest {
     void shouldCheckGetting_ifArgsDoesNotContainValue() {
         Object[] args = {
                 null,
-                DefaultIdGetter.KEY
+                DefaultMessageFactory.Keys.ID
         };
         Result<UUID> result = new DefaultIdGetter().apply(args);
 
@@ -45,7 +45,7 @@ class DefaultIdGetterTest {
     void shouldCheckGetting_ifArgsContainsBadValue() {
         Object[] args = {
                 null,
-                DefaultIdGetter.KEY,
+                DefaultMessageFactory.Keys.ID,
                 Faker.str_().random()
         };
         Result<UUID> result = new DefaultIdGetter().apply(args);
@@ -60,7 +60,7 @@ class DefaultIdGetterTest {
         UUID expectedId = Faker.uuid_().random();
         Object[] args = {
                 null,
-                DefaultIdGetter.KEY,
+                DefaultMessageFactory.Keys.ID,
                 expectedId
         };
         Result<UUID> result = new DefaultIdGetter().apply(args);
