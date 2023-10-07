@@ -9,14 +9,14 @@ import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class DefaultGetterTest {
+class DefaultValueGetterTest {
     private static final UUID DEFAULT_VALUE = Faker.uuid_().random();
     private static final DefaultMessageFactory.Keys KEY = DefaultMessageFactory.Keys.ID;
-    private static final Supplier<UUID> DEFAUT_SUPPLIER = () -> {return DEFAULT_VALUE;};
+    private static final Supplier<UUID> DEFAULT_SUPPLIER = () -> {return DEFAULT_VALUE;};
 
     @Test
     void shouldCheckGetting_ifArgsIsNull() {
-        Result<UUID> result = new DefaultGetter<UUID>(KEY, DEFAUT_SUPPLIER).apply(null);
+        Result<UUID> result = new DefaultValueGetter<UUID>(KEY, DEFAULT_SUPPLIER).apply(null);
 
         assertThat(result.ok()).isTrue();
         assertThat(result.value()).isEqualTo(DEFAULT_VALUE);
@@ -25,7 +25,7 @@ class DefaultGetterTest {
 
     @Test
     void shouldCheckGetting_ifArgsDoesNotContainKey() {
-        Result<UUID> result = new DefaultGetter<UUID>(KEY, DEFAUT_SUPPLIER).apply(new Object[0]);
+        Result<UUID> result = new DefaultValueGetter<UUID>(KEY, DEFAULT_SUPPLIER).apply(new Object[0]);
 
         assertThat(result.ok()).isTrue();
         assertThat(result.value()).isEqualTo(DEFAULT_VALUE);
@@ -38,7 +38,7 @@ class DefaultGetterTest {
                 null,
                 KEY
         };
-        Result<UUID> result = new DefaultGetter<UUID>(KEY, DEFAUT_SUPPLIER).apply(args);
+        Result<UUID> result = new DefaultValueGetter<UUID>(KEY, DEFAULT_SUPPLIER).apply(args);
 
         assertThat(result.ok()).isTrue();
         assertThat(result.value()).isEqualTo(DEFAULT_VALUE);
@@ -52,7 +52,7 @@ class DefaultGetterTest {
                 KEY,
                 Faker.str_().random()
         };
-        Result<UUID> result = new DefaultGetter<UUID>(KEY, DEFAUT_SUPPLIER).apply(args);
+        Result<UUID> result = new DefaultValueGetter<UUID>(KEY, DEFAULT_SUPPLIER).apply(args);
 
         assertThat(result.ok()).isTrue();
         assertThat(result.value()).isEqualTo(DEFAULT_VALUE);
@@ -67,7 +67,7 @@ class DefaultGetterTest {
                 KEY,
                 expected
         };
-        Result<UUID> result = new DefaultGetter<UUID>(KEY, DEFAUT_SUPPLIER).apply(args);
+        Result<UUID> result = new DefaultValueGetter<UUID>(KEY, DEFAULT_SUPPLIER).apply(args);
 
         assertThat(result.ok()).isTrue();
         assertThat(result.value()).isEqualTo(expected);
