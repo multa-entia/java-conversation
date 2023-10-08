@@ -1,13 +1,12 @@
 package ru.multa.entia.conversion.impl.address;
 
 import ru.multa.entia.conversion.api.address.Address;
+import ru.multa.entia.conversion.api.address.AddressCreator;
 
-import java.util.function.Function;
-
-class DefaultAddressCreator implements Function<String, Address> {
+class DefaultAddressCreator implements AddressCreator {
 
     @Override
-    public Address apply(final String value) {
+    public Address create(String value) {
         return new DefaultAddress(value);
     }
 }

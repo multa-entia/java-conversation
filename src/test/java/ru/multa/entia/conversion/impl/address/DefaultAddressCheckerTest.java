@@ -6,44 +6,44 @@ import ru.multa.entia.results.api.seed.Seed;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class DefaultAddressValueCheckerTest {
+class DefaultAddressCheckerTest {
 
     @Test
     void shouldCheckDefaultAddressValueChecker_ifInstanceIsNull() {
-        Seed seed = new DefaultAddressValueChecker().apply(null);
+        Seed seed = new DefaultAddressChecker().apply(null);
 
-        assertThat(seed.code()).isEqualTo(DefaultAddressValueChecker.Code.INSTANCE_IS_NULL.getValue());
+        assertThat(seed.code()).isEqualTo(DefaultAddressChecker.Code.INSTANCE_IS_NULL.getValue());
         assertThat(seed.args()).isEmpty();
     }
 
     @Test
     void shouldCheckDefaultAddressValueChecker_ifInstanceIsNotString() {
-        Seed seed = new DefaultAddressValueChecker().apply(Faker.int_().random());
+        Seed seed = new DefaultAddressChecker().apply(Faker.int_().random());
 
-        assertThat(seed.code()).isEqualTo(DefaultAddressValueChecker.Code.INSTANCE_IS_NOT_STR.getValue());
+        assertThat(seed.code()).isEqualTo(DefaultAddressChecker.Code.INSTANCE_IS_NOT_STR.getValue());
         assertThat(seed.args()).isEmpty();
     }
 
     @Test
     void shouldCheckDefaultAddressValueChecker_ifInstanceIsEmpty() {
-        Seed seed = new DefaultAddressValueChecker().apply("");
+        Seed seed = new DefaultAddressChecker().apply("");
 
-        assertThat(seed.code()).isEqualTo(DefaultAddressValueChecker.Code.INSTANCE_IS_BLANK.getValue());
+        assertThat(seed.code()).isEqualTo(DefaultAddressChecker.Code.INSTANCE_IS_BLANK.getValue());
         assertThat(seed.args()).isEmpty();
     }
 
     @Test
     void shouldCheckDefaultAddressValueChecker_ifInstanceIsBlank() {
-        Seed seed = new DefaultAddressValueChecker().apply("  ");
+        Seed seed = new DefaultAddressChecker().apply("  ");
 
-        assertThat(seed.code()).isEqualTo(DefaultAddressValueChecker.Code.INSTANCE_IS_BLANK.getValue());
+        assertThat(seed.code()).isEqualTo(DefaultAddressChecker.Code.INSTANCE_IS_BLANK.getValue());
         assertThat(seed.args()).isEmpty();
     }
 
     @Test
     void shouldCheckDefaultAddressValueChecker() {
         String expectedValue = Faker.str_().random(5, 10);
-        Seed seed = new DefaultAddressValueChecker().apply(expectedValue);
+        Seed seed = new DefaultAddressChecker().apply(expectedValue);
 
         assertThat(seed).isNull();
     }

@@ -7,7 +7,7 @@ import ru.multa.entia.results.impl.seed.DefaultSeedBuilder;
 
 import java.util.function.Function;
 
-class DefaultAddressValueChecker implements Function<Object, Seed> {
+class DefaultAddressChecker implements Function<Object, Seed> {
     @RequiredArgsConstructor
     @Getter
     public enum Code{

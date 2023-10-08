@@ -3,6 +3,7 @@ package ru.multa.entia.conversion.impl.address;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import ru.multa.entia.conversion.api.address.Address;
+import ru.multa.entia.conversion.api.address.AddressCreator;
 import ru.multa.entia.fakers.impl.Faker;
 import ru.multa.entia.results.api.result.Result;
 import ru.multa.entia.results.api.seed.Seed;
@@ -31,7 +32,7 @@ class DefaultAddressFactoryTest {
     void shouldCheckCreation_checkerSuccess() {
         String expectedValue = Faker.str_().random();
         Function<Object, Seed> checker =  object -> {return null;};
-        Function<String, Address> creator = DefaultAddressFactoryTest::createAddress;
+        AddressCreator creator = DefaultAddressFactoryTest::createAddress;
 
         Result<Address> result = new DefaultAddressFactory(checker, creator).create(expectedValue);
 
