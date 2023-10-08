@@ -1,6 +1,8 @@
-package ru.multa.entia.conversion.impl.message;
+package ru.multa.entia.conversion.impl.getter;
 
 import org.junit.jupiter.api.Test;
+import ru.multa.entia.conversion.impl.getter.DefaultValueGetter;
+import ru.multa.entia.conversion.impl.message.DefaultMessageFactory;
 import ru.multa.entia.fakers.impl.Faker;
 import ru.multa.entia.results.api.result.Result;
 

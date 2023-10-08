@@ -28,19 +28,4 @@ public class DefaultMessageFactory implements SimpleFactory<Content, Message> {
     public Result<Message> create(final Content instance, final Object... args) {
         return null;
     }
-
-    // TODO: 05.10.2023 del
-//    public static class FromGetter implements Function<Object[], Address>{
-//        @Override
-//        public Address apply(final Object[] args) {
-//            throw new RuntimeException("");
-//        }
-//    }
-//
-//    public static class ToGetter implements Function<Object[], Address>{
-//        @Override
-//        public Address apply(final Object[] args) {
-//            throw new RuntimeException("");
-//        }
-//    }
 }

@@ -1,15 +1,15 @@
-package ru.multa.entia.conversion.impl.message;
+package ru.multa.entia.conversion.impl.getter;
 
 import lombok.RequiredArgsConstructor;
+import ru.multa.entia.conversion.impl.message.DefaultMessageFactory;
 import ru.multa.entia.results.api.result.Result;
 import ru.multa.entia.results.impl.result.DefaultResultBuilder;
 
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-// TODO: 07.10.2023 move to getter
 @RequiredArgsConstructor
-class DefaultValueGetter<T> implements Function<Object[], Result<T>> {
+public class DefaultValueGetter<T> implements Function<Object[], Result<T>> {
     private final DefaultMessageFactory.Keys key;
     private final Supplier<T> defaultSupplier;
 

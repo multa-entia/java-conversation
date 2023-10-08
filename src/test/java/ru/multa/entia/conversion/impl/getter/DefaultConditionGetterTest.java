@@ -1,8 +1,10 @@
-package ru.multa.entia.conversion.impl.message;
+package ru.multa.entia.conversion.impl.getter;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import ru.multa.entia.conversion.api.address.Address;
+import ru.multa.entia.conversion.impl.getter.DefaultConditionGetter;
+import ru.multa.entia.conversion.impl.message.DefaultMessageFactory;
 import ru.multa.entia.fakers.impl.Faker;
 import ru.multa.entia.results.api.result.Result;
 import ru.multa.entia.results.api.seed.Seed;
@@ -14,13 +16,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 class DefaultConditionGetterTest {
     private static final String CODE = Faker.str_().random(5, 10);
     private static final DefaultMessageFactory.Keys KEY = DefaultMessageFactory.Keys.ID;
-    private static final Function<Object, Seed> CHECKER = address -> {
+    private static final Function<Object, Seed> CONDITION = address -> {
         return address != null ? null : createSeed(CODE);
     };
 
     @Test
     void shouldCheckGetting_ifArgsIsNull() {
-        Result<Address> result = new DefaultConditionGetter<Address>(KEY, CHECKER).apply(null);
+        Result<Address> result = new DefaultConditionGetter<Address>(KEY, CONDITION).apply(null);
 
         assertThat(result.ok()).isFalse();
         assertThat(result.value()).isNull();
@@ -29,7 +31,7 @@ class DefaultConditionGetterTest {
 
     @Test
     void shouldCheckGetting_ifArgsDoesNotContainKey() {
-        Result<Address> result = new DefaultConditionGetter<Address>(KEY, CHECKER).apply(new Object[0]);
+        Result<Address> result = new DefaultConditionGetter<Address>(KEY, CONDITION).apply(new Object[0]);
 
         assertThat(result.ok()).isFalse();
         assertThat(result.value()).isNull();
@@ -42,7 +44,7 @@ class DefaultConditionGetterTest {
                 null,
                 KEY
         };
-        Result<Address> result = new DefaultConditionGetter<Address>(KEY, CHECKER).apply(args);
+        Result<Address> result = new DefaultConditionGetter<Address>(KEY, CONDITION).apply(args);
 
         assertThat(result.ok()).isFalse();
         assertThat(result.value()).isNull();
@@ -58,11 +60,11 @@ class DefaultConditionGetterTest {
         };
 
         String expectedCode = Faker.str_().random();
-        Function<Object, Seed> checker = address -> {
+        Function<Object, Seed> condition = address -> {
             return createSeed(expectedCode);
         };
 
-        Result<Address> result = new DefaultConditionGetter<Address>(KEY, checker).apply(args);
+        Result<Address> result = new DefaultConditionGetter<Address>(KEY, condition).apply(args);
 
         assertThat(result.ok()).isFalse();
         assertThat(result.value()).isNull();
@@ -77,11 +79,11 @@ class DefaultConditionGetterTest {
                 KEY,
                 createAddress(expectedValue)
         };
-        Function<Object, Seed> checker = address -> {
+        Function<Object, Seed> condition = address -> {
             return null;
         };
 
-        Result<Address> result = new DefaultConditionGetter<Address>(KEY, checker).apply(args);
+        Result<Address> result = new DefaultConditionGetter<Address>(KEY, condition).apply(args);
 
         assertThat(result.ok()).isTrue();
         assertThat(result.value().value()).isEqualTo(expectedValue);
