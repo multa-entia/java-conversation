@@ -10,7 +10,7 @@ import java.util.function.Supplier;
 
 @RequiredArgsConstructor
 public class DefaultValueGetter<T> implements Function<Object[], Result<T>> {
-    private final DefaultMessageFactory.Keys key;
+    private final DefaultMessageFactory.Key key;
     private final Supplier<T> defaultSupplier;
 
     @Override

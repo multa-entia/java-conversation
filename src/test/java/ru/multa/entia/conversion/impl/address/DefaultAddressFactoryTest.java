@@ -17,7 +17,7 @@ class DefaultAddressFactoryTest {
         assertThat(result.ok()).isFalse();
         assertThat(result.value()).isNull();
         Seed seed = result.seed();
-        assertThat(seed.code()).isEqualTo(DefaultAddressFactory.CODE__IS_NULL);
+        assertThat(seed.code()).isEqualTo(DefaultAddressFactory.Code.INSTANCE_IS_NULL.getValue());
         assertThat(seed.args()).isEmpty();
     }
 
@@ -28,7 +28,7 @@ class DefaultAddressFactoryTest {
         assertThat(result.ok()).isFalse();
         assertThat(result.value()).isNull();
         Seed seed = result.seed();
-        assertThat(seed.code()).isEqualTo(DefaultAddressFactory.CODE__IS_NOT_STRING);
+        assertThat(seed.code()).isEqualTo(DefaultAddressFactory.Code.INSTANCE_IS_NOT_STR.getValue());
         assertThat(seed.args()).isEmpty();
     }
 
@@ -39,7 +39,7 @@ class DefaultAddressFactoryTest {
         assertThat(result.ok()).isFalse();
         assertThat(result.value()).isNull();
         Seed seed = result.seed();
-        assertThat(seed.code()).isEqualTo(DefaultAddressFactory.CODE__IS_BLANK);
+        assertThat(seed.code()).isEqualTo(DefaultAddressFactory.Code.INSTANCE_IS_BLANK.getValue());
         assertThat(seed.args()).isEmpty();
     }
 

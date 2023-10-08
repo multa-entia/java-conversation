@@ -1,30 +1,36 @@
 package ru.multa.entia.conversion.impl.address;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import ru.multa.entia.conversion.api.SimpleFactory;
 import ru.multa.entia.conversion.api.address.Address;
 import ru.multa.entia.results.api.result.Result;
 import ru.multa.entia.results.impl.result.DefaultResultBuilder;
 
 public class DefaultAddressFactory implements SimpleFactory<Object, Address> {
-    // TODO: 05.10.2023 use enum
-    public static final String CODE__IS_NULL = "conversation.factory.address.instance-is-null";
-    public static final String CODE__IS_NOT_STRING = "conversation.factory.address.instance-is-not-string";
-    public static final String CODE__IS_BLANK = "conversation.factory.address.instance-is-empty";
+    @RequiredArgsConstructor
+    @Getter
+    public enum Code{
+        INSTANCE_IS_NULL("address.factory.default-address-factory.instance-is-null"),
+        INSTANCE_IS_NOT_STR("address.factory.default-address-factory.instance-is-not-str"),
+        INSTANCE_IS_BLANK("address.factory.default-address-factory.instance-is-blank");
 
+        private final String value;
+    }
 
     @Override
-    public Result<Address> create(Object instance, Object... args) {
+    public Result<Address> create(final Object instance, final Object... args) {
         String code = null;
         if (instance == null){
-            code = CODE__IS_NULL;
+            code = Code.INSTANCE_IS_NULL.getValue();
         } else if (!instance.getClass().equals(String.class)) {
-            code = CODE__IS_NOT_STRING;
+            code = Code.INSTANCE_IS_NOT_STR.getValue();
         } else if (((String) instance).isBlank()) {
-            code = CODE__IS_BLANK;
+            code = Code.INSTANCE_IS_BLANK.getValue();
         }
 
         return code == null
-                ? DefaultResultBuilder.<Address>ok(new DefaultAddress((String) instance))
+                ? DefaultResultBuilder.<Address>ok(new DefaultAddress(String.valueOf(instance)))
                 : DefaultResultBuilder.<Address>fail(code);
     }
 }

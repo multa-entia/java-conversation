@@ -10,7 +10,7 @@ import java.util.function.Function;
 
 @RequiredArgsConstructor
 public class DefaultConditionGetter<T> implements Function<Object[], Result<T>> {
-    private final DefaultMessageFactory.Keys key;
+    private final DefaultMessageFactory.Key key;
     private final Function<Object, Seed> condition;
 
     @Override

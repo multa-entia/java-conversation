@@ -1,7 +1,6 @@
 package ru.multa.entia.conversion.impl.getter;
 
 import org.junit.jupiter.api.Test;
-import ru.multa.entia.conversion.impl.getter.DefaultValueGetter;
 import ru.multa.entia.conversion.impl.message.DefaultMessageFactory;
 import ru.multa.entia.fakers.impl.Faker;
 import ru.multa.entia.results.api.result.Result;
@@ -13,7 +12,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class DefaultValueGetterTest {
     private static final UUID DEFAULT_VALUE = Faker.uuid_().random();
-    private static final DefaultMessageFactory.Keys KEY = DefaultMessageFactory.Keys.ID;
+    private static final DefaultMessageFactory.Key KEY = DefaultMessageFactory.Key.ID;
     private static final Supplier<UUID> DEFAULT_SUPPLIER = () -> {return DEFAULT_VALUE;};
 
     @Test

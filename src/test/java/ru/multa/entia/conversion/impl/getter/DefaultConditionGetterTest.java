@@ -3,7 +3,6 @@ package ru.multa.entia.conversion.impl.getter;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import ru.multa.entia.conversion.api.address.Address;
-import ru.multa.entia.conversion.impl.getter.DefaultConditionGetter;
 import ru.multa.entia.conversion.impl.message.DefaultMessageFactory;
 import ru.multa.entia.fakers.impl.Faker;
 import ru.multa.entia.results.api.result.Result;
@@ -15,7 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class DefaultConditionGetterTest {
     private static final String CODE = Faker.str_().random(5, 10);
-    private static final DefaultMessageFactory.Keys KEY = DefaultMessageFactory.Keys.ID;
+    private static final DefaultMessageFactory.Key KEY = DefaultMessageFactory.Key.ID;
     private static final Function<Object, Seed> CONDITION = address -> {
         return address != null ? null : createSeed(CODE);
     };
