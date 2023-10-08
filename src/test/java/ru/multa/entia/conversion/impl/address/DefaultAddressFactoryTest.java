@@ -12,40 +12,49 @@ import java.util.function.Function;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class DefaultAddressFactoryTest {
+    @Test
+    void shouldCheckCreation_checkerFail() {
+        String expectedCode = Faker.str_().random();
+        Function<Object, Seed> checker =  object -> {
+            return createSeed(expectedCode);
+        };
 
-//    @Test
-//    void shouldCheckCreation_ifCheckIsFail() {
-//        String expectedCode = Faker.str_().random(5, 10);
-//        Function<Object, Seed> checker = object -> {
-//            return createSeed(expectedCode);
-//        };
-//
-//        Result<Address> result = new DefaultAddressFactory(checker).create(null);
-//
-//        assertThat(result.ok()).isFalse();
-//        assertThat(result.value()).isNull();
-//        assertThat(result.seed().code()).isEqualTo(expectedCode);
-//        assertThat(result.seed().args()).isEmpty();
-//    }
-//
-//    @Test
-//    void shouldCheckCreation_ifCheckIsSuccess() {
-//        Function<Object, Seed> checker = object -> {return null;};
-//
-//        String expectedValue = Faker.str_().random();
-//        Result<Address> result = new DefaultAddressFactory(checker).create(expectedValue);
-//
-//        assertThat(result.ok()).isFalse();
-//        assertThat(result.value().value()).isEqualTo(expectedValue);
-//        assertThat(result.seed()).isNull();
-//    }
+        Result<Address> result = new DefaultAddressFactory(checker, null).create(null);
 
-    private Seed createSeed(final String code){
+        assertThat(result.ok()).isFalse();
+        assertThat(result.value()).isNull();
+        assertThat(result.seed().code()).isEqualTo(expectedCode);
+        assertThat(result.seed().args()).isEmpty();
+    }
+
+    @Test
+    void shouldCheckCreation_checkerSuccess() {
+        String expectedValue = Faker.str_().random();
+        Function<Object, Seed> checker =  object -> {return null;};
+        Function<String, Address> creator = DefaultAddressFactoryTest::createAddress;
+
+        Result<Address> result = new DefaultAddressFactory(checker, creator).create(expectedValue);
+
+        assertThat(result.ok()).isTrue();
+        assertThat(result.value().value()).isEqualTo(expectedValue);
+        assertThat(result.seed()).isNull();
+    }
+
+    private static Seed createSeed(final String code){
         Seed seed = Mockito.mock(Seed.class);
         Mockito
                 .when(seed.code())
                 .thenReturn(code);
 
         return seed;
+    }
+
+    private static Address createAddress(final String value){
+        Address address = Mockito.mock(Address.class);
+        Mockito
+                .when(address.value())
+                .thenReturn(value);
+
+        return address;
     }
 }

@@ -18,27 +18,14 @@ public class DefaultAddressFactory implements SimpleFactory<Object, Address> {
 
     public DefaultAddressFactory(Function<Object, Seed> checker, Function<String, Address> creator) {
         this.checker = checker == null ? new DefaultAddressValueChecker() : checker;
-        this.creator = creator;
+        this.creator = creator == null ? new DefaultAddressCreator() : creator;
     }
-
-    //    public DefaultAddressFactory() {
-//        this(new DefaultAddressValueChecker());
-//    }
-//
-//    public DefaultAddressFactory(Function<Object, Seed> checker) {
-//        this.checker = checker;
-//    }
 
     @Override
     public Result<Address> create(final Object instance, final Object... args) {
         Seed seed = checker.apply(instance);
-//        return seed == null
-//                ? DefaultResultBuilder.<Address>ok(new Defa)
-
-        if (seed != null){
-            return DefaultResultBuilder.<Address>fail(seed);
-        }
-
-        return null;
+        return seed == null
+                ? DefaultResultBuilder.<Address>ok(creator.apply(String.valueOf(instance)))
+                : DefaultResultBuilder.<Address>fail(seed);
     }
 }
