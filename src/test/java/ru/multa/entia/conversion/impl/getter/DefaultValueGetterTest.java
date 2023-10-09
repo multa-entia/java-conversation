@@ -17,7 +17,7 @@ class DefaultValueGetterTest {
 
     @Test
     void shouldCheckGetting_ifArgsIsNull() {
-        Result<UUID> result = new DefaultValueGetter<UUID>(KEY, DEFAULT_SUPPLIER).apply(null);
+        Result<UUID> result = new DefaultValueGetter<UUID, DefaultMessageFactory.Key>(KEY, DEFAULT_SUPPLIER).apply(null);
 
         assertThat(result.ok()).isTrue();
         assertThat(result.value()).isEqualTo(DEFAULT_VALUE);
@@ -26,7 +26,7 @@ class DefaultValueGetterTest {
 
     @Test
     void shouldCheckGetting_ifArgsDoesNotContainKey() {
-        Result<UUID> result = new DefaultValueGetter<UUID>(KEY, DEFAULT_SUPPLIER).apply(new Object[0]);
+        Result<UUID> result = new DefaultValueGetter<UUID, DefaultMessageFactory.Key>(KEY, DEFAULT_SUPPLIER).apply(new Object[0]);
 
         assertThat(result.ok()).isTrue();
         assertThat(result.value()).isEqualTo(DEFAULT_VALUE);
@@ -39,7 +39,7 @@ class DefaultValueGetterTest {
                 null,
                 KEY
         };
-        Result<UUID> result = new DefaultValueGetter<UUID>(KEY, DEFAULT_SUPPLIER).apply(args);
+        Result<UUID> result = new DefaultValueGetter<UUID, DefaultMessageFactory.Key>(KEY, DEFAULT_SUPPLIER).apply(args);
 
         assertThat(result.ok()).isTrue();
         assertThat(result.value()).isEqualTo(DEFAULT_VALUE);
@@ -53,7 +53,7 @@ class DefaultValueGetterTest {
                 KEY,
                 Faker.str_().random()
         };
-        Result<UUID> result = new DefaultValueGetter<UUID>(KEY, DEFAULT_SUPPLIER).apply(args);
+        Result<UUID> result = new DefaultValueGetter<UUID, DefaultMessageFactory.Key>(KEY, DEFAULT_SUPPLIER).apply(args);
 
         assertThat(result.ok()).isTrue();
         assertThat(result.value()).isEqualTo(DEFAULT_VALUE);
@@ -68,7 +68,7 @@ class DefaultValueGetterTest {
                 KEY,
                 expected
         };
-        Result<UUID> result = new DefaultValueGetter<UUID>(KEY, DEFAULT_SUPPLIER).apply(args);
+        Result<UUID> result = new DefaultValueGetter<UUID, DefaultMessageFactory.Key>(KEY, DEFAULT_SUPPLIER).apply(args);
 
         assertThat(result.ok()).isTrue();
         assertThat(result.value()).isEqualTo(expected);

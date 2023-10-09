@@ -21,7 +21,7 @@ class DefaultConditionGetterTest {
 
     @Test
     void shouldCheckGetting_ifArgsIsNull() {
-        Result<Address> result = new DefaultConditionGetter<Address>(KEY, CONDITION).apply(null);
+        Result<Address> result = new DefaultConditionGetter<Address, DefaultMessageFactory.Key>(KEY, CONDITION).apply(null);
 
         assertThat(result.ok()).isFalse();
         assertThat(result.value()).isNull();
@@ -30,7 +30,7 @@ class DefaultConditionGetterTest {
 
     @Test
     void shouldCheckGetting_ifArgsDoesNotContainKey() {
-        Result<Address> result = new DefaultConditionGetter<Address>(KEY, CONDITION).apply(new Object[0]);
+        Result<Address> result = new DefaultConditionGetter<Address, DefaultMessageFactory.Key>(KEY, CONDITION).apply(new Object[0]);
 
         assertThat(result.ok()).isFalse();
         assertThat(result.value()).isNull();
@@ -43,7 +43,7 @@ class DefaultConditionGetterTest {
                 null,
                 KEY
         };
-        Result<Address> result = new DefaultConditionGetter<Address>(KEY, CONDITION).apply(args);
+        Result<Address> result = new DefaultConditionGetter<Address, DefaultMessageFactory.Key>(KEY, CONDITION).apply(args);
 
         assertThat(result.ok()).isFalse();
         assertThat(result.value()).isNull();
@@ -63,7 +63,7 @@ class DefaultConditionGetterTest {
             return createSeed(expectedCode);
         };
 
-        Result<Address> result = new DefaultConditionGetter<Address>(KEY, condition).apply(args);
+        Result<Address> result = new DefaultConditionGetter<Address, DefaultMessageFactory.Key>(KEY, condition).apply(args);
 
         assertThat(result.ok()).isFalse();
         assertThat(result.value()).isNull();
@@ -82,7 +82,7 @@ class DefaultConditionGetterTest {
             return null;
         };
 
-        Result<Address> result = new DefaultConditionGetter<Address>(KEY, condition).apply(args);
+        Result<Address> result = new DefaultConditionGetter<Address, DefaultMessageFactory.Key>(KEY, condition).apply(args);
 
         assertThat(result.ok()).isTrue();
         assertThat(result.value().value()).isEqualTo(expectedValue);

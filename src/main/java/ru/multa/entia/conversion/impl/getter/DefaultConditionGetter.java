@@ -1,17 +1,15 @@
 package ru.multa.entia.conversion.impl.getter;
 
 import lombok.RequiredArgsConstructor;
-import ru.multa.entia.conversion.impl.message.DefaultMessageFactory;
 import ru.multa.entia.results.api.result.Result;
 import ru.multa.entia.results.api.seed.Seed;
 import ru.multa.entia.results.impl.result.DefaultResultBuilder;
 
 import java.util.function.Function;
 
-// TODO: 09.10.2023 add K as Key
 @RequiredArgsConstructor
-public class DefaultConditionGetter<T> implements Function<Object[], Result<T>> {
-    private final DefaultMessageFactory.Key key;
+public class DefaultConditionGetter<T, K> implements Function<Object[], Result<T>> {
+    private final K key;
     private final Function<Object, Seed> condition;
 
     @Override
