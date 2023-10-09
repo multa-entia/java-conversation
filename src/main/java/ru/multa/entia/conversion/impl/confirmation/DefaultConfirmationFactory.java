@@ -1,8 +1,12 @@
 package ru.multa.entia.conversion.impl.confirmation;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import ru.multa.entia.conversion.api.SimpleFactory;
 import ru.multa.entia.conversion.api.address.Address;
+import ru.multa.entia.conversion.api.address.AddressDecorator;
 import ru.multa.entia.conversion.api.confirmation.Confirmation;
+import ru.multa.entia.conversion.api.confirmation.ConfirmationCreator;
 import ru.multa.entia.conversion.api.message.Message;
 import ru.multa.entia.results.api.result.Result;
 import ru.multa.entia.results.api.seed.Seed;
@@ -13,7 +17,19 @@ import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.function.Function;
 
+@RequiredArgsConstructor
 public class DefaultConfirmationFactory implements SimpleFactory<Message, Confirmation> {
+    @RequiredArgsConstructor
+    @Getter
+    public enum Key {
+        FROM_DECORATOR("default-confirmation-factory.key.from-decorator"),
+        CODE("default-confirmation-factory.key.code"),
+        ARGS("default-confirmation-factory.key.args");
+
+        private final String value;
+    }
+
+
     // TODO: 05.10.2023 use enum
 //    public static final String KEY__FROM_DECORATOR = "default-confirmation-factory.from-decorator";
 //    public static final String KEY__CODE = "default-confirmation-factory.code";
@@ -26,6 +42,12 @@ public class DefaultConfirmationFactory implements SimpleFactory<Message, Confir
 //    public static final String ALIAS__CONVERSATION = " conversation";
 //    public static final String ALIAS__FROM = " from";
 //    public static final String ALIAS__TO = " to";
+
+    private final Function<Message, Seed> checker;
+    private final ConfirmationCreator creator;
+    private final Function<Object[], Result<AddressDecorator>> fromDecoratorGetter;
+    private final Function<Object[], Result<String>> codeGetter;
+    private final Function<Object[], Result<Object[]>> argsGetter;
 
 
     @Override
