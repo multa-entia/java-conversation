@@ -8,6 +8,7 @@ import ru.multa.entia.results.impl.result.DefaultResultBuilder;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+// TODO: 09.10.2023 add K as Key
 @RequiredArgsConstructor
 public class DefaultValueGetter<T> implements Function<Object[], Result<T>> {
     private final DefaultMessageFactory.Key key;
