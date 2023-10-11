@@ -9,6 +9,8 @@ public class DefaultTypeFactory implements SimpleFactory<Object, Type> {
     // TODO: 05.10.2023 move to enum
     public static final String CODE = "conversation.factory.type.instance-is-null";
 
+    // TODO: 10.10.2023 add checker + creator
+
     @Override
     public Result<Type> create(Object instance, Object... args) {
         return instance != null

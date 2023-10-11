@@ -18,7 +18,9 @@ public class DefaultMessageFactoryOld implements SimpleFactory<Object, MessageOl
 
     private final Function<Object[], Boolean> isRequestGetter = new IsRequestGetter();
     private final Function<Object[], UUID> idGetter = new IdGetter();
-    private final SimpleFactory<Object, Content> contentFactory = new DefaultContentFactory();
+
+    private final SimpleFactory<Object, Content> contentFactory = null;
+//    private final SimpleFactory<Object, Content> contentFactory = new DefaultContentFactory();
 
     @Override
     public Result<MessageOld> create(Object instance, Object... args) {
