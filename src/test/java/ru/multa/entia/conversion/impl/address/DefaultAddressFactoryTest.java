@@ -41,6 +41,7 @@ class DefaultAddressFactoryTest {
         assertThat(result.seed()).isNull();
     }
 
+    // TODO: 11.10.2023 use lambda
     private static Seed createSeed(final String code){
         Seed seed = Mockito.mock(Seed.class);
         Mockito
@@ -50,6 +51,7 @@ class DefaultAddressFactoryTest {
         return seed;
     }
 
+    // TODO: 11.10.2023 use lambda
     private static Address createAddress(final String value){
         Address address = Mockito.mock(Address.class);
         Mockito

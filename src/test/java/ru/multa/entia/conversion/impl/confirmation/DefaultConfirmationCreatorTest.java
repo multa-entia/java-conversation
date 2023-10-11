@@ -43,6 +43,7 @@ class DefaultConfirmationCreatorTest {
         assertThat(Arrays.equals(confirmation.args(), expectedArgs)).isTrue();
     }
 
+    // TODO: 11.10.2023 use lambda
     private Address createAddress(final String value){
         Address address = Mockito.mock(Address.class);
         Mockito

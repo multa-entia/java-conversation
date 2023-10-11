@@ -7,6 +7,7 @@ import ru.multa.entia.results.impl.seed.DefaultSeedBuilder;
 
 import java.util.function.Function;
 
+// TODO: 11.10.2023 use interface checker
 class DefaultAddressChecker implements Function<Object, Seed> {
     @RequiredArgsConstructor
     @Getter

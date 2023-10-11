@@ -36,5 +36,6 @@ class DefaultContentTest {
         assertThat(content.value()).isEqualTo(expectedValue);
     }
 
+    // TODO: 11.10.2023 ???
     private record TestType(String value) implements Type {}
 }

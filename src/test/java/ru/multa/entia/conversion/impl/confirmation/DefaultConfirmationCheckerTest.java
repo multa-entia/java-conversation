@@ -110,6 +110,7 @@ class DefaultConfirmationCheckerTest {
         assertThat(seed).isNull();
     }
 
+    // TODO: 11.10.2023 use lambda
     private Message createMessage(final UUID id, final UUID conversation, final Address from, final Address to){
         Message message = Mockito.mock(Message.class);
         Mockito.when(message.id()).thenReturn(id);
@@ -120,6 +121,7 @@ class DefaultConfirmationCheckerTest {
         return message;
     }
 
+    // TODO: 11.10.2023 use lambda
     private Address createAddress(final String value){
         Address address = Mockito.mock(Address.class);
         Mockito.when(address.value()).thenReturn(value);

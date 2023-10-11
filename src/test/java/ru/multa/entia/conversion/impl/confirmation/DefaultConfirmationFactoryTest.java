@@ -170,6 +170,7 @@ class DefaultConfirmationFactoryTest {
     private interface TestCodeGetter extends Function<Object[], Result<String>> {}
     private interface TestArgsGetter extends Function<Object[], Result<Object[]>> {}
 
+    // TODO: 11.10.2023 use lambda
     private TestChecker createSuccessChecker(){
         TestChecker checker = Mockito.mock(TestChecker.class);
         Mockito
@@ -179,6 +180,7 @@ class DefaultConfirmationFactoryTest {
         return checker;
     }
 
+    // TODO: 11.10.2023 use lambda
     private TestChecker createFailChecker(final Seed seed){
         TestChecker checker = Mockito.mock(TestChecker.class);
         Mockito
@@ -188,6 +190,7 @@ class DefaultConfirmationFactoryTest {
         return checker;
     }
 
+    // TODO: 11.10.2023 use lambda
     private TestAddressDecoratorGetter createFailDecoratorGetter(final Seed seed){
         TestAddressDecoratorGetter getter = Mockito.mock(TestAddressDecoratorGetter.class);
         Result<AddressDecorator> result = DefaultResultBuilder.<AddressDecorator>fail(seed);
@@ -198,6 +201,7 @@ class DefaultConfirmationFactoryTest {
         return getter;
     }
 
+    // TODO: 11.10.2023 use lambda
     private TestCodeGetter createFailCodeGetter(final Seed seed){
         TestCodeGetter getter = Mockito.mock(TestCodeGetter.class);
         Result<String> result = DefaultResultBuilder.<String>fail(seed);
@@ -208,6 +212,7 @@ class DefaultConfirmationFactoryTest {
         return getter;
     }
 
+    // TODO: 11.10.2023 use lambda
     private TestArgsGetter createFailArgsGetter(final Seed seed){
         TestArgsGetter getter = Mockito.mock(TestArgsGetter.class);
         Result<Object[]> result = DefaultResultBuilder.<Object[]>fail(seed);
@@ -218,6 +223,7 @@ class DefaultConfirmationFactoryTest {
         return getter;
     }
 
+    // TODO: 11.10.2023 use lambda
     private Seed createSeed(final String code){
         Seed seed = Mockito.mock(Seed.class);
         Mockito
@@ -227,6 +233,7 @@ class DefaultConfirmationFactoryTest {
         return seed;
     }
 
+    // TODO: 11.10.2023 use lambda
     private Confirmation createConfirmation(final UUID id,
                                             final UUID conversation,
                                             final Address from,
@@ -244,6 +251,7 @@ class DefaultConfirmationFactoryTest {
         return confirmation;
     }
 
+    // TODO: 11.10.2023 use lambda
     private Address createTestAddress(final String value){
         Address address = Mockito.mock(Address.class);
         Mockito
@@ -253,6 +261,7 @@ class DefaultConfirmationFactoryTest {
         return address;
     }
 
+    // TODO: 11.10.2023 use lambda
     private Message createTestMessage(final UUID id,
                                       final UUID conversation,
                                       final Address from,

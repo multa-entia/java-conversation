@@ -29,6 +29,7 @@ class DefaultAddressDecoratorTest {
         assertThat(address.value()).isEqualTo(String.format(template, initValue));
     }
 
+    // TODO: 11.10.2023 use lambda
     private Address createAddress(final String value){
         Address address = Mockito.mock(Address.class);
         Mockito

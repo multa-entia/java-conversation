@@ -7,7 +7,6 @@ import ru.multa.entia.conversion.api.SimpleFactory;
 import ru.multa.entia.conversion.api.content.Content;
 import ru.multa.entia.conversion.api.type.Type;
 import ru.multa.entia.conversion.api.value.Value;
-import ru.multa.entia.conversion.impl.type.DefaultTypeFactory;
 import ru.multa.entia.results.api.result.Result;
 import ru.multa.entia.results.api.seed.Seed;
 import ru.multa.entia.results.impl.result.DefaultResultBuilder;
@@ -22,7 +21,8 @@ public class DefaultContentFactory implements SimpleFactory<Object, Content> {
     public static final String CODE__BAD_SERIALIZATION = "conversation.factory.content.bad-serialization";
 
     // TODO: 05.10.2023 through ctor
-    private final SimpleFactory<Object, Type> typeFactory = new DefaultTypeFactory();
+//    private final SimpleFactory<Object, Type> typeFactory = new DefaultTypeFactory();
+    private final SimpleFactory<Object, Type> typeFactory = null;
 
     @Override
     public Result<Content> create(final Object instance, final Object... args) {

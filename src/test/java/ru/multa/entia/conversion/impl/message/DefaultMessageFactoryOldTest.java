@@ -8,7 +8,6 @@ import ru.multa.entia.conversion.api.content.Content;
 import ru.multa.entia.conversion.api.message.MessageOld;
 import ru.multa.entia.conversion.api.value.Value;
 import ru.multa.entia.conversion.impl.content.DefaultContentFactory;
-import ru.multa.entia.conversion.impl.type.DefaultTypeFactory;
 import ru.multa.entia.results.api.result.Result;
 
 import java.util.UUID;

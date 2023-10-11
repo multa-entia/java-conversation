@@ -12,7 +12,15 @@ class DefaultTypeValueCheckerTest {
     void shouldCheckChecking_ifInstanceNull() {
         Seed seed = new DefaultTypeValueChecker().apply(null);
 
-        assertThat(seed.code()).isEqualTo(DefaultTypeValueChecker.Code.INSTANCE_IS_NULL.getValue());
+        assertThat(seed.code()).isEqualTo(DefaultTypeValueChecker.Code.IS_NULL.getValue());
+        assertThat(seed.args()).isEmpty();
+    }
+
+    @Test
+    void shouldCheckChecking_ifNotStr() {
+        Seed seed = new DefaultTypeValueChecker().apply(Faker.uuid_().random());
+
+        assertThat(seed.code()).isEqualTo(DefaultTypeValueChecker.Code.IS_NOT_STR.getValue());
         assertThat(seed.args()).isEmpty();
     }
 

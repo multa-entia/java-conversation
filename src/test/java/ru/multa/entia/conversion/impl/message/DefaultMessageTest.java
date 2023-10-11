@@ -81,6 +81,7 @@ class DefaultMessageTest {
         assertThat(message.content()).isEqualTo(expectedContent);
     }
 
+    // TODO: 11.10.2023 use lambda
     private Address createAddress(final String value){
         Address address = Mockito.mock(Address.class);
         Mockito
@@ -90,6 +91,7 @@ class DefaultMessageTest {
         return address;
     }
 
+    // TODO: 11.10.2023 use lambda
     private Type createType(final String value){
         Type type = Mockito.mock(Type.class);
         Mockito
@@ -99,6 +101,7 @@ class DefaultMessageTest {
         return type;
     }
 
+    // TODO: 11.10.2023 use lambda
     private Content createContent(final Type type, final String value){
         Content content = Mockito.mock(Content.class);
         Mockito
