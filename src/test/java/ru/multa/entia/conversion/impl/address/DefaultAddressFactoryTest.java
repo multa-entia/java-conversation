@@ -2,13 +2,14 @@ package ru.multa.entia.conversion.impl.address;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import ru.multa.entia.conversion.api.Checker;
 import ru.multa.entia.conversion.api.address.Address;
 import ru.multa.entia.conversion.api.address.AddressCreator;
 import ru.multa.entia.fakers.impl.Faker;
 import ru.multa.entia.results.api.result.Result;
 import ru.multa.entia.results.api.seed.Seed;
-
-import java.util.function.Function;
+import utils.TestAddress;
+import utils.TestSeed;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -16,8 +17,8 @@ class DefaultAddressFactoryTest {
     @Test
     void shouldCheckCreation_checkerFail() {
         String expectedCode = Faker.str_().random();
-        Function<Object, Seed> checker =  object -> {
-            return createSeed(expectedCode);
+        Checker<Object> checker = object -> {
+            return new TestSeed(expectedCode, new Object[0]);
         };
 
         Result<Address> result = new DefaultAddressFactory(checker, null).create(null);
@@ -31,33 +32,12 @@ class DefaultAddressFactoryTest {
     @Test
     void shouldCheckCreation_checkerSuccess() {
         String expectedValue = Faker.str_().random();
-        Function<Object, Seed> checker =  object -> {return null;};
-        AddressCreator creator = DefaultAddressFactoryTest::createAddress;
+        Checker<Object> checker =  object -> {return null;};
 
-        Result<Address> result = new DefaultAddressFactory(checker, creator).create(expectedValue);
+        Result<Address> result = new DefaultAddressFactory(checker, TestAddress::new).create(expectedValue);
 
         assertThat(result.ok()).isTrue();
         assertThat(result.value().value()).isEqualTo(expectedValue);
         assertThat(result.seed()).isNull();
-    }
-
-    // TODO: 11.10.2023 use lambda
-    private static Seed createSeed(final String code){
-        Seed seed = Mockito.mock(Seed.class);
-        Mockito
-                .when(seed.code())
-                .thenReturn(code);
-
-        return seed;
-    }
-
-    // TODO: 11.10.2023 use lambda
-    private static Address createAddress(final String value){
-        Address address = Mockito.mock(Address.class);
-        Mockito
-                .when(address.value())
-                .thenReturn(value);
-
-        return address;
     }
 }

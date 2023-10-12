@@ -2,6 +2,7 @@ package ru.multa.entia.conversion.impl.confirmation;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import ru.multa.entia.conversion.api.Checker;
 import ru.multa.entia.conversion.api.address.Address;
 import ru.multa.entia.conversion.api.address.AddressDecorator;
 import ru.multa.entia.conversion.api.confirmation.Confirmation;
@@ -9,12 +10,15 @@ import ru.multa.entia.conversion.api.message.Message;
 import ru.multa.entia.conversion.impl.address.DefaultAddressDecorator;
 import ru.multa.entia.fakers.impl.Faker;
 import ru.multa.entia.results.api.result.Result;
-import ru.multa.entia.results.api.seed.Seed;
 import ru.multa.entia.results.impl.result.DefaultResultBuilder;
+import utils.TestAddress;
+import utils.TestConfirmation;
+import utils.TestSeed;
 
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -22,8 +26,12 @@ class DefaultConfirmationFactoryTest {
     @Test
     void shouldCheckCreation_ifFailMessage() {
         String expectedCode = Faker.str_().random();
+        TestChecker checker = object -> {
+            return new TestSeed(expectedCode, new Object[0]);
+        };
+
         DefaultConfirmationFactory factory = new DefaultConfirmationFactory(
-                createFailChecker(createSeed(expectedCode)),
+                checker,
                 null,
                 null,
                 null,
@@ -41,10 +49,14 @@ class DefaultConfirmationFactoryTest {
     @Test
     void shouldCheckCreation_whenDecoratorBadGetting() {
         String expectedCode = Faker.str_().random();
+        TestAddressDecoratorGetter getter = value -> {
+            return DefaultResultBuilder.<AddressDecorator>fail(new TestSeed(expectedCode, new Object[0]));
+        };
+
         DefaultConfirmationFactory factory = new DefaultConfirmationFactory(
                 createSuccessChecker(),
                 null,
-                createFailDecoratorGetter(createSeed(expectedCode)),
+                getter,
                 null,
                 null
         );
@@ -60,11 +72,15 @@ class DefaultConfirmationFactoryTest {
     @Test
     void shouldCheckCreation_whenCodeBadGetting() {
         String expectedCode = Faker.str_().random();
+        TestCodeGetter getter = array -> {
+            return DefaultResultBuilder.<String>fail(new TestSeed(expectedCode, new Object[0]));
+        };
+
         DefaultConfirmationFactory factory = new DefaultConfirmationFactory(
                 createSuccessChecker(),
                 null,
                 null,
-                createFailCodeGetter(createSeed(expectedCode)),
+                getter,
                 null
         );
 
@@ -79,12 +95,16 @@ class DefaultConfirmationFactoryTest {
     @Test
     void shouldCheckCreation_whenArgsBadGetting() {
         String expectedCode = Faker.str_().random();
+        TestArgsGetter getter = array -> {
+            return DefaultResultBuilder.<Object[]>fail(new TestSeed(expectedCode, new Object[0]));
+        };
+
         DefaultConfirmationFactory factory = new DefaultConfirmationFactory(
                 createSuccessChecker(),
                 null,
                 null,
                 null,
-                createFailArgsGetter(createSeed(expectedCode))
+                getter
         );
 
         Result<Confirmation> result = factory.create(null);
@@ -124,7 +144,7 @@ class DefaultConfirmationFactoryTest {
 
         DefaultConfirmationFactory factory = new DefaultConfirmationFactory(
                 createSuccessChecker(),
-                this::createConfirmation,
+                TestConfirmation::new,
                 fromDecoratorGetter,
                 codeGetter,
                 argsGetter
@@ -140,12 +160,19 @@ class DefaultConfirmationFactoryTest {
         UUID expectedConversation = Faker.uuid_().random();
         String initFromValue = Faker.str_().random();
         String initToValue = Faker.str_().random();
-        Message message = createTestMessage(
-                expectedId,
-                expectedConversation,
-                createTestAddress(initFromValue),
-                createTestAddress(initToValue)
-        );
+
+        Supplier<Message> messageSupplier = () -> {
+            Message message = Mockito.mock(Message.class);
+            Mockito.when(message.id()).thenReturn(expectedId);
+            Mockito.when(message.conversation()).thenReturn(expectedConversation);
+            Address testAddress = new TestAddress(initFromValue);
+            Mockito.when(message.from()).thenReturn(testAddress);
+            Address testAddress1 = new TestAddress(initToValue);
+            Mockito.when(message.to()).thenReturn(testAddress1);
+
+            return message;
+        };
+        Message message = messageSupplier.get();
 
         Result<Confirmation> result = factory.create(message, expectedArgs);
 
@@ -165,121 +192,15 @@ class DefaultConfirmationFactoryTest {
         assertThat(testArgsGetterArgs.get()).isEqualTo(expectedArgs);
     }
 
-    private interface TestChecker extends Function<Message, Seed>{}
+    private interface TestChecker extends Checker<Message> {}
     private interface TestAddressDecoratorGetter extends Function<Object[], Result<AddressDecorator>>{}
     private interface TestCodeGetter extends Function<Object[], Result<String>> {}
     private interface TestArgsGetter extends Function<Object[], Result<Object[]>> {}
 
-    // TODO: 11.10.2023 use lambda
     private TestChecker createSuccessChecker(){
         TestChecker checker = Mockito.mock(TestChecker.class);
-        Mockito
-                .when(checker.apply(Mockito.any()))
-                .thenReturn(null);
+        Mockito.when(checker.check(Mockito.any())).thenReturn(null);
 
         return checker;
-    }
-
-    // TODO: 11.10.2023 use lambda
-    private TestChecker createFailChecker(final Seed seed){
-        TestChecker checker = Mockito.mock(TestChecker.class);
-        Mockito
-                .when(checker.apply(Mockito.any()))
-                .thenReturn(seed);
-
-        return checker;
-    }
-
-    // TODO: 11.10.2023 use lambda
-    private TestAddressDecoratorGetter createFailDecoratorGetter(final Seed seed){
-        TestAddressDecoratorGetter getter = Mockito.mock(TestAddressDecoratorGetter.class);
-        Result<AddressDecorator> result = DefaultResultBuilder.<AddressDecorator>fail(seed);
-        Mockito
-                .when(getter.apply(Mockito.any()))
-                .thenReturn(result);
-
-        return getter;
-    }
-
-    // TODO: 11.10.2023 use lambda
-    private TestCodeGetter createFailCodeGetter(final Seed seed){
-        TestCodeGetter getter = Mockito.mock(TestCodeGetter.class);
-        Result<String> result = DefaultResultBuilder.<String>fail(seed);
-        Mockito
-                .when(getter.apply(Mockito.any()))
-                .thenReturn(result);
-
-        return getter;
-    }
-
-    // TODO: 11.10.2023 use lambda
-    private TestArgsGetter createFailArgsGetter(final Seed seed){
-        TestArgsGetter getter = Mockito.mock(TestArgsGetter.class);
-        Result<Object[]> result = DefaultResultBuilder.<Object[]>fail(seed);
-        Mockito
-                .when(getter.apply(Mockito.any()))
-                .thenReturn(result);
-
-        return getter;
-    }
-
-    // TODO: 11.10.2023 use lambda
-    private Seed createSeed(final String code){
-        Seed seed = Mockito.mock(Seed.class);
-        Mockito
-                .when(seed.code())
-                .thenReturn(code);
-
-        return seed;
-    }
-
-    // TODO: 11.10.2023 use lambda
-    private Confirmation createConfirmation(final UUID id,
-                                            final UUID conversation,
-                                            final Address from,
-                                            final Address to,
-                                            final String code,
-                                            final Object[] args){
-        Confirmation confirmation = Mockito.mock(Confirmation.class);
-        Mockito.when(confirmation.id()).thenReturn(id);
-        Mockito.when(confirmation.conversation()).thenReturn(conversation);
-        Mockito.when(confirmation.from()).thenReturn(from);
-        Mockito.when(confirmation.to()).thenReturn(to);
-        Mockito.when(confirmation.code()).thenReturn(code);
-        Mockito.when(confirmation.args()).thenReturn(args);
-
-        return confirmation;
-    }
-
-    // TODO: 11.10.2023 use lambda
-    private Address createTestAddress(final String value){
-        Address address = Mockito.mock(Address.class);
-        Mockito
-                .when(address.value())
-                .thenReturn(value);
-
-        return address;
-    }
-
-    // TODO: 11.10.2023 use lambda
-    private Message createTestMessage(final UUID id,
-                                      final UUID conversation,
-                                      final Address from,
-                                      final Address to){
-        Message message = Mockito.mock(Message.class);
-        Mockito
-                .when(message.id())
-                .thenReturn(id);
-        Mockito
-                .when(message.conversation())
-                .thenReturn(conversation);
-        Mockito
-                .when(message.from())
-                .thenReturn(from);
-        Mockito
-                .when(message.to())
-                .thenReturn(to);
-
-        return message;
     }
 }

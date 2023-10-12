@@ -2,6 +2,7 @@ package ru.multa.entia.conversion.impl.confirmation;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import ru.multa.entia.conversion.api.Checker;
 import ru.multa.entia.conversion.api.SimpleFactory;
 import ru.multa.entia.conversion.api.address.AddressDecorator;
 import ru.multa.entia.conversion.api.confirmation.Confirmation;
@@ -27,7 +28,7 @@ public class DefaultConfirmationFactory implements SimpleFactory<Message, Confir
         private final String value;
     }
 
-    private final Function<Message, Seed> checker;
+    private final Checker<Message> checker;
     private final ConfirmationCreator creator;
     private final Function<Object[], Result<AddressDecorator>> fromDecoratorGetter;
     private final Function<Object[], Result<String>> codeGetter;
@@ -37,7 +38,7 @@ public class DefaultConfirmationFactory implements SimpleFactory<Message, Confir
         this(null, null, null, null, null);
     }
 
-    public DefaultConfirmationFactory(final Function<Message, Seed> checker,
+    public DefaultConfirmationFactory(final Checker<Message> checker,
                                       final ConfirmationCreator creator,
                                       final Function<Object[], Result<AddressDecorator>> fromDecoratorGetter,
                                       final Function<Object[], Result<String>> codeGetter,
@@ -57,7 +58,7 @@ public class DefaultConfirmationFactory implements SimpleFactory<Message, Confir
 
     @Override
     public Result<Confirmation> create(final Message message, final Object... args) {
-        Seed seed = checker.apply(message);
+        Seed seed = checker.check(message);
         if (seed != null){
             return DefaultResultBuilder.<Confirmation>fail(seed);
         }

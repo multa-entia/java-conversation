@@ -10,7 +10,7 @@ class DefaultTypeValueCheckerTest {
 
     @Test
     void shouldCheckChecking_ifInstanceNull() {
-        Seed seed = new DefaultTypeValueChecker().apply(null);
+        Seed seed = new DefaultTypeValueChecker().check(null);
 
         assertThat(seed.code()).isEqualTo(DefaultTypeValueChecker.Code.IS_NULL.getValue());
         assertThat(seed.args()).isEmpty();
@@ -18,7 +18,7 @@ class DefaultTypeValueCheckerTest {
 
     @Test
     void shouldCheckChecking_ifNotStr() {
-        Seed seed = new DefaultTypeValueChecker().apply(Faker.uuid_().random());
+        Seed seed = new DefaultTypeValueChecker().check(Faker.uuid_().random());
 
         assertThat(seed.code()).isEqualTo(DefaultTypeValueChecker.Code.IS_NOT_STR.getValue());
         assertThat(seed.args()).isEmpty();
@@ -26,7 +26,7 @@ class DefaultTypeValueCheckerTest {
 
     @Test
     void shouldCheckSuccessChecking() {
-        Seed seed = new DefaultTypeValueChecker().apply(Faker.str_().random());
+        Seed seed = new DefaultTypeValueChecker().check(Faker.str_().random());
 
         assertThat(seed).isNull();
     }

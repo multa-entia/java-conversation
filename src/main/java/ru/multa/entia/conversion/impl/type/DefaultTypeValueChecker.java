@@ -2,13 +2,11 @@ package ru.multa.entia.conversion.impl.type;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import ru.multa.entia.conversion.api.Checker;
 import ru.multa.entia.results.api.seed.Seed;
 import ru.multa.entia.results.impl.seed.DefaultSeedBuilder;
 
-import java.util.function.Function;
-
-// TODO: 11.10.2023 use interface checker
-class DefaultTypeValueChecker implements Function<Object, Seed> {
+class DefaultTypeValueChecker implements Checker<Object> {
     @RequiredArgsConstructor
     @Getter
     public enum Code {
@@ -19,7 +17,7 @@ class DefaultTypeValueChecker implements Function<Object, Seed> {
     }
 
     @Override
-    public Seed apply(final Object value) {
+    public Seed check(final Object value) {
         String code = null;
         if (value == null){
             code = Code.IS_NULL.getValue();

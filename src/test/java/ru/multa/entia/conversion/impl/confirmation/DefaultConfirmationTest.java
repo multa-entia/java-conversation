@@ -189,6 +189,5 @@ class DefaultConfirmationTest {
         assertThat(Arrays.equals(confirmation.args(), expectedArgs)).isTrue();
     }
 
-    // TODO: 11.10.2023 ???
     private record TestAddress(String value) implements Address {}
 }

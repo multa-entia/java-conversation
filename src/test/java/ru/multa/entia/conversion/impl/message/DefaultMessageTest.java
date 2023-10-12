@@ -1,12 +1,12 @@
 package ru.multa.entia.conversion.impl.message;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import ru.multa.entia.conversion.api.address.Address;
 import ru.multa.entia.conversion.api.content.Content;
-import ru.multa.entia.conversion.api.type.Type;
 import ru.multa.entia.fakers.impl.Faker;
+import utils.TestAddress;
+import utils.TestContent;
+import utils.TestType;
 
 import java.util.UUID;
 
@@ -47,7 +47,7 @@ class DefaultMessageTest {
 
     @Test
     void shouldCheckFromGetting() {
-        Address expectedFrom = createAddress(Faker.str_().random());
+        Address expectedFrom = new TestAddress(Faker.str_().random());
         DefaultMessage message
                 = new DefaultMessage(null, null, expectedFrom, null, false, null);
 
@@ -56,7 +56,7 @@ class DefaultMessageTest {
 
     @Test
     void shouldCheckToGetting() {
-        Address expectedTo = createAddress(Faker.str_().random());
+        Address expectedTo = new TestAddress(Faker.str_().random());
         DefaultMessage message
                 = new DefaultMessage(null, null, null, expectedTo, false, null);
 
@@ -74,43 +74,10 @@ class DefaultMessageTest {
 
     @Test
     void shouldCheckContentGetting() {
-        Content expectedContent = createContent(createType(Faker.str_().random()), Faker.str_().random());
+        Content expectedContent = new TestContent(new TestType(Faker.str_().random()), Faker.str_().random());
         DefaultMessage message
                 = new DefaultMessage(null, null, null, null, false, expectedContent);
 
         assertThat(message.content()).isEqualTo(expectedContent);
-    }
-
-    // TODO: 11.10.2023 use lambda
-    private Address createAddress(final String value){
-        Address address = Mockito.mock(Address.class);
-        Mockito
-                .when(address.value())
-                .thenReturn(value);
-
-        return address;
-    }
-
-    // TODO: 11.10.2023 use lambda
-    private Type createType(final String value){
-        Type type = Mockito.mock(Type.class);
-        Mockito
-                .when(type.value())
-                .thenReturn(value);
-
-        return type;
-    }
-
-    // TODO: 11.10.2023 use lambda
-    private Content createContent(final Type type, final String value){
-        Content content = Mockito.mock(Content.class);
-        Mockito
-                .when(content.type())
-                .thenReturn(type);
-        Mockito
-                .when(content.value())
-                .thenReturn(value);
-
-        return content;
     }
 }

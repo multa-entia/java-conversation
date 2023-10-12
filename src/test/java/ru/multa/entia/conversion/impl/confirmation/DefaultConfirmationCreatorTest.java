@@ -1,10 +1,9 @@
 package ru.multa.entia.conversion.impl.confirmation;
 
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import ru.multa.entia.conversion.api.address.Address;
 import ru.multa.entia.conversion.api.confirmation.Confirmation;
 import ru.multa.entia.fakers.impl.Faker;
+import utils.TestAddress;
 
 import java.util.Arrays;
 import java.util.UUID;
@@ -28,8 +27,8 @@ class DefaultConfirmationCreatorTest {
         Confirmation confirmation = new DefaultConfirmationCreator().create(
                 expectedId,
                 expectedConversation,
-                createAddress(expectedFromValue),
-                createAddress(expectedToValue),
+                new TestAddress(expectedFromValue),
+                new TestAddress(expectedToValue),
                 expectedCode,
                 expectedArgs
         );
@@ -41,15 +40,5 @@ class DefaultConfirmationCreatorTest {
         assertThat(confirmation.to().value()).isEqualTo(expectedToValue);
         assertThat(confirmation.code()).isEqualTo(expectedCode);
         assertThat(Arrays.equals(confirmation.args(), expectedArgs)).isTrue();
-    }
-
-    // TODO: 11.10.2023 use lambda
-    private Address createAddress(final String value){
-        Address address = Mockito.mock(Address.class);
-        Mockito
-                .when(address.value())
-                .thenReturn(value);
-
-        return address;
     }
 }

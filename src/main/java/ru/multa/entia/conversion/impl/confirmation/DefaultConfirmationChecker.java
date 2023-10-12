@@ -2,14 +2,13 @@ package ru.multa.entia.conversion.impl.confirmation;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import ru.multa.entia.conversion.api.Checker;
 import ru.multa.entia.conversion.api.message.Message;
 import ru.multa.entia.results.api.seed.Seed;
 import ru.multa.entia.results.impl.seed.DefaultSeedBuilder;
 
-import java.util.function.Function;
 
-// TODO: 11.10.2023 use interface checker
-class DefaultConfirmationChecker implements Function<Message, Seed> {
+class DefaultConfirmationChecker implements Checker<Message> {
     @RequiredArgsConstructor
     @Getter
     public enum Code {
@@ -31,7 +30,7 @@ class DefaultConfirmationChecker implements Function<Message, Seed> {
     }
 
     @Override
-    public Seed apply(final Message instance) {
+    public Seed check(final Message instance) {
         if (instance == null){
             return new DefaultSeedBuilder<Object>().code(Code.INSTANCE_IS_NULL.getValue()).build();
         }

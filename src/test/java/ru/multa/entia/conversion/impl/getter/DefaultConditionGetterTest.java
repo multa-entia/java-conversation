@@ -1,12 +1,13 @@
 package ru.multa.entia.conversion.impl.getter;
 
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import ru.multa.entia.conversion.api.address.Address;
 import ru.multa.entia.conversion.impl.message.DefaultMessageFactory;
 import ru.multa.entia.fakers.impl.Faker;
 import ru.multa.entia.results.api.result.Result;
 import ru.multa.entia.results.api.seed.Seed;
+import utils.TestAddress;
+import utils.TestSeed;
 
 import java.util.function.Function;
 
@@ -16,7 +17,7 @@ class DefaultConditionGetterTest {
     private static final String CODE = Faker.str_().random(5, 10);
     private static final DefaultMessageFactory.Key KEY = DefaultMessageFactory.Key.ID;
     private static final Function<Object, Seed> CONDITION = address -> {
-        return address != null ? null : createSeed(CODE);
+        return address != null ? null : new TestSeed(CODE, new Object[0]);
     };
 
     @Test
@@ -60,7 +61,7 @@ class DefaultConditionGetterTest {
 
         String expectedCode = Faker.str_().random();
         Function<Object, Seed> condition = address -> {
-            return createSeed(expectedCode);
+            return new TestSeed(expectedCode, new Object[0]);
         };
 
         Result<Address> result = new DefaultConditionGetter<Address, DefaultMessageFactory.Key>(KEY, condition).apply(args);
@@ -76,7 +77,7 @@ class DefaultConditionGetterTest {
         Object[] args = {
                 null,
                 KEY,
-                createAddress(expectedValue)
+                new TestAddress(expectedValue)
         };
         Function<Object, Seed> condition = address -> {
             return null;
@@ -87,25 +88,5 @@ class DefaultConditionGetterTest {
         assertThat(result.ok()).isTrue();
         assertThat(result.value().value()).isEqualTo(expectedValue);
         assertThat(result.seed()).isNull();
-    }
-
-    // TODO: 11.10.2023 use lambda
-    private static Seed createSeed(final String code){
-        Seed seed = Mockito.mock(Seed.class);
-        Mockito
-                .when(seed.code())
-                .thenReturn(code);
-
-        return seed;
-    }
-
-    // TODO: 11.10.2023 use lambda
-    private static Address createAddress(final String value){
-        Address address = Mockito.mock(Address.class);
-        Mockito
-                .when(address.value())
-                .thenReturn(value);
-
-        return address;
     }
 }

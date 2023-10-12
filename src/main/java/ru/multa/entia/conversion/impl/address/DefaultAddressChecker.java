@@ -2,13 +2,11 @@ package ru.multa.entia.conversion.impl.address;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import ru.multa.entia.conversion.api.Checker;
 import ru.multa.entia.results.api.seed.Seed;
 import ru.multa.entia.results.impl.seed.DefaultSeedBuilder;
 
-import java.util.function.Function;
-
-// TODO: 11.10.2023 use interface checker
-class DefaultAddressChecker implements Function<Object, Seed> {
+class DefaultAddressChecker implements Checker<Object> {
     @RequiredArgsConstructor
     @Getter
     public enum Code{
@@ -20,7 +18,7 @@ class DefaultAddressChecker implements Function<Object, Seed> {
     }
 
     @Override
-    public Seed apply(final Object instance) {
+    public Seed check(final Object instance) {
         String code = null;
         if (instance == null){
             code = Code.INSTANCE_IS_NULL.getValue();

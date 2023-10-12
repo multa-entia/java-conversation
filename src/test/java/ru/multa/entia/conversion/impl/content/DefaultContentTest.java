@@ -1,8 +1,8 @@
 package ru.multa.entia.conversion.impl.content;
 
 import org.junit.jupiter.api.Test;
-import ru.multa.entia.conversion.api.type.Type;
 import ru.multa.entia.fakers.impl.Faker;
+import utils.TestType;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -35,7 +35,4 @@ class DefaultContentTest {
 
         assertThat(content.value()).isEqualTo(expectedValue);
     }
-
-    // TODO: 11.10.2023 ???
-    private record TestType(String value) implements Type {}
 }
