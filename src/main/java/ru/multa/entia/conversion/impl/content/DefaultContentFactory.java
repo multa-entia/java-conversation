@@ -27,6 +27,9 @@ public class DefaultContentFactory implements SimpleFactory<Object, Content> {
 //    private final SimpleFactory<Object, Type> typeFactory = null;
 
 //    private final TypeFactory typeFactory;
+    // checker
+//    serializer
+    // creator
 
     @Override
     public Result<Content> create(final Object instance, final Object... args) {
