@@ -1,73 +1,54 @@
 package ru.multa.entia.conversion.impl.content;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.type.TypeFactory;
-import org.javatuples.Pair;
+import ru.multa.entia.conversion.api.Checker;
 import ru.multa.entia.conversion.api.SimpleFactory;
 import ru.multa.entia.conversion.api.content.Content;
+import ru.multa.entia.conversion.api.content.ContentCreator;
 import ru.multa.entia.conversion.api.type.Type;
-import ru.multa.entia.conversion.api.value.Value;
+import ru.multa.entia.conversion.impl.type.DefaultTypeFactory;
 import ru.multa.entia.results.api.result.Result;
 import ru.multa.entia.results.api.seed.Seed;
 import ru.multa.entia.results.impl.result.DefaultResultBuilder;
-import ru.multa.entia.results.impl.seed.DefaultSeedBuilder;
 
-import java.util.Arrays;
-import java.util.stream.Collectors;
+import java.util.function.Function;
 
 public class DefaultContentFactory implements SimpleFactory<Object, Content> {
-    // TODO: 12.10.2023 del
-//    // TODO: 05.10.2023 use enum
-//    public static final String CODE__BAD_PARENT = "conversation.factory.content.bad-parent";
-//    public static final String CODE__BAD_SERIALIZATION = "conversation.factory.content.bad-serialization";
-//
-//    // TODO: 05.10.2023 through ctor
-////    private final SimpleFactory<Object, Type> typeFactory = new DefaultTypeFactory();
-//    private final SimpleFactory<Object, Type> typeFactory = null;
+    private final SimpleFactory<Object, Type> typeFactory;
+    private final Checker<Object> checker;
+    private final Function<Object, Result<String>> serializer;
+    private final ContentCreator creator;
 
-//    private final TypeFactory typeFactory;
-    // checker
-//    serializer
-    // creator
+    public DefaultContentFactory() {
+        this(null, null, null, null);
+    }
+
+    public DefaultContentFactory(final SimpleFactory<Object, Type> typeFactory,
+                                 final Checker<Object> checker,
+                                 final Function<Object,Result<String>> serializer,
+                                 final ContentCreator creator) {
+        this.typeFactory = typeFactory == null ? new DefaultTypeFactory() : typeFactory;
+        this.checker = checker == null ? new DefaultContentChecker() : checker;
+        this.serializer = serializer == null ? new DefaultContentSerializer() : serializer;
+        this.creator = creator == null ? new DefaultContentCreator() : creator;
+    }
 
     @Override
     public Result<Content> create(final Object instance, final Object... args) {
+        Result<Type> result = typeFactory.create(instance, args);
+        if (!result.ok()){
+            return DefaultResultBuilder.<Content>fail(result.seed());
+        }
 
-        throw new RuntimeException("");
+        Seed seed = checker.check(instance);
+        if (seed != null){
+            return DefaultResultBuilder.<Content>fail(seed);
+        }
 
-        // TODO: 12.10.2023 del
-//        Result<Type> result = typeFactory.create(instance, args);
-//        Seed seed = result.seed();
-//        seed = checkParent(seed, instance);
-//        Pair<Seed, String> serializeResult = serialize(seed, instance);
-//
-//        seed = serializeResult.getValue0();
-//        return seed == null
-//                ? DefaultResultBuilder.<Content>ok(new DefaultContent(result.value(), serializeResult.getValue1()))
-//                : DefaultResultBuilder.<Content>fail(seed);
+        Result<String> serializeResult = serializer.apply(instance);
+        if (!serializeResult.ok()){
+            return DefaultResultBuilder.<Content>fail(serializeResult.seed());
+        }
+
+        return DefaultResultBuilder.<Content>ok(creator.create(result.value(), serializeResult.value()));
     }
-
-
-    // TODO: 12.10.2023 del
-//    private Seed checkParent(final Seed seed, final Object instance) {
-//        if (seed == null &&
-//                !Arrays.stream(instance.getClass().getInterfaces()).collect(Collectors.toSet()).contains(Value.class))
-//        {
-//            return new DefaultSeedBuilder<Content>().code(CODE__BAD_PARENT).build();
-//        }
-//
-//        return seed;
-//    }
-//
-//    private Pair<Seed, String> serialize(final Seed seed, final Object instance) {
-//        if (seed != null){
-//            return new Pair<>(seed, null);
-//        }
-//        try {
-//            return new Pair<>(null, new ObjectMapper().writeValueAsString(instance));
-//        } catch (JsonProcessingException ex){
-//            return new Pair<>(new DefaultSeedBuilder<Content>().code(CODE__BAD_SERIALIZATION).build(), null);
-//        }
-//    }
 }
