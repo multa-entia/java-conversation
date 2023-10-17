@@ -1,10 +1,8 @@
 package ru.multa.entia.conversion.impl.type;
 
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import ru.multa.entia.conversion.api.Checker;
 import ru.multa.entia.conversion.api.type.Type;
-import ru.multa.entia.conversion.api.type.TypeCreator;
 import ru.multa.entia.fakers.impl.Faker;
 import ru.multa.entia.results.api.result.Result;
 import utils.TestSeed;

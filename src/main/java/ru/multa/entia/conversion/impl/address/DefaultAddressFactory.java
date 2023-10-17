@@ -8,7 +8,6 @@ import ru.multa.entia.results.api.result.Result;
 import ru.multa.entia.results.api.seed.Seed;
 import ru.multa.entia.results.impl.result.DefaultResultBuilder;
 
-
 public class DefaultAddressFactory implements SimpleFactory<Object, Address> {
     private final Checker<Object> checker;
     private final AddressCreator creator;

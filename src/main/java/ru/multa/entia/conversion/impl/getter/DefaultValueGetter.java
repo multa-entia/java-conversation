@@ -1,7 +1,6 @@
 package ru.multa.entia.conversion.impl.getter;
 
 import lombok.RequiredArgsConstructor;
-import ru.multa.entia.conversion.impl.message.DefaultMessageFactory;
 import ru.multa.entia.results.api.result.Result;
 import ru.multa.entia.results.impl.result.DefaultResultBuilder;
 
