@@ -17,6 +17,17 @@ public class FakerUtil {
         );
     }
 
+    public static Confirmation randomConfirm(){
+        return new TestConfirmation(
+                Faker.uuid_().random(),
+                Faker.uuid_().random(),
+                new TestAddress(Faker.str_().random()),
+                new TestAddress(Faker.str_().random()),
+                "",
+                new Object[0]
+        );
+    }
+
     public static Confirmation confirmation(final Message message){
         return new TestConfirmation(
                 message.id(),
