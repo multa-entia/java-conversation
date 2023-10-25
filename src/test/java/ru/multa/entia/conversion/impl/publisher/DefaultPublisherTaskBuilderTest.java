@@ -3,9 +3,13 @@ package ru.multa.entia.conversion.impl.publisher;
 import lombok.SneakyThrows;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
+import ru.multa.entia.conversion.api.holder.HolderReleaseStrategy;
+import ru.multa.entia.conversion.api.holder.HolderTimeoutStrategy;
 import ru.multa.entia.conversion.api.message.Message;
 import ru.multa.entia.conversion.api.publisher.PublisherTaskBuilder;
 import utils.FakerUtil;
+import utils.TestHolderReleaseStrategy;
+import utils.TestHolderTimeoutStrategy;
 
 import java.lang.reflect.Field;
 
@@ -27,14 +31,34 @@ class DefaultPublisherTaskBuilderTest {
         assertThat(message).isEqualTo(expectedMessage);
     }
 
+    @SneakyThrows
     @Test
     void shouldCheckTimeoutStrategySetting() {
+        DefaultPublisherTaskBuilder<Message> expectedBuilder = new DefaultPublisherTaskBuilder<>();
+        TestHolderTimeoutStrategy expectedStrategy = new TestHolderTimeoutStrategy();
+        PublisherTaskBuilder<Message> builder = expectedBuilder.timeoutStrategy(expectedStrategy);
 
+        assertThat(builder).isEqualTo(expectedBuilder);
+
+        Field field = builder.getClass().getDeclaredField("timeoutStrategy");
+        field.setAccessible(true);
+        HolderTimeoutStrategy strategy = (HolderTimeoutStrategy) field.get(builder);
+        assertThat(strategy).isEqualTo(expectedStrategy);
     }
 
+    @SneakyThrows
     @Test
     void shouldCheckReleaseTimeoutSetting() {
+        DefaultPublisherTaskBuilder<Message> expectedBuilder = new DefaultPublisherTaskBuilder<>();
+        TestHolderReleaseStrategy expectedStrategy = new TestHolderReleaseStrategy();
+        PublisherTaskBuilder<Message> builder = expectedBuilder.releaseStrategy(expectedStrategy);
 
+        assertThat(builder).isEqualTo(expectedBuilder);
+
+        Field field = builder.getClass().getDeclaredField("releaseStrategy");
+        field.setAccessible(true);
+        HolderReleaseStrategy strategy = (HolderReleaseStrategy) field.get(builder);
+        assertThat(strategy).isEqualTo(expectedStrategy);
     }
 
     @Test

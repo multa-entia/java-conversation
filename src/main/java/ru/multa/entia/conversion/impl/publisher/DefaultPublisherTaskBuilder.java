@@ -1,6 +1,5 @@
 package ru.multa.entia.conversion.impl.publisher;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import ru.multa.entia.conversion.api.ConversationItem;
 import ru.multa.entia.conversion.api.holder.HolderReleaseStrategy;
@@ -19,6 +18,8 @@ class DefaultPublisherTaskBuilder<T extends ConversationItem> implements Publish
     private final PublisherService<T> service;
 
     private StrategiesUsage strategiesUsage = StrategiesUsage.USE_SET;
+    private HolderTimeoutStrategy timeoutStrategy;
+    private HolderReleaseStrategy releaseStrategy;
 
     private T item;
 
@@ -42,12 +43,14 @@ class DefaultPublisherTaskBuilder<T extends ConversationItem> implements Publish
 
     @Override
     public PublisherTaskBuilder<T> timeoutStrategy(HolderTimeoutStrategy strategy) {
-        return null;
+        this.timeoutStrategy = strategy;
+        return this;
     }
 
     @Override
     public PublisherTaskBuilder<T> releaseStrategy(HolderReleaseStrategy strategy) {
-        return null;
+        this.releaseStrategy = strategy;
+        return this;
     }
 
     @Override
