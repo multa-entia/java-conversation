@@ -18,7 +18,6 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-@Slf4j
 class DefaultPublisherTaskBuilder<T extends ConversationItem> implements PublisherTaskBuilder<T> {
     @RequiredArgsConstructor
     @Getter
