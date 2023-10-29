@@ -12,7 +12,7 @@ public class DefaultConfirmationPublisher implements Publisher<Confirmation> {
     private final Sender<Confirmation> sender;
 
     @Override
-    public Result<Confirmation> publish(PublisherTask<Confirmation> task) {
+    public Result<Confirmation> publish(final PublisherTask<Confirmation> task) {
         return sender.send(task.item());
     }
 }

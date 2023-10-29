@@ -2,7 +2,6 @@ package ru.multa.entia.conversion.impl.publisher;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import ru.multa.entia.conversion.api.ConversationItem;
 import ru.multa.entia.conversion.api.holder.HolderReleaseStrategy;
 import ru.multa.entia.conversion.api.holder.HolderTimeoutStrategy;
@@ -65,19 +64,19 @@ class DefaultPublisherTaskBuilder<T extends ConversationItem> implements Publish
     }
 
     @Override
-    public PublisherTaskBuilder<T> item(T item) {
+    public PublisherTaskBuilder<T> item(final T item) {
         this.item = item;
         return this;
     }
 
     @Override
-    public PublisherTaskBuilder<T> timeoutStrategy(HolderTimeoutStrategy strategy) {
+    public PublisherTaskBuilder<T> timeoutStrategy(final HolderTimeoutStrategy strategy) {
         this.timeoutStrategy = strategy;
         return this;
     }
 
     @Override
-    public PublisherTaskBuilder<T> releaseStrategy(HolderReleaseStrategy strategy) {
+    public PublisherTaskBuilder<T> releaseStrategy(final HolderReleaseStrategy strategy) {
         this.releaseStrategy = strategy;
         return this;
     }
@@ -112,15 +111,15 @@ class DefaultPublisherTaskBuilder<T extends ConversationItem> implements Publish
                 : service.publish(build());
     }
 
-    private static <T extends ConversationItem> PublisherTask<T> createForDoNotUseStrategy(DefaultPublisherTaskBuilder<T> builder) {
+    private static <T extends ConversationItem> PublisherTask<T> createForDoNotUseStrategy(final DefaultPublisherTaskBuilder<T> builder) {
         return builder.creator.create(builder.item, null, null);
     }
 
-    private static <T extends ConversationItem> PublisherTask<T> createForUseDefaultStrategy(DefaultPublisherTaskBuilder<T> builder) {
+    private static <T extends ConversationItem> PublisherTask<T> createForUseDefaultStrategy(final DefaultPublisherTaskBuilder<T> builder) {
         return builder.creator.create(builder.item, builder.timeoutStrategySup.get(), builder.releaseStrategySup.get());
     }
 
-    private static <T extends ConversationItem> PublisherTask<T> createForUseSetStrategy(DefaultPublisherTaskBuilder<T> builder) {
+    private static <T extends ConversationItem> PublisherTask<T> createForUseSetStrategy(final DefaultPublisherTaskBuilder<T> builder) {
         return builder.creator.create(builder.item, builder.timeoutStrategy, builder.releaseStrategy);
     }
 }

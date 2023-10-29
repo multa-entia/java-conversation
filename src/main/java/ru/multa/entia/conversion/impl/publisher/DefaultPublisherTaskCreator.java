@@ -8,7 +8,9 @@ import ru.multa.entia.conversion.api.publisher.PublisherTaskCreator;
 
 class DefaultPublisherTaskCreator<T extends ConversationItem> implements PublisherTaskCreator<T> {
     @Override
-    public PublisherTask<T> create(T item, HolderTimeoutStrategy timeoutStrategy, HolderReleaseStrategy releaseStrategy) {
+    public PublisherTask<T> create(final T item,
+                                   final HolderTimeoutStrategy timeoutStrategy,
+                                   final HolderReleaseStrategy releaseStrategy) {
         return new DefaultPublisherTask<>(item, timeoutStrategy, releaseStrategy);
     }
 }
