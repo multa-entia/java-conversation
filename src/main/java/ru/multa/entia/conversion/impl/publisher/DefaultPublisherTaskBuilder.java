@@ -105,9 +105,9 @@ class DefaultPublisherTaskBuilder<T extends ConversationItem> implements Publish
     }
 
     @Override
-    public Result<T> buildAndPublish() {
+    public Result<PublisherTask<T>> buildAndPublish() {
         return service == null
-                ? DefaultResultBuilder.<T>fail(Code.SERVICE_IS_NULL.getValue())
+                ? DefaultResultBuilder.<PublisherTask<T>>fail(Code.SERVICE_IS_NULL.getValue())
                 : service.publish(build());
     }
 

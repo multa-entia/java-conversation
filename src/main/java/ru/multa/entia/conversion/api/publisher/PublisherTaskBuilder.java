@@ -13,5 +13,5 @@ public interface PublisherTaskBuilder<T extends ConversationItem> {
     PublisherTaskBuilder<T> useDefaultStrategy();
     PublisherTaskBuilder<T> doNotUseStrategy();
     PublisherTask<T> build();
-    Result<T> buildAndPublish();
+    Result<PublisherTask<T>> buildAndPublish();
 }

@@ -207,7 +207,7 @@ class DefaultPublisherTaskBuilderTest {
     @Test
     void shouldCheckBuildingAndPublishing_ifServiceIsNull() {
         Message expectedItem = FakerUtil.randomMessage();
-        Result<Message> result = new DefaultPublisherTaskBuilder<>(
+        Result<PublisherTask<Message>> result = new DefaultPublisherTaskBuilder<>(
                 () -> {return null;},
                 () -> {return null;},
                 null,
@@ -229,13 +229,13 @@ class DefaultPublisherTaskBuilderTest {
             TestPublisherService service = Mockito.mock(TestPublisherService.class);
             Mockito
                     .when(service.publish(Mockito.any(TestPublisherTask.class)))
-                    .thenReturn(DefaultResultBuilder.<Message>fail(expectedCode));
+                    .thenReturn(DefaultResultBuilder.<PublisherTask<Message>>fail(expectedCode));
 
             return service;
         };
 
         Message expectedItem = FakerUtil.randomMessage();
-        Result<Message> result = new DefaultPublisherTaskBuilder<>(
+        Result<PublisherTask<Message>> result = new DefaultPublisherTaskBuilder<>(
                 () -> {return null;},
                 () -> {return null;},
                 supplier.get(),
@@ -255,14 +255,15 @@ class DefaultPublisherTaskBuilderTest {
         Message expectedItem = FakerUtil.randomMessage();
         Supplier<TestPublisherService> supplier = () -> {
             TestPublisherService service = Mockito.mock(TestPublisherService.class);
+            Result<PublisherTask<Message>> result = DefaultResultBuilder.<PublisherTask<Message>>ok(CREATOR.create(expectedItem, null, null));
             Mockito
                     .when(service.publish(Mockito.any(TestPublisherTask.class)))
-                    .thenReturn(DefaultResultBuilder.<Message>ok(expectedItem));
+                    .thenReturn(result);
 
             return service;
         };
 
-        Result<Message> result = new DefaultPublisherTaskBuilder<>(
+        Result<PublisherTask<Message>> result = new DefaultPublisherTaskBuilder<>(
                 () -> {return null;},
                 () -> {return null;},
                 supplier.get(),
@@ -272,7 +273,7 @@ class DefaultPublisherTaskBuilderTest {
                 .buildAndPublish();
 
         assertThat(result.ok()).isTrue();
-        assertThat(result.value()).isEqualTo(expectedItem);
+        assertThat(result.value().item()).isEqualTo(expectedItem);
         assertThat(result.seed()).isNull();
     }
 
