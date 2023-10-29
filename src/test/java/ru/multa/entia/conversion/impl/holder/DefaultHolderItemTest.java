@@ -1,12 +1,12 @@
 package ru.multa.entia.conversion.impl.holder;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import ru.multa.entia.fakers.impl.Faker;
 import utils.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+// TODO: 29.10.2023 ME-16
 class DefaultHolderItemTest {
 
     @Test

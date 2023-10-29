@@ -13,6 +13,7 @@ import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+// TODO: 29.10.2023 ME-16
 class DefaultConditionGetterTest {
     private static final String CODE = Faker.str_().random(5, 10);
     private static final DefaultMessageFactory.Key KEY = DefaultMessageFactory.Key.ID;

@@ -4,10 +4,9 @@ import org.junit.jupiter.api.Test;
 import ru.multa.entia.conversion.api.message.Message;
 import ru.multa.entia.fakers.impl.Faker;
 import ru.multa.entia.results.api.seed.Seed;
+import utils.ResultUtil;
 import utils.TestAddress;
 import utils.TestMessage;
-
-import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -17,8 +16,8 @@ class DefaultConfirmationCheckerTest {
     void shouldCheckChecking_ifInstanceNull() {
         Seed seed = new DefaultConfirmationChecker().check(null);
 
-        assertThat(seed.code()).isEqualTo(DefaultConfirmationChecker.Code.INSTANCE_IS_NULL.getValue());
-        assertThat(seed.args()).isEmpty();
+        Seed expected = ResultUtil.seed(DefaultConfirmationChecker.Code.INSTANCE_IS_NULL.getValue());
+        assertThat(ResultUtil.isEqual(seed, expected)).isTrue();
     }
 
     @Test
@@ -34,8 +33,8 @@ class DefaultConfirmationCheckerTest {
         );
         Seed seed = new DefaultConfirmationChecker().check(message);
 
-        assertThat(seed.code()).isEqualTo(DefaultConfirmationChecker.Code.FIELD_IS_NULL.getValue());
-        assertThat(Arrays.equals(seed.args(), expectedArgs)).isTrue();
+        Seed expected = ResultUtil.seed(DefaultConfirmationChecker.Code.FIELD_IS_NULL.getValue(), expectedArgs);
+        assertThat(ResultUtil.isEqual(seed, expected)).isTrue();
     }
 
     @Test
@@ -51,8 +50,8 @@ class DefaultConfirmationCheckerTest {
         );
         Seed seed = new DefaultConfirmationChecker().check(message);
 
-        assertThat(seed.code()).isEqualTo(DefaultConfirmationChecker.Code.FIELD_IS_NULL.getValue());
-        assertThat(Arrays.equals(seed.args(), expectedArgs)).isTrue();
+        Seed expected = ResultUtil.seed(DefaultConfirmationChecker.Code.FIELD_IS_NULL.getValue(), expectedArgs);
+        assertThat(ResultUtil.isEqual(seed, expected)).isTrue();
     }
 
     @Test
@@ -68,8 +67,8 @@ class DefaultConfirmationCheckerTest {
         );
         Seed seed = new DefaultConfirmationChecker().check(message);
 
-        assertThat(seed.code()).isEqualTo(DefaultConfirmationChecker.Code.FIELD_IS_NULL.getValue());
-        assertThat(Arrays.equals(seed.args(), expectedArgs)).isTrue();
+        Seed expected = ResultUtil.seed(DefaultConfirmationChecker.Code.FIELD_IS_NULL.getValue(), expectedArgs);
+        assertThat(ResultUtil.isEqual(seed, expected)).isTrue();
     }
 
     @Test
@@ -85,8 +84,8 @@ class DefaultConfirmationCheckerTest {
         );
         Seed seed = new DefaultConfirmationChecker().check(message);
 
-        assertThat(seed.code()).isEqualTo(DefaultConfirmationChecker.Code.FIELD_IS_NULL.getValue());
-        assertThat(Arrays.equals(seed.args(), expectedArgs)).isTrue();
+        Seed expected = ResultUtil.seed(DefaultConfirmationChecker.Code.FIELD_IS_NULL.getValue(), expectedArgs);
+        assertThat(ResultUtil.isEqual(seed, expected)).isTrue();
     }
 
     @Test
@@ -100,8 +99,8 @@ class DefaultConfirmationCheckerTest {
         Message message = new TestMessage(null, null, null,null, false, null);
         Seed seed = new DefaultConfirmationChecker().check(message);
 
-        assertThat(seed.code()).isEqualTo(DefaultConfirmationChecker.Code.FIELD_IS_NULL.getValue());
-        assertThat(Arrays.equals(seed.args(), expectedArgs)).isTrue();
+        Seed expected = ResultUtil.seed(DefaultConfirmationChecker.Code.FIELD_IS_NULL.getValue(), expectedArgs);
+        assertThat(ResultUtil.isEqual(seed, expected)).isTrue();
     }
 
     @Test
