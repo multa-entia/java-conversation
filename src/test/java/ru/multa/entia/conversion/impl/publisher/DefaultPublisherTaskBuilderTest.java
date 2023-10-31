@@ -14,6 +14,7 @@ import ru.multa.entia.fakers.impl.Faker;
 import ru.multa.entia.results.api.result.Result;
 import ru.multa.entia.results.impl.result.DefaultResultBuilder;
 import utils.FakerUtil;
+import utils.ResultUtil;
 import utils.TestHolderReleaseStrategy;
 import utils.TestHolderTimeoutStrategy;
 
@@ -22,7 +23,6 @@ import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-// TODO: 29.10.2023 ME-16
 class DefaultPublisherTaskBuilderTest {
 
     private static final PublisherTaskCreator<Message> CREATOR = (item, timeoutStrategy, releaseStrategy) -> {
@@ -217,10 +217,7 @@ class DefaultPublisherTaskBuilderTest {
                 .item(expectedItem)
                 .buildAndPublish();
 
-        assertThat(result.ok()).isFalse();
-        assertThat(result.value()).isNull();
-        assertThat(result.seed().code()).isEqualTo(DefaultPublisherTaskBuilder.Code.SERVICE_IS_NULL.getValue());
-        assertThat(result.seed().args()).isEmpty();
+        assertThat(ResultUtil.isEqual(result, ResultUtil.fail(DefaultPublisherTaskBuilder.Code.SERVICE_IS_NULL.getValue()))).isTrue();
     }
 
     @Test
@@ -245,10 +242,7 @@ class DefaultPublisherTaskBuilderTest {
                 .item(expectedItem)
                 .buildAndPublish();
 
-        assertThat(result.ok()).isFalse();
-        assertThat(result.value()).isNull();
-        assertThat(result.seed().code()).isEqualTo(expectedCode);
-        assertThat(result.seed().args()).isEmpty();
+        assertThat(ResultUtil.isEqual(result, ResultUtil.fail(expectedCode))).isTrue();
     }
 
     @Test

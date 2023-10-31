@@ -12,7 +12,7 @@ import ru.multa.entia.fakers.impl.Faker;
 import ru.multa.entia.results.api.result.Result;
 import ru.multa.entia.results.api.seed.Seed;
 import ru.multa.entia.results.impl.result.DefaultResultBuilder;
-import utils.TestSeed;
+import utils.ResultUtil;
 import utils.TestType;
 
 import java.util.UUID;
@@ -21,7 +21,6 @@ import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-// TODO: 29.10.2023 ME-16
 class DefaultContentFactoryTest {
 
     private static final Function<Result<Type>, TestTypeFactory> TYPE_FACTORY_FUNC = result -> {
@@ -48,7 +47,7 @@ class DefaultContentFactoryTest {
     @Test
     void shouldCheckCreation_typeFactoryRetBadResult() {
         String expectedCode = Faker.str_().random();
-        Result<Type> expectedResult = DefaultResultBuilder.<Type>fail(new TestSeed(expectedCode, new Object[0]));
+        Result<Type> expectedResult = DefaultResultBuilder.<Type>fail(ResultUtil.seed(expectedCode));
 
         Result<Content> result = new DefaultContentFactory(
                 TYPE_FACTORY_FUNC.apply(expectedResult),
@@ -57,10 +56,7 @@ class DefaultContentFactoryTest {
                 null
         ).create(null);
 
-        assertThat(result.ok()).isFalse();
-        assertThat(result.value()).isNull();
-        assertThat(result.seed().code()).isEqualTo(expectedCode);
-        assertThat(result.seed().args()).isEmpty();
+        assertThat(ResultUtil.isEqual(result, ResultUtil.fail(expectedCode))).isTrue();
     }
 
     @Test
@@ -69,15 +65,12 @@ class DefaultContentFactoryTest {
 
         Result<Content> result = new DefaultContentFactory(
                 TYPE_FACTORY_FUNC.apply(DefaultResultBuilder.<Type>ok(new TestType(Faker.str_().random()))),
-                CHECKER_FUNC.apply(new TestSeed(expectedCode, new Object[0])),
+                CHECKER_FUNC.apply(ResultUtil.seed(expectedCode)),
                 null,
                 null
         ).create(null);
 
-        assertThat(result.ok()).isFalse();
-        assertThat(result.value()).isNull();
-        assertThat(result.seed().code()).isEqualTo(expectedCode);
-        assertThat(result.seed().args()).isEmpty();
+        assertThat(ResultUtil.isEqual(result, ResultUtil.fail(expectedCode))).isTrue();
     }
 
     @Test
@@ -87,14 +80,11 @@ class DefaultContentFactoryTest {
         Result<Content> result = new DefaultContentFactory(
                 TYPE_FACTORY_FUNC.apply(DefaultResultBuilder.<Type>ok(new TestType(Faker.str_().random()))),
                 CHECKER_FUNC.apply(null),
-                SERIALIZER_FUNC.apply(DefaultResultBuilder.<String>fail(new TestSeed(expectedCode, new Object[0]))),
+                SERIALIZER_FUNC.apply(DefaultResultBuilder.<String>fail(ResultUtil.seed(expectedCode))),
                 null
         ).create("12345");
 
-        assertThat(result.ok()).isFalse();
-        assertThat(result.value()).isNull();
-        assertThat(result.seed().code()).isEqualTo(expectedCode);
-        assertThat(result.seed().args()).isEmpty();
+        assertThat(ResultUtil.isEqual(result, ResultUtil.fail(expectedCode))).isTrue();
     }
 
     @Test
@@ -166,6 +156,7 @@ class DefaultContentFactoryTest {
         assertThat(result.value().type()).isEqualTo(expectedType);
         assertThat(result.value().value()).isEqualTo(expectedValue);
         assertThat(result.seed()).isNull();
+
         assertThat(typeFactoryInstanceHolder.get()).isEqualTo(instance);
         assertThat(typeFactoryArgHolder.get()).isEqualTo(arg);
         assertThat(checkerInstanceHolder.get()).isEqualTo(instance);

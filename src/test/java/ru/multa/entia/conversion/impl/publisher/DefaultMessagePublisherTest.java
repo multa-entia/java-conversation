@@ -15,6 +15,7 @@ import ru.multa.entia.fakers.impl.Faker;
 import ru.multa.entia.results.api.result.Result;
 import ru.multa.entia.results.impl.result.DefaultResultBuilder;
 import utils.FakerUtil;
+import utils.ResultUtil;
 import utils.TestHolderReleaseStrategy;
 import utils.TestHolderTimeoutStrategy;
 
@@ -24,7 +25,6 @@ import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-// TODO: 29.10.2023 ME-16
 class DefaultMessagePublisherTest {
     @Test
     void shouldCheckPublishing_ifFailSending() {
@@ -45,10 +45,7 @@ class DefaultMessagePublisherTest {
         Result<Message> result = new DefaultMessagePublisher(senderSupplier.get())
                 .publish(taskFunction.apply(FakerUtil.randomMessage()));
 
-        assertThat(result.ok()).isFalse();
-        assertThat(result.value()).isNull();
-        assertThat(result.seed().code()).isEqualTo(expectedCode);
-        assertThat(result.seed().args()).isEmpty();
+        assertThat(ResultUtil.isEqual(result, ResultUtil.fail(expectedCode))).isTrue();
     }
 
     @Test
@@ -79,10 +76,7 @@ class DefaultMessagePublisherTest {
         Result<Message> result = new DefaultMessagePublisher(senderSupplier.get(), holderSupplier.get())
                 .publish(taskFunction.apply(expectedMessage));
 
-        assertThat(result.ok()).isFalse();
-        assertThat(result.value()).isNull();
-        assertThat(result.seed().code()).isEqualTo(expectedCode);
-        assertThat(result.seed().args()).isEmpty();
+        assertThat(ResultUtil.isEqual(result, ResultUtil.fail(expectedCode))).isTrue();
     }
 
     @Test
@@ -145,9 +139,7 @@ class DefaultMessagePublisherTest {
         Result<Message> result = new DefaultMessagePublisher(senderSupplier.get(), holderSupplier.get())
                 .publish(taskSupplier.get());
 
-        assertThat(result.ok()).isTrue();
-        assertThat(result.value()).isEqualTo(expectedMessage);
-        assertThat(result.seed()).isNull();
+        assertThat(ResultUtil.isEqual(result, ResultUtil.ok(expectedMessage))).isTrue();
 
         assertThat(senderArgAR.get()).isEqualTo(expectedMessage);
         assertThat(holderItemArgAR.get()).isEqualTo(expectedMessage);

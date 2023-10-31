@@ -5,28 +5,24 @@ import ru.multa.entia.conversion.api.Checker;
 import ru.multa.entia.conversion.api.type.Type;
 import ru.multa.entia.fakers.impl.Faker;
 import ru.multa.entia.results.api.result.Result;
-import utils.TestSeed;
+import utils.ResultUtil;
 import utils.TestType;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-// TODO: 29.10.2023 ME-16
 class DefaultTypeFactoryTest {
     @Test
     void shouldCheckCreation_ifFailChecking() {
         String expectedCode = Faker.str_().random();
         Checker<Object> checker = instance -> {
-            return new TestSeed(expectedCode, new Object[0]);
+            return ResultUtil.seed(expectedCode);
         };
 
         DefaultTypeFactory factory = new DefaultTypeFactory(checker, null);
 
         Result<Type> result = factory.create(null);
 
-        assertThat(result.ok()).isFalse();
-        assertThat(result.value()).isNull();
-        assertThat(result.seed().code()).isEqualTo(expectedCode);
-        assertThat(result.seed().args()).isEmpty();
+        assertThat(ResultUtil.isEqual(result, ResultUtil.fail(expectedCode))).isTrue();
     }
 
     @Test

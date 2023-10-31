@@ -13,10 +13,7 @@ import ru.multa.entia.fakers.impl.Faker;
 import ru.multa.entia.results.api.result.Result;
 import ru.multa.entia.results.api.seed.Seed;
 import ru.multa.entia.results.impl.result.DefaultResultBuilder;
-import utils.TestAddress;
-import utils.TestContent;
-import utils.TestSeed;
-import utils.TestType;
+import utils.*;
 
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
@@ -25,7 +22,6 @@ import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-// TODO: 29.10.2023 ME-16
 class DefaultMessageFactoryTest {
     private static final Function<Seed, TestChecker> CHECKER_FUNC = seed -> {
         TestChecker checker = Mockito.mock(TestChecker.class);
@@ -66,7 +62,7 @@ class DefaultMessageFactoryTest {
     void shouldCheckCreation_ifCheckerRetBadResult() {
         String expectedCode = Faker.str_().random();
         Result<Message> result = new DefaultMessageFactory(
-                CHECKER_FUNC.apply(new TestSeed(expectedCode, new Object[0])),
+                CHECKER_FUNC.apply(ResultUtil.seed(expectedCode)),
                 null,
                 null,
                 null,
@@ -76,10 +72,7 @@ class DefaultMessageFactoryTest {
                 null
         ).create(null);
 
-        assertThat(result.ok()).isFalse();
-        assertThat(result.value()).isNull();
-        assertThat(result.seed().code()).isEqualTo(expectedCode);
-        assertThat(result.seed().args()).isEmpty();
+        assertThat(ResultUtil.isEqual(result, ResultUtil.fail(expectedCode))).isTrue();
     }
 
     @Test
@@ -96,10 +89,7 @@ class DefaultMessageFactoryTest {
                 null
         ).create(null);
 
-        assertThat(result.ok()).isFalse();
-        assertThat(result.value()).isNull();
-        assertThat(result.seed().code()).isEqualTo(expectedCode);
-        assertThat(result.seed().args()).isEmpty();
+        assertThat(ResultUtil.isEqual(result, ResultUtil.fail(expectedCode))).isTrue();
     }
 
     @Test
@@ -117,10 +107,7 @@ class DefaultMessageFactoryTest {
                 null
         ).create(null);
 
-        assertThat(result.ok()).isFalse();
-        assertThat(result.value()).isNull();
-        assertThat(result.seed().code()).isEqualTo(expectedCode);
-        assertThat(result.seed().args()).isEmpty();
+        assertThat(ResultUtil.isEqual(result, ResultUtil.fail(expectedCode))).isTrue();
     }
 
     @Test
@@ -138,10 +125,7 @@ class DefaultMessageFactoryTest {
                 null
         ).create(null);
 
-        assertThat(result.ok()).isFalse();
-        assertThat(result.value()).isNull();
-        assertThat(result.seed().code()).isEqualTo(expectedCode);
-        assertThat(result.seed().args()).isEmpty();
+        assertThat(ResultUtil.isEqual(result, ResultUtil.fail(expectedCode))).isTrue();
     }
 
     @Test
@@ -159,10 +143,7 @@ class DefaultMessageFactoryTest {
                 null
         ).create(null);
 
-        assertThat(result.ok()).isFalse();
-        assertThat(result.value()).isNull();
-        assertThat(result.seed().code()).isEqualTo(expectedCode);
-        assertThat(result.seed().args()).isEmpty();
+        assertThat(ResultUtil.isEqual(result, ResultUtil.fail(expectedCode))).isTrue();
     }
 
     @Test
@@ -180,10 +161,7 @@ class DefaultMessageFactoryTest {
                 null
         ).create(null);
 
-        assertThat(result.ok()).isFalse();
-        assertThat(result.value()).isNull();
-        assertThat(result.seed().code()).isEqualTo(expectedCode);
-        assertThat(result.seed().args()).isEmpty();
+        assertThat(ResultUtil.isEqual(result, ResultUtil.fail(expectedCode))).isTrue();
     }
 
     @Test
@@ -201,10 +179,7 @@ class DefaultMessageFactoryTest {
                 null
         ).create(null);
 
-        assertThat(result.ok()).isFalse();
-        assertThat(result.value()).isNull();
-        assertThat(result.seed().code()).isEqualTo(expectedCode);
-        assertThat(result.seed().args()).isEmpty();
+        assertThat(ResultUtil.isEqual(result, ResultUtil.fail(expectedCode))).isTrue();
     }
 
     @Test

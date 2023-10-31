@@ -3,26 +3,24 @@ package ru.multa.entia.conversion.impl.type;
 import org.junit.jupiter.api.Test;
 import ru.multa.entia.fakers.impl.Faker;
 import ru.multa.entia.results.api.seed.Seed;
+import utils.ResultUtil;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-// TODO: 29.10.2023 ME-16
 class DefaultTypeValueCheckerTest {
 
     @Test
     void shouldCheckChecking_ifInstanceNull() {
         Seed seed = new DefaultTypeValueChecker().check(null);
 
-        assertThat(seed.code()).isEqualTo(DefaultTypeValueChecker.Code.IS_NULL.getValue());
-        assertThat(seed.args()).isEmpty();
+        assertThat(ResultUtil.isEqual(seed, ResultUtil.seed(DefaultTypeValueChecker.Code.IS_NULL.getValue()))).isTrue();
     }
 
     @Test
     void shouldCheckChecking_ifNotStr() {
         Seed seed = new DefaultTypeValueChecker().check(Faker.uuid_().random());
 
-        assertThat(seed.code()).isEqualTo(DefaultTypeValueChecker.Code.IS_NOT_STR.getValue());
-        assertThat(seed.args()).isEmpty();
+        assertThat(ResultUtil.isEqual(seed, ResultUtil.seed(DefaultTypeValueChecker.Code.IS_NOT_STR.getValue()))).isTrue();
     }
 
     @Test

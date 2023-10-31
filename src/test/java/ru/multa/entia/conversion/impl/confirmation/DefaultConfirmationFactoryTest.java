@@ -11,9 +11,9 @@ import ru.multa.entia.conversion.impl.address.DefaultAddressDecorator;
 import ru.multa.entia.fakers.impl.Faker;
 import ru.multa.entia.results.api.result.Result;
 import ru.multa.entia.results.impl.result.DefaultResultBuilder;
+import utils.ResultUtil;
 import utils.TestAddress;
 import utils.TestConfirmation;
-import utils.TestSeed;
 
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
@@ -22,13 +22,13 @@ import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-// TODO: 29.10.2023 ME-16
 class DefaultConfirmationFactoryTest {
+
     @Test
     void shouldCheckCreation_ifFailMessage() {
         String expectedCode = Faker.str_().random();
         TestChecker checker = object -> {
-            return new TestSeed(expectedCode, new Object[0]);
+            return ResultUtil.seed(expectedCode);
         };
 
         DefaultConfirmationFactory factory = new DefaultConfirmationFactory(
@@ -41,17 +41,14 @@ class DefaultConfirmationFactoryTest {
 
         Result<Confirmation> result = factory.create(null);
 
-        assertThat(result.ok()).isFalse();
-        assertThat(result.value()).isNull();
-        assertThat(result.seed().code()).isEqualTo(expectedCode);
-        assertThat(result.seed().args()).isEmpty();
+        assertThat(ResultUtil.isEqual(result, ResultUtil.fail(expectedCode))).isTrue();
     }
 
     @Test
     void shouldCheckCreation_whenDecoratorBadGetting() {
         String expectedCode = Faker.str_().random();
         TestAddressDecoratorGetter getter = value -> {
-            return DefaultResultBuilder.<AddressDecorator>fail(new TestSeed(expectedCode, new Object[0]));
+            return DefaultResultBuilder.<AddressDecorator>fail(ResultUtil.seed(expectedCode));
         };
 
         DefaultConfirmationFactory factory = new DefaultConfirmationFactory(
@@ -64,17 +61,14 @@ class DefaultConfirmationFactoryTest {
 
         Result<Confirmation> result = factory.create(null);
 
-        assertThat(result.ok()).isFalse();
-        assertThat(result.value()).isNull();
-        assertThat(result.seed().code()).isEqualTo(expectedCode);
-        assertThat(result.seed().args()).isEmpty();
+        assertThat(ResultUtil.isEqual(result, ResultUtil.fail(expectedCode))).isTrue();
     }
 
     @Test
     void shouldCheckCreation_whenCodeBadGetting() {
         String expectedCode = Faker.str_().random();
         TestCodeGetter getter = array -> {
-            return DefaultResultBuilder.<String>fail(new TestSeed(expectedCode, new Object[0]));
+            return DefaultResultBuilder.<String>fail(ResultUtil.seed(expectedCode));
         };
 
         DefaultConfirmationFactory factory = new DefaultConfirmationFactory(
@@ -87,17 +81,14 @@ class DefaultConfirmationFactoryTest {
 
         Result<Confirmation> result = factory.create(null);
 
-        assertThat(result.ok()).isFalse();
-        assertThat(result.value()).isNull();
-        assertThat(result.seed().code()).isEqualTo(expectedCode);
-        assertThat(result.seed().args()).isEmpty();
+        assertThat(ResultUtil.isEqual(result, ResultUtil.fail(expectedCode))).isTrue();
     }
 
     @Test
     void shouldCheckCreation_whenArgsBadGetting() {
         String expectedCode = Faker.str_().random();
         TestArgsGetter getter = array -> {
-            return DefaultResultBuilder.<Object[]>fail(new TestSeed(expectedCode, new Object[0]));
+            return DefaultResultBuilder.<Object[]>fail(ResultUtil.seed(expectedCode));
         };
 
         DefaultConfirmationFactory factory = new DefaultConfirmationFactory(
@@ -110,10 +101,7 @@ class DefaultConfirmationFactoryTest {
 
         Result<Confirmation> result = factory.create(null);
 
-        assertThat(result.ok()).isFalse();
-        assertThat(result.value()).isNull();
-        assertThat(result.seed().code()).isEqualTo(expectedCode);
-        assertThat(result.seed().args()).isEmpty();
+        assertThat(ResultUtil.isEqual(result, ResultUtil.fail(expectedCode))).isTrue();
     }
 
     @Test

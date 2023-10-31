@@ -4,13 +4,13 @@ import org.junit.jupiter.api.Test;
 import ru.multa.entia.conversion.impl.message.DefaultMessageFactory;
 import ru.multa.entia.fakers.impl.Faker;
 import ru.multa.entia.results.api.result.Result;
+import utils.ResultUtil;
 
 import java.util.UUID;
 import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-// TODO: 29.10.2023 ME-16
 class DefaultValueGetterTest {
     private static final UUID DEFAULT_VALUE = Faker.uuid_().random();
     private static final DefaultMessageFactory.Key KEY = DefaultMessageFactory.Key.ID;
@@ -20,18 +20,14 @@ class DefaultValueGetterTest {
     void shouldCheckGetting_ifArgsIsNull() {
         Result<UUID> result = new DefaultValueGetter<UUID, DefaultMessageFactory.Key>(KEY, DEFAULT_SUPPLIER).apply(null);
 
-        assertThat(result.ok()).isTrue();
-        assertThat(result.value()).isEqualTo(DEFAULT_VALUE);
-        assertThat(result.seed()).isNull();
+        assertThat(ResultUtil.isEqual(result, ResultUtil.ok(DEFAULT_VALUE))).isTrue();
     }
 
     @Test
     void shouldCheckGetting_ifArgsDoesNotContainKey() {
         Result<UUID> result = new DefaultValueGetter<UUID, DefaultMessageFactory.Key>(KEY, DEFAULT_SUPPLIER).apply(new Object[0]);
 
-        assertThat(result.ok()).isTrue();
-        assertThat(result.value()).isEqualTo(DEFAULT_VALUE);
-        assertThat(result.seed()).isNull();
+        assertThat(ResultUtil.isEqual(result, ResultUtil.ok(DEFAULT_VALUE))).isTrue();
     }
 
     @Test
@@ -42,9 +38,7 @@ class DefaultValueGetterTest {
         };
         Result<UUID> result = new DefaultValueGetter<UUID, DefaultMessageFactory.Key>(KEY, DEFAULT_SUPPLIER).apply(args);
 
-        assertThat(result.ok()).isTrue();
-        assertThat(result.value()).isEqualTo(DEFAULT_VALUE);
-        assertThat(result.seed()).isNull();
+        assertThat(ResultUtil.isEqual(result, ResultUtil.ok(DEFAULT_VALUE))).isTrue();
     }
 
     @Test
@@ -56,9 +50,7 @@ class DefaultValueGetterTest {
         };
         Result<UUID> result = new DefaultValueGetter<UUID, DefaultMessageFactory.Key>(KEY, DEFAULT_SUPPLIER).apply(args);
 
-        assertThat(result.ok()).isTrue();
-        assertThat(result.value()).isEqualTo(DEFAULT_VALUE);
-        assertThat(result.seed()).isNull();
+        assertThat(ResultUtil.isEqual(result, ResultUtil.ok(DEFAULT_VALUE))).isTrue();
     }
 
     @Test
@@ -71,8 +63,6 @@ class DefaultValueGetterTest {
         };
         Result<UUID> result = new DefaultValueGetter<UUID, DefaultMessageFactory.Key>(KEY, DEFAULT_SUPPLIER).apply(args);
 
-        assertThat(result.ok()).isTrue();
-        assertThat(result.value()).isEqualTo(expected);
-        assertThat(result.seed()).isNull();
+        assertThat(ResultUtil.isEqual(result, ResultUtil.ok(expected))).isTrue();
     }
 }

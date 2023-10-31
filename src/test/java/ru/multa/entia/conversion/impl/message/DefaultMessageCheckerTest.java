@@ -3,18 +3,17 @@ package ru.multa.entia.conversion.impl.message;
 import org.junit.jupiter.api.Test;
 import ru.multa.entia.fakers.impl.Faker;
 import ru.multa.entia.results.api.seed.Seed;
+import utils.ResultUtil;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-// TODO: 29.10.2023 ME-16
 class DefaultMessageCheckerTest {
 
     @Test
     void shouldCheckChecking_ifInstanceNull() {
         Seed seed = new DefaultMessageChecker().check(null);
 
-        assertThat(seed.code()).isEqualTo(DefaultMessageChecker.Code.IS_NULL.getValue());
-        assertThat(seed.args()).isEmpty();
+        assertThat(ResultUtil.isEqual(seed, ResultUtil.seed(DefaultMessageChecker.Code.IS_NULL.getValue()))).isTrue();
     }
 
     @Test

@@ -6,37 +6,32 @@ import ru.multa.entia.conversion.impl.message.DefaultMessageFactory;
 import ru.multa.entia.fakers.impl.Faker;
 import ru.multa.entia.results.api.result.Result;
 import ru.multa.entia.results.api.seed.Seed;
+import utils.ResultUtil;
 import utils.TestAddress;
-import utils.TestSeed;
 
 import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-// TODO: 29.10.2023 ME-16
 class DefaultConditionGetterTest {
     private static final String CODE = Faker.str_().random(5, 10);
     private static final DefaultMessageFactory.Key KEY = DefaultMessageFactory.Key.ID;
     private static final Function<Object, Seed> CONDITION = address -> {
-        return address != null ? null : new TestSeed(CODE, new Object[0]);
+        return address != null ? null : ResultUtil.seed(CODE);
     };
 
     @Test
     void shouldCheckGetting_ifArgsIsNull() {
         Result<Address> result = new DefaultConditionGetter<Address, DefaultMessageFactory.Key>(KEY, CONDITION).apply(null);
 
-        assertThat(result.ok()).isFalse();
-        assertThat(result.value()).isNull();
-        assertThat(result.seed().code()).isEqualTo(CODE);
+        assertThat(ResultUtil.isEqual(result, ResultUtil.fail(CODE))).isTrue();
     }
 
     @Test
     void shouldCheckGetting_ifArgsDoesNotContainKey() {
         Result<Address> result = new DefaultConditionGetter<Address, DefaultMessageFactory.Key>(KEY, CONDITION).apply(new Object[0]);
 
-        assertThat(result.ok()).isFalse();
-        assertThat(result.value()).isNull();
-        assertThat(result.seed().code()).isEqualTo(CODE);
+        assertThat(ResultUtil.isEqual(result, ResultUtil.fail(CODE))).isTrue();
     }
 
     @Test
@@ -47,9 +42,7 @@ class DefaultConditionGetterTest {
         };
         Result<Address> result = new DefaultConditionGetter<Address, DefaultMessageFactory.Key>(KEY, CONDITION).apply(args);
 
-        assertThat(result.ok()).isFalse();
-        assertThat(result.value()).isNull();
-        assertThat(result.seed().code()).isEqualTo(CODE);
+        assertThat(ResultUtil.isEqual(result, ResultUtil.fail(CODE))).isTrue();
     }
 
     @Test
@@ -62,23 +55,21 @@ class DefaultConditionGetterTest {
 
         String expectedCode = Faker.str_().random();
         Function<Object, Seed> condition = address -> {
-            return new TestSeed(expectedCode, new Object[0]);
+            return ResultUtil.seed(expectedCode);
         };
 
         Result<Address> result = new DefaultConditionGetter<Address, DefaultMessageFactory.Key>(KEY, condition).apply(args);
 
-        assertThat(result.ok()).isFalse();
-        assertThat(result.value()).isNull();
-        assertThat(result.seed().code()).isEqualTo(expectedCode);
+        assertThat(ResultUtil.isEqual(result, ResultUtil.fail(expectedCode))).isTrue();
     }
 
     @Test
     void shouldCheckGetting() {
-        String expectedValue = Faker.str_().random();
+        TestAddress expectedAddress = new TestAddress(Faker.str_().random());
         Object[] args = {
                 null,
                 KEY,
-                new TestAddress(expectedValue)
+                expectedAddress
         };
         Function<Object, Seed> condition = address -> {
             return null;
@@ -86,8 +77,6 @@ class DefaultConditionGetterTest {
 
         Result<Address> result = new DefaultConditionGetter<Address, DefaultMessageFactory.Key>(KEY, condition).apply(args);
 
-        assertThat(result.ok()).isTrue();
-        assertThat(result.value().value()).isEqualTo(expectedValue);
-        assertThat(result.seed()).isNull();
+        assertThat(ResultUtil.isEqual(result, ResultUtil.ok(expectedAddress))).isTrue();
     }
 }

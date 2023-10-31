@@ -9,7 +9,6 @@ import utils.TestHolderTimeoutStrategy;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-// TODO: 29.10.2023 ME-16
 class DefaultPublisherTaskCreatorTest {
 
     @Test

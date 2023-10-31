@@ -11,6 +11,7 @@ import ru.multa.entia.fakers.impl.Faker;
 import ru.multa.entia.results.api.result.Result;
 import ru.multa.entia.results.impl.result.DefaultResultBuilder;
 import utils.FakerUtil;
+import utils.ResultUtil;
 
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
@@ -18,7 +19,6 @@ import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-// TODO: 29.10.2023 ME-16
 class DefaultConfirmationPublisherTest {
 
     private static final Function<Confirmation, TestConfirmationPublisherTask> TASK_CREATOR = confirmation -> {
@@ -41,10 +41,7 @@ class DefaultConfirmationPublisherTest {
         Result<Confirmation> result = new DefaultConfirmationPublisher(supp.get())
                 .publish(TASK_CREATOR.apply(FakerUtil.randomConfirm()));
 
-        assertThat(result.ok()).isFalse();
-        assertThat(result.value()).isNull();
-        assertThat(result.seed().code()).isEqualTo(expectedCode);
-        assertThat(result.seed().args()).isEmpty();
+        assertThat(ResultUtil.isEqual(result, ResultUtil.fail(expectedCode))).isTrue();
     }
 
     @Test
@@ -69,9 +66,7 @@ class DefaultConfirmationPublisherTest {
         Result<Confirmation> result = new DefaultConfirmationPublisher(supp.get())
                 .publish(TASK_CREATOR.apply(expectedConfirmation));
 
-        assertThat(result.ok()).isTrue();
-        assertThat(result.value()).isEqualTo(expectedConfirmation);
-        assertThat(result.seed()).isNull();
+        assertThat(ResultUtil.isEqual(result, ResultUtil.ok(expectedConfirmation))).isTrue();
         assertThat(holder.get()).isEqualTo(expectedConfirmation);
     }
 

@@ -1,6 +1,5 @@
 package ru.multa.entia.conversion.impl.message;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import ru.multa.entia.conversion.api.message.Message;
 import ru.multa.entia.fakers.impl.Faker;
@@ -12,7 +11,6 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-// TODO: 29.10.2023 ME-16
 class DefaultMessageCreatorTest {
 
     @Test

@@ -4,26 +4,24 @@ import org.junit.jupiter.api.Test;
 import ru.multa.entia.conversion.api.value.Value;
 import ru.multa.entia.fakers.impl.Faker;
 import ru.multa.entia.results.api.seed.Seed;
+import utils.ResultUtil;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-// TODO: 29.10.2023 ME-16
 class DefaultContentCheckerTest {
 
     @Test
     void shouldCheckChecking_ifInstanceIsNull() {
         Seed seed = new DefaultContentChecker().check(null);
 
-        assertThat(seed.code()).isEqualTo(DefaultContentChecker.Code.IS_NULL.getValue());
-        assertThat(seed.args()).isEmpty();
+        assertThat(ResultUtil.isEqual(seed, ResultUtil.seed(DefaultContentChecker.Code.IS_NULL.getValue()))).isTrue();
     }
 
     @Test
     void shouldCheckChecking_ifInstanceHasBadParent() {
         Seed seed = new DefaultContentChecker().check(new BadParentTestValue());
 
-        assertThat(seed.code()).isEqualTo(DefaultContentChecker.Code.BAD_PARENT.getValue());
-        assertThat(seed.args()).isEmpty();
+        assertThat(ResultUtil.isEqual(seed, ResultUtil.seed(DefaultContentChecker.Code.BAD_PARENT.getValue()))).isTrue();
     }
 
     @Test
