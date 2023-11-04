@@ -12,6 +12,7 @@ import ru.multa.entia.results.api.result.Result;
 import ru.multa.entia.results.impl.result.DefaultResultBuilder;
 
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Slf4j
 public class DefaultPublisherPipeline<T extends ConversationItem> implements Pipeline<PublisherTask<T>> {
@@ -22,25 +23,35 @@ public class DefaultPublisherPipeline<T extends ConversationItem> implements Pip
         ALREADY_STOPPED("default-publisher-pipeline.already-stopped"),
         SUBSCRIPTION_IF_NOT_STARTED("default-publisher-pipeline.subscription-if-not-started"),
         ALREADY_SUBSCRIBED("default-publisher-pipeline.already-subscribed"),
-        UNSUBSCRIPTION_IS_NOT_SUPPORTED("default-publisher-pipeline.unsubscription-is-not-supported");
+        UNSUBSCRIPTION_IF_STARTED("default-publisher-pipeline.unsubscription-if-started"),
+        ALREADY_UNSUBSCRIBED("default-publisher-pipeline.already-unsubscribed");
 
         private final String value;
     }
 
     private final AtomicBoolean alive = new AtomicBoolean(false);
+    private final AtomicReference<PipelineSubscriber<PublisherTask<T>>> subscriber = new AtomicReference<>();
 
     @Override
-    public Result<PipelineSubscriber<PublisherTask<T>>> subscribe(PipelineSubscriber<PublisherTask<T>> subscriber) {
+    public Result<PipelineSubscriber<PublisherTask<T>>> subscribe(final PipelineSubscriber<PublisherTask<T>> subscriber) {
+        Code code = Code.SUBSCRIPTION_IF_NOT_STARTED;
+        if (alive.get()) {
+            boolean result = this.subscriber.compareAndSet(null, subscriber);
+            code = result ? null : Code.ALREADY_SUBSCRIBED;
+        }
+
+        return code == null
+                ? DefaultResultBuilder.<PipelineSubscriber<PublisherTask<T>>>ok(subscriber)
+                : DefaultResultBuilder.<PipelineSubscriber<PublisherTask<T>>>fail(code.getValue());
+    }
+
+    @Override
+    public Result<PipelineSubscriber<PublisherTask<T>>> unsubscribe(final PipelineSubscriber<PublisherTask<T>> subscriber) {
         return null;
     }
 
     @Override
-    public Result<PipelineSubscriber<PublisherTask<T>>> unsubscribe(PipelineSubscriber<PublisherTask<T>> subscriber) {
-        return null;
-    }
-
-    @Override
-    public Result<PublisherTask<T>> offer(PipelineBox<PublisherTask<T>> box) {
+    public Result<PublisherTask<T>> offer(final PipelineBox<PublisherTask<T>> box) {
         return null;
     }
 
@@ -53,7 +64,9 @@ public class DefaultPublisherPipeline<T extends ConversationItem> implements Pip
 
     @Override
     public Result<Object> stop() {
-        return null;
+        return alive.getAndSet(false)
+                ? DefaultResultBuilder.<Object>ok(null)
+                : DefaultResultBuilder.<Object>fail(Code.ALREADY_STOPPED.getValue());
     }
 
     @Override
