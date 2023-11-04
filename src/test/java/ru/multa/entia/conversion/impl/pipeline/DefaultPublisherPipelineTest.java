@@ -6,12 +6,14 @@ import org.mockito.Mockito;
 import ru.multa.entia.conversion.api.message.Message;
 import ru.multa.entia.conversion.api.pipeline.PipelineSubscriber;
 import ru.multa.entia.conversion.api.publisher.PublisherTask;
+import ru.multa.entia.fakers.impl.Faker;
 import ru.multa.entia.results.api.result.Result;
 import utils.ResultUtil;
 
 import java.lang.reflect.Field;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -80,81 +82,114 @@ class DefaultPublisherPipelineTest {
     }
 
     @Test
-    void shouldCheckSubscription_itIsNotStarted() {
-        // TODO: 04.11.2023 restore
-//        Supplier<TestPipelineSubscriber> pipelineSubscriberSupplier = () -> {
-//            return Mockito.mock(TestPipelineSubscriber.class);
-//        };
-//
-//        DefaultPublisherPipeline<Message> pipeline = new DefaultPublisherPipeline<>();
-//        Result<PipelineSubscriber<PublisherTask<Message>>> result = pipeline.subscribe(pipelineSubscriberSupplier.get());
-//
-//        assertThat(ResultUtil.isEqual(
-//                result,
-//                ResultUtil.fail(DefaultPublisherPipeline.Code.SUBSCRIPTION_IF_NOT_STARTED.getValue()))).isTrue();
+    void shouldCheckSubscription_itIsStarted() {
+        Supplier<TestPipelineSubscriber> pipelineSubscriberSupplier = () -> {
+            TestPipelineSubscriber subscriber = Mockito.mock(TestPipelineSubscriber.class);
+            Mockito.when(subscriber.getId()).thenReturn(Faker.uuid_().random());
+
+            return subscriber;
+        };
+
+        DefaultPublisherPipeline<Message> pipeline = new DefaultPublisherPipeline<>();
+        pipeline.start();
+
+        Result<PipelineSubscriber<PublisherTask<Message>>> result = pipeline.subscribe(pipelineSubscriberSupplier.get());
+
+        assertThat(ResultUtil.isEqual(
+                result,
+                ResultUtil.fail(DefaultPublisherPipeline.Code.SUBSCRIPTION_IF_STARTED.getValue()))).isTrue();
     }
 
     @Test
     void shouldCheckSubscription() {
-        // TODO: 04.11.2023 restore
-//        Supplier<TestPipelineSubscriber> pipelineSubscriberSupplier = () -> {
-//            return Mockito.mock(TestPipelineSubscriber.class);
-//        };
-//
-//        DefaultPublisherPipeline<Message> pipeline = new DefaultPublisherPipeline<>();
-//        pipeline.start();
-//
-//        TestPipelineSubscriber expectedSubscriber = pipelineSubscriberSupplier.get();
-//        Result<PipelineSubscriber<PublisherTask<Message>>> result = pipeline.subscribe(expectedSubscriber);
-//
-//        assertThat(ResultUtil.isEqual(
-//                result,
-//                ResultUtil.ok(expectedSubscriber))).isTrue();
+        Supplier<TestPipelineSubscriber> pipelineSubscriberSupplier = () -> {
+            TestPipelineSubscriber subscriber = Mockito.mock(TestPipelineSubscriber.class);
+            Mockito.when(subscriber.getId()).thenReturn(Faker.uuid_().random());
+
+            return subscriber;
+        };
+
+        DefaultPublisherPipeline<Message> pipeline = new DefaultPublisherPipeline<>();
+
+        TestPipelineSubscriber expectedSubscriber = pipelineSubscriberSupplier.get();
+        Result<PipelineSubscriber<PublisherTask<Message>>> result = pipeline.subscribe(expectedSubscriber);
+
+        assertThat(ResultUtil.isEqual(
+                result,
+                ResultUtil.ok(expectedSubscriber))).isTrue();
     }
 
     @Test
     void shouldCheckSubscription_ifAlreadySubscribe() {
-        // TODO: 04.11.2023 restore
-//        Supplier<TestPipelineSubscriber> pipelineSubscriberSupplier = () -> {
-//            return Mockito.mock(TestPipelineSubscriber.class);
-//        };
-//
-//        DefaultPublisherPipeline<Message> pipeline = new DefaultPublisherPipeline<>();
-//        pipeline.start();
-//
-//        pipeline.subscribe(pipelineSubscriberSupplier.get());
-//        Result<PipelineSubscriber<PublisherTask<Message>>> result = pipeline.subscribe(pipelineSubscriberSupplier.get());
-//
-//        assertThat(ResultUtil.isEqual(
-//                result,
-//                ResultUtil.fail(DefaultPublisherPipeline.Code.ALREADY_SUBSCRIBED.getValue()))).isTrue();
+        Function<UUID, TestPipelineSubscriber> pipelineSubscriberFunction = id -> {
+            TestPipelineSubscriber subscriber = Mockito.mock(TestPipelineSubscriber.class);
+            Mockito.when(subscriber.getId()).thenReturn(id);
+
+            return subscriber;
+        };
+
+        DefaultPublisherPipeline<Message> pipeline = new DefaultPublisherPipeline<>();
+
+        UUID id = Faker.uuid_().random();
+        pipeline.subscribe(pipelineSubscriberFunction.apply(id));
+        Result<PipelineSubscriber<PublisherTask<Message>>> result
+                = pipeline.subscribe(pipelineSubscriberFunction.apply(id));
+
+        assertThat(ResultUtil.isEqual(
+                result,
+                ResultUtil.fail(DefaultPublisherPipeline.Code.ALREADY_SUBSCRIBED.getValue()))).isTrue();
     }
 
     @Test
     void shouldCheckUnsubscription_itIsStarted() {
-        // TODO: 04.11.2023 restore
-//        Supplier<TestPipelineSubscriber> pipelineSubscriberSupplier = () -> {
-//            return Mockito.mock(TestPipelineSubscriber.class);
-//        };
-//
-//        DefaultPublisherPipeline<Message> pipeline = new DefaultPublisherPipeline<>();
-//        pipeline.start();
-//
-//        Result<PipelineSubscriber<PublisherTask<Message>>> result = pipeline.unsubscribe(pipelineSubscriberSupplier.get());
-//
-////        assertThat(ResultUtil.isEqual(
-////                result,
-////                ResultUtil.fail(DefaultPublisherPipeline.Code.ALREADY_SUBSCRIBED.getValue()))).isTrue();
+        Supplier<TestPipelineSubscriber> pipelineSubscriberSupplier = () -> {
+            return Mockito.mock(TestPipelineSubscriber.class);
+        };
+
+        DefaultPublisherPipeline<Message> pipeline = new DefaultPublisherPipeline<>();
+        pipeline.start();
+
+        Result<PipelineSubscriber<PublisherTask<Message>>> result = pipeline.unsubscribe(pipelineSubscriberSupplier.get());
+
+        assertThat(ResultUtil.isEqual(
+                result,
+                ResultUtil.fail(DefaultPublisherPipeline.Code.UNSUBSCRIPTION_IF_STARTED.getValue()))).isTrue();
     }
 
     @Test
     void shouldCheckUnsubscription() {
+        Function<UUID, TestPipelineSubscriber> pipelineSubscriberFunction = id -> {
+            TestPipelineSubscriber subscriber = Mockito.mock(TestPipelineSubscriber.class);
+            Mockito.when(subscriber.getId()).thenReturn(id);
 
+            return subscriber;
+        };
+
+        UUID id = Faker.uuid_().random();
+        TestPipelineSubscriber expectedSubscriber = pipelineSubscriberFunction.apply(id);
+
+        DefaultPublisherPipeline<Message> pipeline = new DefaultPublisherPipeline<>();
+        pipeline.subscribe(expectedSubscriber);
+        Result<PipelineSubscriber<PublisherTask<Message>>> result = pipeline.unsubscribe(expectedSubscriber);
+
+        assertThat(ResultUtil.isEqual(result, ResultUtil.ok(expectedSubscriber))).isTrue();
     }
 
     @Test
-    void shouldCheckUnsubscription_ifAlreadySubscribe() {
+    void shouldCheckUnsubscription_ifNotSubscribed() {
+        Supplier<TestPipelineSubscriber> pipelineSubscriberSupplier = () -> {
+            TestPipelineSubscriber subscriber = Mockito.mock(TestPipelineSubscriber.class);
+            Mockito.when(subscriber.getId()).thenReturn(Faker.uuid_().random());
 
+            return subscriber;
+        };
+
+        DefaultPublisherPipeline<Message> pipeline = new DefaultPublisherPipeline<>();
+        Result<PipelineSubscriber<PublisherTask<Message>>> result = pipeline.unsubscribe(pipelineSubscriberSupplier.get());
+
+        assertThat(ResultUtil.isEqual(
+                result,
+                ResultUtil.fail(DefaultPublisherPipeline.Code.NOT_UNSUBSCRIBED.getValue()))).isTrue();
     }
 
     private interface TestPipelineSubscriber extends PipelineSubscriber<PublisherTask<Message>> {}

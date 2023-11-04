@@ -11,8 +11,10 @@ import ru.multa.entia.conversion.api.publisher.PublisherTask;
 import ru.multa.entia.results.api.result.Result;
 import ru.multa.entia.results.impl.result.DefaultResultBuilder;
 
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 
 @Slf4j
 public class DefaultPublisherPipeline<T extends ConversationItem> implements Pipeline<PublisherTask<T>> {
@@ -20,24 +22,28 @@ public class DefaultPublisherPipeline<T extends ConversationItem> implements Pip
     @Getter
     public enum Code {
         ALREADY_STARTED("default-publisher-pipeline.already-started"),
+
         ALREADY_STOPPED("default-publisher-pipeline.already-stopped"),
-        SUBSCRIPTION_IF_NOT_STARTED("default-publisher-pipeline.subscription-if-not-started"),
+
+        SUBSCRIPTION_IF_STARTED("default-publisher-pipeline.subscription-if-started"),
         ALREADY_SUBSCRIBED("default-publisher-pipeline.already-subscribed"),
+
         UNSUBSCRIPTION_IF_STARTED("default-publisher-pipeline.unsubscription-if-started"),
-        ALREADY_UNSUBSCRIBED("default-publisher-pipeline.already-unsubscribed");
+        NOT_UNSUBSCRIBED("default-publisher-pipeline.not-unsubscribed");
 
         private final String value;
     }
 
     private final AtomicBoolean alive = new AtomicBoolean(false);
-    private final AtomicReference<PipelineSubscriber<PublisherTask<T>>> subscriber = new AtomicReference<>();
+    private final ConcurrentMap<UUID, PipelineSubscriber<PublisherTask<T>>> subscribers = new ConcurrentHashMap<>();
 
     @Override
     public Result<PipelineSubscriber<PublisherTask<T>>> subscribe(final PipelineSubscriber<PublisherTask<T>> subscriber) {
-        Code code = Code.SUBSCRIPTION_IF_NOT_STARTED;
-        if (alive.get()) {
-            boolean result = this.subscriber.compareAndSet(null, subscriber);
-            code = result ? null : Code.ALREADY_SUBSCRIBED;
+        Code code = Code.SUBSCRIPTION_IF_STARTED;
+        if (!alive.get()){
+            code = subscribers.putIfAbsent(subscriber.getId(), subscriber) == null
+                    ? null
+                    : Code.ALREADY_SUBSCRIBED;
         }
 
         return code == null
@@ -47,7 +53,16 @@ public class DefaultPublisherPipeline<T extends ConversationItem> implements Pip
 
     @Override
     public Result<PipelineSubscriber<PublisherTask<T>>> unsubscribe(final PipelineSubscriber<PublisherTask<T>> subscriber) {
-        return null;
+        Code code = Code.UNSUBSCRIPTION_IF_STARTED;
+        if (!alive.get()){
+            code = subscribers.remove(subscriber.getId()) == null
+                    ? Code.NOT_UNSUBSCRIBED
+                    : null;
+        }
+
+        return code == null
+                ? DefaultResultBuilder.<PipelineSubscriber<PublisherTask<T>>>ok(subscriber)
+                : DefaultResultBuilder.<PipelineSubscriber<PublisherTask<T>>>fail(code.getValue());
     }
 
     @Override
