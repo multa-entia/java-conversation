@@ -16,12 +16,30 @@ import utils.TestHolderReleaseStrategy;
 import utils.TestHolderTimeoutStrategy;
 
 
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class DefaultPublisherPipelineSubscriberTest {
+
+    @Test
+    void shouldCheckIdGetting_ifItIsNotSetOnCreation() {
+        DefaultPublisherPipelineSubscriber<Message> subscriber = new DefaultPublisherPipelineSubscriber<>(null);
+        UUID id = subscriber.getId();
+
+        assertThat(id).isNotNull();
+    }
+
+    @Test
+    void shouldCheckIdGetting() {
+        UUID expectedId = Faker.uuid_().random();
+        DefaultPublisherPipelineSubscriber<Message> subscriber = new DefaultPublisherPipelineSubscriber<>(expectedId, null);
+        UUID id = subscriber.getId();
+
+        assertThat(id).isEqualTo(expectedId);
+    }
 
     @Test
     void shouldCheckSubscriptionExecution_ifFail() {
