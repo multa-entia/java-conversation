@@ -12,6 +12,8 @@ import ru.multa.entia.results.api.result.Result;
 import ru.multa.entia.results.impl.result.DefaultResultBuilder;
 
 import java.util.UUID;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -29,13 +31,27 @@ public class DefaultPublisherPipeline<T extends ConversationItem> implements Pip
         ALREADY_SUBSCRIBED("default-publisher-pipeline.already-subscribed"),
 
         UNSUBSCRIPTION_IF_STARTED("default-publisher-pipeline.unsubscription-if-started"),
-        NOT_UNSUBSCRIBED("default-publisher-pipeline.not-unsubscribed");
+        NOT_UNSUBSCRIBED("default-publisher-pipeline.not-unsubscribed"),
+
+        OFFER_IF_NOT_STARTED("default-publisher-pipeline.offer-if-not-started"),
+        OFFER_QUEUE_IS_FULL("default-publisher-pipeline.offer-queue-is-gull");
 
         private final String value;
     }
 
+    private static final int DEFAULT_QUEUE_SIZE = 1_000;
+
     private final AtomicBoolean alive = new AtomicBoolean(false);
     private final ConcurrentMap<UUID, PipelineSubscriber<PublisherTask<T>>> subscribers = new ConcurrentHashMap<>();
+    private final BlockingQueue<PipelineBox<PublisherTask<T>>> queue;
+
+    public DefaultPublisherPipeline() {
+        this(null);
+    }
+
+    public DefaultPublisherPipeline(final BlockingQueue<PipelineBox<PublisherTask<T>>> queue) {
+        this.queue = queue == null ? new ArrayBlockingQueue<>(DEFAULT_QUEUE_SIZE) : queue;
+    }
 
     @Override
     public Result<PipelineSubscriber<PublisherTask<T>>> subscribe(final PipelineSubscriber<PublisherTask<T>> subscriber) {
@@ -65,9 +81,17 @@ public class DefaultPublisherPipeline<T extends ConversationItem> implements Pip
                 : DefaultResultBuilder.<PipelineSubscriber<PublisherTask<T>>>fail(code.getValue());
     }
 
+    // TODO: 04.11.2023 refact
     @Override
     public Result<PublisherTask<T>> offer(final PipelineBox<PublisherTask<T>> box) {
-        return null;
+        Code code = Code.OFFER_IF_NOT_STARTED;
+        if (alive.get()){
+            code = queue.offer(box) ? null : Code.OFFER_QUEUE_IS_FULL;
+        }
+
+        return code == null
+                ? DefaultResultBuilder.<PublisherTask<T>>ok(box.value())
+                : DefaultResultBuilder.<PublisherTask<T>>fail(code.getValue());
     }
 
     @Override

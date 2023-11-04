@@ -4,6 +4,7 @@ import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import ru.multa.entia.conversion.api.message.Message;
+import ru.multa.entia.conversion.api.pipeline.PipelineBox;
 import ru.multa.entia.conversion.api.pipeline.PipelineSubscriber;
 import ru.multa.entia.conversion.api.publisher.PublisherTask;
 import ru.multa.entia.fakers.impl.Faker;
@@ -11,7 +12,9 @@ import ru.multa.entia.results.api.result.Result;
 import utils.ResultUtil;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.UUID;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -192,5 +195,86 @@ class DefaultPublisherPipelineTest {
                 ResultUtil.fail(DefaultPublisherPipeline.Code.NOT_UNSUBSCRIBED.getValue()))).isTrue();
     }
 
+    @Test
+    void shouldCheckOffer_ifNotStarted() {
+        Supplier<TestPipelineBox> testPipelineBoxSupplier = () -> {
+            TestPublisherTask task = Mockito.mock(TestPublisherTask.class);
+            TestPipelineBox box = Mockito.mock(TestPipelineBox.class);
+            Mockito.when(box.value()).thenReturn(task);
+
+            return box;
+        };
+
+        DefaultPublisherPipeline<Message> pipeline = new DefaultPublisherPipeline<>();
+        Result<PublisherTask<Message>> result = pipeline.offer(testPipelineBoxSupplier.get());
+
+        assertThat(ResultUtil.isEqual(
+                result,
+                ResultUtil.fail(DefaultPublisherPipeline.Code.OFFER_IF_NOT_STARTED.getValue()))).isTrue();
+    }
+
+    @SneakyThrows
+    @Test
+    void shouldCheckOffer() {
+        Supplier<TestPublisherTask> testPublisherTaskSupplier = () -> {
+            return Mockito.mock(TestPublisherTask.class);
+        };
+
+        Function<TestPublisherTask, TestPipelineBox> testPipelineBoxFunction = task -> {
+            TestPipelineBox box = Mockito.mock(TestPipelineBox.class);
+            Mockito.when(box.value()).thenReturn(task);
+
+            return box;
+        };
+
+        ArrayBlockingQueue<PipelineBox<PublisherTask<Message>>> queue = new ArrayBlockingQueue<>(1_000);
+        DefaultPublisherPipeline<Message> pipeline = new DefaultPublisherPipeline<>(queue);
+        pipeline.start();
+
+        Integer size = Faker.int_().random(10, 20);
+        TestPublisherTask[] tasks = new TestPublisherTask[size];
+        for (int i = 0; i < size; i++) {
+            TestPublisherTask task = testPublisherTaskSupplier.get();
+            tasks[i] = task;
+            Result<PublisherTask<Message>> result = pipeline.offer(testPipelineBoxFunction.apply(task));
+
+            assertThat(ResultUtil.isEqual(result, ResultUtil.ok(task))).isTrue();
+        }
+
+        assertThat(queue.size()).isEqualTo(size);
+
+        for (TestPublisherTask task : tasks) {
+            PipelineBox<PublisherTask<Message>> taken = queue.take();
+            assertThat(taken.value()).isEqualTo(task);
+        }
+    }
+
+    @Test
+    void shouldCheckOffer_ifQueueIsFull() {
+        Supplier<TestPublisherTask> testPublisherTaskSupplier = () -> {
+            return Mockito.mock(TestPublisherTask.class);
+        };
+
+        Function<TestPublisherTask, TestPipelineBox> testPipelineBoxFunction = task -> {
+            TestPipelineBox box = Mockito.mock(TestPipelineBox.class);
+            Mockito.when(box.value()).thenReturn(task);
+
+            return box;
+        };
+
+        ArrayBlockingQueue<PipelineBox<PublisherTask<Message>>> queue = new ArrayBlockingQueue<>(1);
+        DefaultPublisherPipeline<Message> pipeline = new DefaultPublisherPipeline<>(queue);
+        pipeline.start();
+
+        pipeline.offer(testPipelineBoxFunction.apply(testPublisherTaskSupplier.get()));
+        Result<PublisherTask<Message>> result = pipeline.offer(testPipelineBoxFunction.apply(testPublisherTaskSupplier.get()));
+
+        assertThat(ResultUtil.isEqual(
+                result,
+                ResultUtil.fail(DefaultPublisherPipeline.Code.OFFER_QUEUE_IS_FULL.getValue()))).isTrue();
+    }
+
     private interface TestPipelineSubscriber extends PipelineSubscriber<PublisherTask<Message>> {}
+    private interface TestPublisherTask extends PublisherTask<Message> {}
+    private interface TestPipelineBox extends PipelineBox<PublisherTask<Message>> {}
 }
