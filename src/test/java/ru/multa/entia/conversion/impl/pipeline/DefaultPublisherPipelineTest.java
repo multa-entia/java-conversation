@@ -3,6 +3,8 @@ package ru.multa.entia.conversion.impl.pipeline;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import ru.multa.entia.conversion.api.message.Message;
 import ru.multa.entia.conversion.api.pipeline.PipelineBox;
 import ru.multa.entia.conversion.api.pipeline.PipelineSubscriber;
@@ -12,10 +14,12 @@ import ru.multa.entia.results.api.result.Result;
 import utils.ResultUtil;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.UUID;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -228,7 +232,7 @@ class DefaultPublisherPipelineTest {
         };
 
         ArrayBlockingQueue<PipelineBox<PublisherTask<Message>>> queue = new ArrayBlockingQueue<>(1_000);
-        DefaultPublisherPipeline<Message> pipeline = new DefaultPublisherPipeline<>(queue);
+        DefaultPublisherPipeline<Message> pipeline = new DefaultPublisherPipeline<>(queue, null, null);
         pipeline.start();
 
         Integer size = Faker.int_().random(10, 20);
@@ -263,7 +267,7 @@ class DefaultPublisherPipelineTest {
         };
 
         ArrayBlockingQueue<PipelineBox<PublisherTask<Message>>> queue = new ArrayBlockingQueue<>(1);
-        DefaultPublisherPipeline<Message> pipeline = new DefaultPublisherPipeline<>(queue);
+        DefaultPublisherPipeline<Message> pipeline = new DefaultPublisherPipeline<>(queue, null, null);
         pipeline.start();
 
         pipeline.offer(testPipelineBoxFunction.apply(testPublisherTaskSupplier.get()));
@@ -273,6 +277,32 @@ class DefaultPublisherPipelineTest {
                 result,
                 ResultUtil.fail(DefaultPublisherPipeline.Code.OFFER_QUEUE_IS_FULL.getValue()))).isTrue();
     }
+
+    // TODO: 05.11.2023 !!!
+//    @Test
+//    void shouldCheckBoxProcessorSubmit() {
+//        AtomicReference<Object> handlerAR = new AtomicReference<>();
+//
+//        Supplier<ExecutorService> executorServiceSupplier = () -> {
+//            ExecutorService service = Mockito.mock(ExecutorService.class);
+//            Mockito
+//                    .when(service.submit(Mockito.any(Runnable.class)))
+//                    .thenAnswer(new Answer<Future<?>>() {
+//                        @Override
+//                        public Future<?> answer(InvocationOnMock invocation) throws Throwable {
+//                            handlerAR.set(invocation.getArgument(0));
+//                            return null;
+//                        }
+//                    });
+//
+//            return service;
+//        };
+//
+//        DefaultPublisherPipeline<Message> pipeline
+//                = new DefaultPublisherPipeline<>(null, executorServiceSupplier.get(), null);
+//
+//        assertThat(handlerAR.get()).isNotNull();
+//    }
 
     private interface TestPipelineSubscriber extends PipelineSubscriber<PublisherTask<Message>> {}
     private interface TestPublisherTask extends PublisherTask<Message> {}

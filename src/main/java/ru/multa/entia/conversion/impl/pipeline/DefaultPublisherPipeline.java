@@ -11,12 +11,12 @@ import ru.multa.entia.conversion.api.publisher.PublisherTask;
 import ru.multa.entia.results.api.result.Result;
 import ru.multa.entia.results.impl.result.DefaultResultBuilder;
 
+import java.util.Objects;
 import java.util.UUID;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
 
 @Slf4j
 public class DefaultPublisherPipeline<T extends ConversationItem> implements Pipeline<PublisherTask<T>> {
@@ -40,21 +40,60 @@ public class DefaultPublisherPipeline<T extends ConversationItem> implements Pip
     }
 
     private static final int DEFAULT_QUEUE_SIZE = 1_000;
+    private static final String DEFAULT_BOX_PROCESSOR_THREAD_NAME = "box-processor-thread";
+    private static final String DEFAULT_BOX_HANDLER_THREAD_PREFIX = "box-handler-thread-";
+    private static final int BOX_HANDLER_THREAD_LIMIT = 8;
+    private static final Supplier<ExecutorService> DEFAULT_BOX_PROCESSOR_SUPPLIER = () -> Executors.newSingleThreadExecutor(runnable -> {
+        Thread thread = new Thread(runnable);
+        thread.setName(DEFAULT_BOX_PROCESSOR_THREAD_NAME);
+
+        return thread;
+    });
+    private static final Supplier<ExecutorService> DEFAULT_BOX_HANDLER_SUPPLIER = () -> Executors.newFixedThreadPool(
+            BOX_HANDLER_THREAD_LIMIT,
+            new ThreadFactory() {
+                private final AtomicInteger threadNameCounter = new AtomicInteger(0);
+                @Override
+                public Thread newThread(Runnable runnable) {
+                    Thread thread = new Thread(runnable);
+                    thread.setName(DEFAULT_BOX_HANDLER_THREAD_PREFIX + threadNameCounter.incrementAndGet());
+
+                    return thread;
+                }
+            }
+    );
 
     private final AtomicBoolean alive = new AtomicBoolean(false);
     private final ConcurrentMap<UUID, PipelineSubscriber<PublisherTask<T>>> subscribers = new ConcurrentHashMap<>();
     private final BlockingQueue<PipelineBox<PublisherTask<T>>> queue;
+    private final Supplier<ExecutorService> boxProcessorSupplier;
+    private final Supplier<ExecutorService> boxHandlerSupplier;
+
+
+    private ExecutorService boxProcessor;
+    private ExecutorService boxHandler;
+
 
     public DefaultPublisherPipeline() {
-        this(null);
+        this(null, null, null);
     }
 
-    public DefaultPublisherPipeline(final BlockingQueue<PipelineBox<PublisherTask<T>>> queue) {
-        this.queue = queue == null ? new ArrayBlockingQueue<>(DEFAULT_QUEUE_SIZE) : queue;
+    public DefaultPublisherPipeline(final BlockingQueue<PipelineBox<PublisherTask<T>>> queue,
+                                    final Supplier<ExecutorService> boxProcessorSupplier,
+                                    final Supplier<ExecutorService> boxHandlerSupplier) {
+        // TODO: 04.11.2023 use requireNonNullElseGet in other places
+        this.queue = Objects.requireNonNullElseGet(queue, () -> {return new ArrayBlockingQueue<>(DEFAULT_QUEUE_SIZE);});
+        this.boxProcessorSupplier = Objects.requireNonNullElseGet(boxProcessorSupplier, () -> DEFAULT_BOX_PROCESSOR_SUPPLIER);
+        this.boxHandlerSupplier = Objects.requireNonNullElseGet(boxHandlerSupplier, () -> DEFAULT_BOX_HANDLER_SUPPLIER);
+
+        // TODO: 05.11.2023 !!!
+//        this.boxProcessor.submit(this::processBoxes);
     }
 
     @Override
     public Result<PipelineSubscriber<PublisherTask<T>>> subscribe(final PipelineSubscriber<PublisherTask<T>> subscriber) {
+        log.info("The attempt of subscription: {}", subscriber.getId());
+
         Code code = Code.SUBSCRIPTION_IF_STARTED;
         if (!alive.get()){
             code = subscribers.putIfAbsent(subscriber.getId(), subscriber) == null
@@ -69,6 +108,8 @@ public class DefaultPublisherPipeline<T extends ConversationItem> implements Pip
 
     @Override
     public Result<PipelineSubscriber<PublisherTask<T>>> unsubscribe(final PipelineSubscriber<PublisherTask<T>> subscriber) {
+        log.info("The attempt of unsubscription: {}", subscriber.getId());
+
         Code code = Code.UNSUBSCRIPTION_IF_STARTED;
         if (!alive.get()){
             code = subscribers.remove(subscriber.getId()) == null
@@ -81,9 +122,10 @@ public class DefaultPublisherPipeline<T extends ConversationItem> implements Pip
                 : DefaultResultBuilder.<PipelineSubscriber<PublisherTask<T>>>fail(code.getValue());
     }
 
-    // TODO: 04.11.2023 refact
     @Override
     public Result<PublisherTask<T>> offer(final PipelineBox<PublisherTask<T>> box) {
+        log.info("The attempt of offer: {}", box.value());
+
         Code code = Code.OFFER_IF_NOT_STARTED;
         if (alive.get()){
             code = queue.offer(box) ? null : Code.OFFER_QUEUE_IS_FULL;
@@ -96,6 +138,11 @@ public class DefaultPublisherPipeline<T extends ConversationItem> implements Pip
 
     @Override
     public Result<Object> start() {
+        log.info("The attempt of starting");
+
+        // TODO: 05.11.2023 !!!
+//        this.boxProcessor.submit(this::processBoxes);
+
         return alive.getAndSet(true)
                 ? DefaultResultBuilder.<Object>fail(Code.ALREADY_STARTED.getValue())
                 : DefaultResultBuilder.<Object>ok(null);
@@ -103,6 +150,16 @@ public class DefaultPublisherPipeline<T extends ConversationItem> implements Pip
 
     @Override
     public Result<Object> stop() {
+        log.info("The attempt of stopping");
+
+// TODO: 05.11.2023 !!!
+//        messageProcessor.shutdown();
+//        messageHandler.awaitTermination(60, TimeUnit.SECONDS);
+
+//        messageHandler.shutdown();
+//        messageHandler.submit(this::messageHandlerShutdown);
+//        logger.info("messageProcessor finished");
+
         return alive.getAndSet(false)
                 ? DefaultResultBuilder.<Object>ok(null)
                 : DefaultResultBuilder.<Object>fail(Code.ALREADY_STOPPED.getValue());
@@ -111,6 +168,39 @@ public class DefaultPublisherPipeline<T extends ConversationItem> implements Pip
     @Override
     public Result<Object> stopWithoutClearing() {
         return null;
+    }
+
+    private void processBoxes(){
+
+
+
+//        logger.info("messageProcessor started");
+//        while (runFlag.get())
+//        {
+//            try{
+//                Message message = messageQueue.take();
+//                if (message == Message.getVoidMessage()){
+//                    logger.info("Received the stop message");
+//                } else {
+//                    Optional<MSClient> optClientTo = msClientService.get(message.getToUrl());
+//                    if (optClientTo.isPresent()){
+//                        messageHandler.submit(
+//                                () -> handlerMessage(optClientTo.get(), message)
+//                        );
+//                    } else {
+//                        logger.warn("Client not found");
+//                    }
+//                }
+//            } catch (InterruptedException ex){
+//                logger.error(ex.getMessage(), ex);
+//                Thread.currentThread().interrupt();
+//            } catch (Exception ex){
+//                logger.error(ex.getMessage(), ex);
+//            }
+//        }
+//
+//        messageHandler.submit(this::messageHandlerShutdown);
+//        logger.info("messageProcessor finished");
     }
 }
 
@@ -216,17 +306,7 @@ public class DefaultPublisherPipeline<T extends ConversationItem> implements Pip
 //            result = messageQueue.offer(Message.getVoidMessage());
 //        }
 //    }
-//
-//    @Override
-//    public synchronized boolean newMessage(Message message) {
-//        if (runFlag.get()){
-//            return messageQueue.offer(message);
-//        } else {
-//            logger.warn("MS is being shutting down... rejected : {}", message);
-//            return false;
-//        }
-//    }
-//
+
 //    @Override
 //    public synchronized void dispose() throws InterruptedException {
 //        runFlag.set(false);

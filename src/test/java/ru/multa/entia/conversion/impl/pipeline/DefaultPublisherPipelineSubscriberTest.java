@@ -1,5 +1,6 @@
 package ru.multa.entia.conversion.impl.pipeline;
 
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
@@ -16,7 +17,9 @@ import utils.TestHolderReleaseStrategy;
 import utils.TestHolderTimeoutStrategy;
 
 
+import java.lang.reflect.Field;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
@@ -35,10 +38,91 @@ class DefaultPublisherPipelineSubscriberTest {
     @Test
     void shouldCheckIdGetting() {
         UUID expectedId = Faker.uuid_().random();
-        DefaultPublisherPipelineSubscriber<Message> subscriber = new DefaultPublisherPipelineSubscriber<>(expectedId, null);
+        DefaultPublisherPipelineSubscriber<Message> subscriber = new DefaultPublisherPipelineSubscriber<>(null, expectedId, null);
         UUID id = subscriber.getId();
 
         assertThat(id).isEqualTo(expectedId);
+    }
+
+    @Test
+    void shouldCheckBlock_ifAlreadyBlock() {
+        DefaultPublisherPipelineSubscriber<Message> subscriber
+                = new DefaultPublisherPipelineSubscriber<>(null, null, new AtomicBoolean(true));
+
+        Result<Object> result = subscriber.block();
+
+        assertThat(ResultUtil.isEqual(
+                result,
+                ResultUtil.fail(DefaultPublisherPipelineSubscriber.Code.ALREADY_BLOCKED.getValue()))).isTrue();
+    }
+
+    @SneakyThrows
+    @Test
+    void shouldCheckBlock() {
+        DefaultPublisherPipelineSubscriber<Message> subscriber
+                = new DefaultPublisherPipelineSubscriber<>(null, null, new AtomicBoolean(false));
+
+        Result<Object> result = subscriber.block();
+        Field field = subscriber.getClass().getDeclaredField("block");
+        field.setAccessible(true);
+
+        AtomicBoolean gottenBlock = (AtomicBoolean) field.get(subscriber);
+
+        assertThat(ResultUtil.isEqual(result, ResultUtil.ok(null))).isTrue();
+        assertThat(gottenBlock).isTrue();
+    }
+
+    @Test
+    void shouldCheckBlockOut_ifAlreadyBlockedOut() {
+        DefaultPublisherPipelineSubscriber<Message> subscriber
+                = new DefaultPublisherPipelineSubscriber<>(null, null, new AtomicBoolean(false));
+
+        Result<Object> result = subscriber.blockOut();
+
+        assertThat(ResultUtil.isEqual(
+                result,
+                ResultUtil.fail(DefaultPublisherPipelineSubscriber.Code.ALREADY_BLOCKED_OUT.getValue()))).isTrue();
+    }
+
+    @SneakyThrows
+    @Test
+    void shouldCheckBlockOut() {
+        DefaultPublisherPipelineSubscriber<Message> subscriber
+                = new DefaultPublisherPipelineSubscriber<>(null, null, new AtomicBoolean(true));
+
+        Result<Object> result = subscriber.blockOut();
+        Field field = subscriber.getClass().getDeclaredField("block");
+        field.setAccessible(true);
+
+        AtomicBoolean gottenBlock = (AtomicBoolean) field.get(subscriber);
+
+        assertThat(ResultUtil.isEqual(result, ResultUtil.ok(null))).isTrue();
+        assertThat(gottenBlock).isFalse();
+    }
+
+    @Test
+    void shouldCheckSubscriptionExecution_ifBlocked() {
+        Message expectedMessage = FakerUtil.randomMessage();
+        TestHolderTimeoutStrategy expectedTimeoutStrategy = new TestHolderTimeoutStrategy();
+        TestHolderReleaseStrategy expectedReleaseStrategy = new TestHolderReleaseStrategy();
+
+        Supplier<TestPublisherTask> taskSupplier = () -> {
+            TestPublisherTask task = Mockito.mock(TestPublisherTask.class);
+            Mockito.when(task.item()).thenReturn(expectedMessage);
+            Mockito.when(task.timeoutStrategy()).thenReturn(expectedTimeoutStrategy);
+            Mockito.when(task.releaseStrategy()).thenReturn(expectedReleaseStrategy);
+
+            return task;
+        };
+
+        TestPublisherTask task = taskSupplier.get();
+        Result<PublisherTask<Message>> result
+                = new DefaultPublisherPipelineSubscriber<Message>(null, null, new AtomicBoolean(true))
+                .give(task);
+
+        assertThat(ResultUtil.isEqual(
+                result,
+                ResultUtil.fail(DefaultPublisherPipelineSubscriber.Code.IS_BLOCKED.getValue()))).isTrue();
     }
 
     @Test
@@ -75,7 +159,8 @@ class DefaultPublisherPipelineSubscriberTest {
         };
 
         TestPublisherTask task = taskSupplier.get();
-        Result<PublisherTask<Message>> result = new DefaultPublisherPipelineSubscriber<Message>(publisherSupplier.get())
+        Result<PublisherTask<Message>> result
+                = new DefaultPublisherPipelineSubscriber<Message>(publisherSupplier.get(), null, new AtomicBoolean(false))
                 .give(task);
 
         assertThat(ResultUtil.isEqual(result, ResultUtil.fail(expectedSeed))).isTrue();
@@ -119,7 +204,8 @@ class DefaultPublisherPipelineSubscriberTest {
         };
 
         TestPublisherTask task = taskSupplier.get();
-        Result<PublisherTask<Message>> result = new DefaultPublisherPipelineSubscriber<Message>(publisherSupplier.get())
+        Result<PublisherTask<Message>> result
+                = new DefaultPublisherPipelineSubscriber<Message>(publisherSupplier.get(), null, new AtomicBoolean(false))
                 .give(task);
 
         assertThat(result.ok()).isTrue();
