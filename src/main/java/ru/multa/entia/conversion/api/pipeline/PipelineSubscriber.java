@@ -6,7 +6,7 @@ import java.util.UUID;
 
 public interface PipelineSubscriber<T> {
     UUID getId();
-    Result<T> give(T value);
+    Result<T> give(T value, UUID sessionId);
     Result<Object> block();
-    Result<Object> blockOut();
+    Result<Object> blockOut(UUID sessionId);
 }

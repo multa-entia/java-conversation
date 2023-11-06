@@ -38,7 +38,8 @@ class DefaultPublisherPipelineSubscriberTest {
     @Test
     void shouldCheckIdGetting() {
         UUID expectedId = Faker.uuid_().random();
-        DefaultPublisherPipelineSubscriber<Message> subscriber = new DefaultPublisherPipelineSubscriber<>(null, expectedId, null);
+        DefaultPublisherPipelineSubscriber<Message> subscriber
+                = new DefaultPublisherPipelineSubscriber<>(null, expectedId, null);
         UUID id = subscriber.getId();
 
         assertThat(id).isEqualTo(expectedId);
@@ -47,57 +48,73 @@ class DefaultPublisherPipelineSubscriberTest {
     @Test
     void shouldCheckBlock_ifAlreadyBlock() {
         DefaultPublisherPipelineSubscriber<Message> subscriber
-                = new DefaultPublisherPipelineSubscriber<>(null, null, new AtomicBoolean(true));
+                = new DefaultPublisherPipelineSubscriber<>(null, null, null);
 
         Result<Object> result = subscriber.block();
 
         assertThat(ResultUtil.isEqual(
                 result,
-                ResultUtil.fail(DefaultPublisherPipelineSubscriber.Code.ALREADY_BLOCKED.getValue()))).isTrue();
+                ResultUtil.fail(DefaultPublisherPipelineSubscriber.Code.SESSION_ID_ALREADY_RESET.getValue()))).isTrue();
     }
 
+    @SuppressWarnings("unchecked")
     @SneakyThrows
     @Test
     void shouldCheckBlock() {
         DefaultPublisherPipelineSubscriber<Message> subscriber
-                = new DefaultPublisherPipelineSubscriber<>(null, null, new AtomicBoolean(false));
+                = new DefaultPublisherPipelineSubscriber<>(null, null, Faker.uuid_().random());
 
         Result<Object> result = subscriber.block();
-        Field field = subscriber.getClass().getDeclaredField("block");
+        Field field = subscriber.getClass().getDeclaredField("sessionId");
         field.setAccessible(true);
 
-        AtomicBoolean gottenBlock = (AtomicBoolean) field.get(subscriber);
+        AtomicReference<UUID> gottenSessionId = (AtomicReference<UUID>) field.get(subscriber);
 
         assertThat(ResultUtil.isEqual(result, ResultUtil.ok(null))).isTrue();
-        assertThat(gottenBlock).isTrue();
+        assertThat(gottenSessionId.get()).isNull();
     }
 
     @Test
     void shouldCheckBlockOut_ifAlreadyBlockedOut() {
+        UUID expectedSessionId = Faker.uuid_().random();
         DefaultPublisherPipelineSubscriber<Message> subscriber
-                = new DefaultPublisherPipelineSubscriber<>(null, null, new AtomicBoolean(false));
+                = new DefaultPublisherPipelineSubscriber<>(null, null, expectedSessionId);
 
-        Result<Object> result = subscriber.blockOut();
+        Result<Object> result = subscriber.blockOut(expectedSessionId);
 
         assertThat(ResultUtil.isEqual(
                 result,
-                ResultUtil.fail(DefaultPublisherPipelineSubscriber.Code.ALREADY_BLOCKED_OUT.getValue()))).isTrue();
+                ResultUtil.fail(DefaultPublisherPipelineSubscriber.Code.THIS_SESSION_ID_ALREADY_SET.getValue()))).isTrue();
     }
 
+    @Test
+    void shouldCheckBlockOut_ifSessionIdNull() {
+        DefaultPublisherPipelineSubscriber<Message> subscriber
+                = new DefaultPublisherPipelineSubscriber<>(null, null, null);
+
+        Result<Object> result = subscriber.blockOut(null);
+
+        assertThat(ResultUtil.isEqual(
+                result,
+                ResultUtil.fail(DefaultPublisherPipelineSubscriber.Code.SESSION_ID_ON_BLOCK_OUT_IS_NULL.getValue()))).isTrue();
+    }
+
+    @SuppressWarnings("unchecked")
     @SneakyThrows
     @Test
     void shouldCheckBlockOut() {
         DefaultPublisherPipelineSubscriber<Message> subscriber
-                = new DefaultPublisherPipelineSubscriber<>(null, null, new AtomicBoolean(true));
+                = new DefaultPublisherPipelineSubscriber<>(null, null, null);
 
-        Result<Object> result = subscriber.blockOut();
-        Field field = subscriber.getClass().getDeclaredField("block");
+        UUID expectedSessionId = Faker.uuid_().random();
+        Result<Object> result = subscriber.blockOut(expectedSessionId);
+        Field field = subscriber.getClass().getDeclaredField("sessionId");
         field.setAccessible(true);
 
-        AtomicBoolean gottenBlock = (AtomicBoolean) field.get(subscriber);
+        AtomicReference<UUID> gottenSessionId = (AtomicReference<UUID>) field.get(subscriber);
 
         assertThat(ResultUtil.isEqual(result, ResultUtil.ok(null))).isTrue();
-        assertThat(gottenBlock).isFalse();
+        assertThat(gottenSessionId.get()).isEqualTo(expectedSessionId);
     }
 
     @Test
@@ -117,12 +134,37 @@ class DefaultPublisherPipelineSubscriberTest {
 
         TestPublisherTask task = taskSupplier.get();
         Result<PublisherTask<Message>> result
-                = new DefaultPublisherPipelineSubscriber<Message>(null, null, new AtomicBoolean(true))
-                .give(task);
+                = new DefaultPublisherPipelineSubscriber<Message>(null, null, null)
+                .give(task, Faker.uuid_().random());
 
         assertThat(ResultUtil.isEqual(
                 result,
-                ResultUtil.fail(DefaultPublisherPipelineSubscriber.Code.IS_BLOCKED.getValue()))).isTrue();
+                ResultUtil.fail(DefaultPublisherPipelineSubscriber.Code.SESSION_ID_IS_NOT_SET.getValue()))).isTrue();
+    }
+
+    @Test
+    void shouldCheckSubscriptionExecution_ifSessionIdIsNull() {
+        Message expectedMessage = FakerUtil.randomMessage();
+        TestHolderTimeoutStrategy expectedTimeoutStrategy = new TestHolderTimeoutStrategy();
+        TestHolderReleaseStrategy expectedReleaseStrategy = new TestHolderReleaseStrategy();
+
+        Supplier<TestPublisherTask> taskSupplier = () -> {
+            TestPublisherTask task = Mockito.mock(TestPublisherTask.class);
+            Mockito.when(task.item()).thenReturn(expectedMessage);
+            Mockito.when(task.timeoutStrategy()).thenReturn(expectedTimeoutStrategy);
+            Mockito.when(task.releaseStrategy()).thenReturn(expectedReleaseStrategy);
+
+            return task;
+        };
+
+        TestPublisherTask task = taskSupplier.get();
+        Result<PublisherTask<Message>> result
+                = new DefaultPublisherPipelineSubscriber<Message>(null, null, Faker.uuid_().random())
+                .give(task, null);
+
+        assertThat(ResultUtil.isEqual(
+                result,
+                ResultUtil.fail(DefaultPublisherPipelineSubscriber.Code.DISALLOWED_SESSION_ID.getValue()))).isTrue();
     }
 
     @Test
@@ -159,9 +201,10 @@ class DefaultPublisherPipelineSubscriberTest {
         };
 
         TestPublisherTask task = taskSupplier.get();
+        UUID sessionId = Faker.uuid_().random();
         Result<PublisherTask<Message>> result
-                = new DefaultPublisherPipelineSubscriber<Message>(publisherSupplier.get(), null, new AtomicBoolean(false))
-                .give(task);
+                = new DefaultPublisherPipelineSubscriber<Message>(publisherSupplier.get(), null, sessionId)
+                .give(task, sessionId);
 
         assertThat(ResultUtil.isEqual(result, ResultUtil.fail(expectedSeed))).isTrue();
 
@@ -204,9 +247,10 @@ class DefaultPublisherPipelineSubscriberTest {
         };
 
         TestPublisherTask task = taskSupplier.get();
+        UUID sessionId = Faker.uuid_().random();
         Result<PublisherTask<Message>> result
-                = new DefaultPublisherPipelineSubscriber<Message>(publisherSupplier.get(), null, new AtomicBoolean(false))
-                .give(task);
+                = new DefaultPublisherPipelineSubscriber<Message>(publisherSupplier.get(), null, sessionId)
+                .give(task, sessionId);
 
         assertThat(result.ok()).isTrue();
         assertThat(result.seed()).isNull();

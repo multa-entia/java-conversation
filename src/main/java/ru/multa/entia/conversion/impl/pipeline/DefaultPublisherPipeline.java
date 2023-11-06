@@ -11,11 +11,15 @@ import ru.multa.entia.conversion.api.publisher.PublisherTask;
 import ru.multa.entia.results.api.result.Result;
 import ru.multa.entia.results.impl.result.DefaultResultBuilder;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Supplier;
 
 @Slf4j
@@ -63,16 +67,19 @@ public class DefaultPublisherPipeline<T extends ConversationItem> implements Pip
             }
     );
 
-    private final AtomicBoolean alive = new AtomicBoolean(false);
-    private final ConcurrentMap<UUID, PipelineSubscriber<PublisherTask<T>>> subscribers = new ConcurrentHashMap<>();
+    private final ReadWriteLock lock = new ReentrantReadWriteLock();
+    private final Lock __wLock__ = lock.writeLock();
+    private final Lock __rLock__ = lock.readLock();
+
+    private final Map<UUID, PipelineSubscriber<PublisherTask<T>>> subscribers = new HashMap<>();
     private final BlockingQueue<PipelineBox<PublisherTask<T>>> queue;
     private final Supplier<ExecutorService> boxProcessorSupplier;
     private final Supplier<ExecutorService> boxHandlerSupplier;
 
-
+    private boolean alive = false;
     private ExecutorService boxProcessor;
     private ExecutorService boxHandler;
-
+    private UUID sessionId;
 
     public DefaultPublisherPipeline() {
         this(null, null, null);
@@ -85,9 +92,6 @@ public class DefaultPublisherPipeline<T extends ConversationItem> implements Pip
         this.queue = Objects.requireNonNullElseGet(queue, () -> {return new ArrayBlockingQueue<>(DEFAULT_QUEUE_SIZE);});
         this.boxProcessorSupplier = Objects.requireNonNullElseGet(boxProcessorSupplier, () -> DEFAULT_BOX_PROCESSOR_SUPPLIER);
         this.boxHandlerSupplier = Objects.requireNonNullElseGet(boxHandlerSupplier, () -> DEFAULT_BOX_HANDLER_SUPPLIER);
-
-        // TODO: 05.11.2023 !!!
-//        this.boxProcessor.submit(this::processBoxes);
     }
 
     @Override
@@ -95,11 +99,13 @@ public class DefaultPublisherPipeline<T extends ConversationItem> implements Pip
         log.info("The attempt of subscription: {}", subscriber.getId());
 
         Code code = Code.SUBSCRIPTION_IF_STARTED;
-        if (!alive.get()){
+        __wLock__.lock();
+        if (!alive){
             code = subscribers.putIfAbsent(subscriber.getId(), subscriber) == null
                     ? null
                     : Code.ALREADY_SUBSCRIBED;
         }
+        __wLock__.unlock();
 
         return code == null
                 ? DefaultResultBuilder.<PipelineSubscriber<PublisherTask<T>>>ok(subscriber)
@@ -111,11 +117,13 @@ public class DefaultPublisherPipeline<T extends ConversationItem> implements Pip
         log.info("The attempt of unsubscription: {}", subscriber.getId());
 
         Code code = Code.UNSUBSCRIPTION_IF_STARTED;
-        if (!alive.get()){
+        __wLock__.lock();
+        if (!alive){
             code = subscribers.remove(subscriber.getId()) == null
                     ? Code.NOT_UNSUBSCRIBED
                     : null;
         }
+        __wLock__.unlock();
 
         return code == null
                 ? DefaultResultBuilder.<PipelineSubscriber<PublisherTask<T>>>ok(subscriber)
@@ -127,9 +135,11 @@ public class DefaultPublisherPipeline<T extends ConversationItem> implements Pip
         log.info("The attempt of offer: {}", box.value());
 
         Code code = Code.OFFER_IF_NOT_STARTED;
-        if (alive.get()){
+        __wLock__.lock();
+        if (alive){
             code = queue.offer(box) ? null : Code.OFFER_QUEUE_IS_FULL;
         }
+        __wLock__.unlock();
 
         return code == null
                 ? DefaultResultBuilder.<PublisherTask<T>>ok(box.value())
@@ -140,29 +150,50 @@ public class DefaultPublisherPipeline<T extends ConversationItem> implements Pip
     public Result<Object> start() {
         log.info("The attempt of starting");
 
-        // TODO: 05.11.2023 !!!
-//        this.boxProcessor.submit(this::processBoxes);
+        __wLock__.lock();
+        if (alive) {
+            __wLock__.unlock();
 
-        return alive.getAndSet(true)
-                ? DefaultResultBuilder.<Object>fail(Code.ALREADY_STARTED.getValue())
-                : DefaultResultBuilder.<Object>ok(null);
+            return DefaultResultBuilder.<Object>fail(Code.ALREADY_STARTED.getValue());
+        }
+
+        alive = true;
+        sessionId = UUID.randomUUID();
+        for (Map.Entry<UUID, PipelineSubscriber<PublisherTask<T>>> entry : subscribers.entrySet()) {
+            entry.getValue().blockOut(sessionId);
+        }
+
+        boxProcessor = boxProcessorSupplier.get();
+        boxHandler = boxHandlerSupplier.get();
+        boxProcessor.submit(this::processBoxes);
+        __wLock__.unlock();
+
+        return DefaultResultBuilder.<Object>ok(null);
     }
 
     @Override
     public Result<Object> stop() {
         log.info("The attempt of stopping");
 
-// TODO: 05.11.2023 !!!
-//        messageProcessor.shutdown();
-//        messageHandler.awaitTermination(60, TimeUnit.SECONDS);
+        __wLock__.lock();
+        if (!alive){
+            __wLock__.unlock();
 
-//        messageHandler.shutdown();
-//        messageHandler.submit(this::messageHandlerShutdown);
-//        logger.info("messageProcessor finished");
+            return DefaultResultBuilder.<Object>fail(Code.ALREADY_STOPPED.getValue());
+        }
 
-        return alive.getAndSet(false)
-                ? DefaultResultBuilder.<Object>ok(null)
-                : DefaultResultBuilder.<Object>fail(Code.ALREADY_STOPPED.getValue());
+        for (Map.Entry<UUID, PipelineSubscriber<PublisherTask<T>>> entry : subscribers.entrySet()) {
+            entry.getValue().block();
+        }
+        alive = false;
+        sessionId = null;
+        boxProcessor.shutdown();
+        boxHandler.shutdown();
+        boxProcessor = null;
+        boxHandler = null;
+        __wLock__.unlock();
+
+        return DefaultResultBuilder.<Object>ok(null);
     }
 
     @Override
@@ -171,9 +202,7 @@ public class DefaultPublisherPipeline<T extends ConversationItem> implements Pip
     }
 
     private void processBoxes(){
-
-
-
+        // TODO: 06.11.2023 !!!
 //        logger.info("messageProcessor started");
 //        while (runFlag.get())
 //        {

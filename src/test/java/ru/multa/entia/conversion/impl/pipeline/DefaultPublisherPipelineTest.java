@@ -30,15 +30,49 @@ class DefaultPublisherPipelineTest {
     @SneakyThrows
     @Test
     void shouldCheckStart() {
-        DefaultPublisherPipeline<Message> pipeline = new DefaultPublisherPipeline<>();
+        AtomicReference<Object> submitHolder = new AtomicReference<>();
+        Supplier<ExecutorService> executorServiceSupplier = () -> {
+            ExecutorService service = Mockito.mock(ExecutorService.class);
+            Mockito
+                    .when(service.submit(Mockito.any(Runnable.class)))
+                    .thenAnswer(new Answer<Future<?>>() {
+                        @Override
+                        public Future<?> answer(InvocationOnMock invocation) throws Throwable {
+                            submitHolder.set(invocation.getArgument(0));
+                            return null;
+                        }
+                    });
+
+            return service;
+        };
+
+        DefaultPublisherPipeline<Message> pipeline = new DefaultPublisherPipeline<>(
+                null, executorServiceSupplier, null
+        );
         Result<Object> result = pipeline.start();
 
         Field field = pipeline.getClass().getDeclaredField("alive");
         field.setAccessible(true);
-        AtomicBoolean gottenAlive = (AtomicBoolean) field.get(pipeline);
+        Boolean gottenAlive = (Boolean) field.get(pipeline);
+
+        field = pipeline.getClass().getDeclaredField("sessionId");
+        field.setAccessible(true);
+        Object sessionId = field.get(pipeline);
+
+        field = pipeline.getClass().getDeclaredField("boxProcessor");
+        field.setAccessible(true);
+        Object boxProcessor = field.get(pipeline);
+
+        field = pipeline.getClass().getDeclaredField("boxHandler");
+        field.setAccessible(true);
+        Object boxHandler = field.get(pipeline);
 
         assertThat(ResultUtil.isEqual(result, ResultUtil.ok(null))).isTrue();
-        assertThat(gottenAlive.get()).isTrue();
+        assertThat(gottenAlive).isTrue();
+        assertThat(sessionId).isNotNull();
+        assertThat(boxProcessor).isNotNull();
+        assertThat(boxHandler).isNotNull();
+        assertThat(submitHolder.get()).isNotNull();
     }
 
     @SneakyThrows
@@ -50,11 +84,11 @@ class DefaultPublisherPipelineTest {
 
         Field field = pipeline.getClass().getDeclaredField("alive");
         field.setAccessible(true);
-        AtomicBoolean gottenAlive = (AtomicBoolean) field.get(pipeline);
+        Boolean gottenAlive = (Boolean) field.get(pipeline);
 
         assertThat(ResultUtil.isEqual(result, ResultUtil.fail(DefaultPublisherPipeline.Code.ALREADY_STARTED.getValue())))
                 .isTrue();
-        assertThat(gottenAlive.get()).isTrue();
+        assertThat(gottenAlive).isTrue();
     }
 
     @SneakyThrows
@@ -65,27 +99,82 @@ class DefaultPublisherPipelineTest {
 
         Field field = pipeline.getClass().getDeclaredField("alive");
         field.setAccessible(true);
-        AtomicBoolean gottenAlive = (AtomicBoolean) field.get(pipeline);
+        Boolean gottenAlive = (Boolean) field.get(pipeline);
 
         assertThat(ResultUtil.isEqual(result, ResultUtil.fail(DefaultPublisherPipeline.Code.ALREADY_STOPPED.getValue())))
                 .isTrue();
-        assertThat(gottenAlive.get()).isFalse();
+        assertThat(gottenAlive).isFalse();
     }
 
     @SneakyThrows
     @Test
     void shouldCheckStop() {
-        DefaultPublisherPipeline<Message> pipeline = new DefaultPublisherPipeline<>();
+        AtomicReference<Boolean> boxProcessorShutdownIsCall = new AtomicReference<>(false);
+        Supplier<ExecutorService> boxProcessorSupplier = () -> {
+            ExecutorService service = Mockito.mock(ExecutorService.class);
+            Mockito
+                    .doAnswer(new Answer<Void>() {
+                        @Override
+                        public Void answer(InvocationOnMock invocation) throws Throwable {
+                            boxProcessorShutdownIsCall.set(true);
+                            return null;
+                        }
+                    })
+                    .when(service)
+                    .shutdown();
+
+            return service;
+        };
+
+        AtomicReference<Boolean> boxHandlerShutdownIsCall = new AtomicReference<>(false);
+        Supplier<ExecutorService> boxHandlerSupplier = () -> {
+            ExecutorService service = Mockito.mock(ExecutorService.class);
+            Mockito
+                    .doAnswer(new Answer<Void>() {
+                        @Override
+                        public Void answer(InvocationOnMock invocation) throws Throwable {
+                            boxHandlerShutdownIsCall.set(true);
+                            return null;
+                        }
+                    })
+                    .when(service)
+                    .shutdown();
+
+            return service;
+        };
+
+        DefaultPublisherPipeline<Message> pipeline = new DefaultPublisherPipeline<>(
+                null,
+                boxProcessorSupplier,
+                boxHandlerSupplier
+        );
         pipeline.start();
         Result<Object> result = pipeline.stop();
 
         Field field = pipeline.getClass().getDeclaredField("alive");
         field.setAccessible(true);
-        AtomicBoolean gottenAlive = (AtomicBoolean) field.get(pipeline);
+        Boolean gottenAlive = (Boolean) field.get(pipeline);
+
+        field = pipeline.getClass().getDeclaredField("sessionId");
+        field.setAccessible(true);
+        Object sessionId = field.get(pipeline);
+
+        field = pipeline.getClass().getDeclaredField("boxProcessor");
+        field.setAccessible(true);
+        Object boxProcessor = field.get(pipeline);
+
+        field = pipeline.getClass().getDeclaredField("boxHandler");
+        field.setAccessible(true);
+        Object boxHandler = field.get(pipeline);
 
         assertThat(ResultUtil.isEqual(result, ResultUtil.ok(null)))
                 .isTrue();
-        assertThat(gottenAlive.get()).isFalse();
+        assertThat(gottenAlive).isFalse();
+        assertThat(sessionId).isNull();
+        assertThat(boxProcessor).isNull();
+        assertThat(boxHandler).isNull();
+        assertThat(boxProcessorShutdownIsCall.get()).isTrue();
+        assertThat(boxHandlerShutdownIsCall.get()).isTrue();
     }
 
     @Test
@@ -199,6 +288,64 @@ class DefaultPublisherPipelineTest {
                 ResultUtil.fail(DefaultPublisherPipeline.Code.NOT_UNSUBSCRIBED.getValue()))).isTrue();
     }
 
+    @SneakyThrows
+    @Test
+    void shouldCheckImpactOnSubscriberOnStart() {
+        AtomicReference<Object> blockOutHolder = new AtomicReference<>();
+        Supplier<TestPipelineSubscriber> subscriberSupplier = () -> {
+            TestPipelineSubscriber subscriber = Mockito.mock(TestPipelineSubscriber.class);
+            Mockito
+                    .when(subscriber.blockOut(Mockito.any()))
+                    .thenAnswer(new Answer<Result<Object>>() {
+                        @Override
+                        public Result<Object> answer(InvocationOnMock invocation) throws Throwable {
+                            blockOutHolder.set(invocation.getArgument(0));
+                            return null;
+                        }
+                    });
+
+            return subscriber;
+        };
+
+        DefaultPublisherPipeline<Message> pipeline = new DefaultPublisherPipeline<>();
+        pipeline.subscribe(subscriberSupplier.get());
+
+        pipeline.start();
+
+        Field field = pipeline.getClass().getDeclaredField("sessionId");
+        field.setAccessible(true);
+        UUID sessionId = (UUID) field.get(pipeline);
+
+        assertThat(blockOutHolder.get()).isEqualTo(sessionId);
+    }
+
+    @Test
+    void shouldCheckImpactOnSubscriberOnStop() {
+        AtomicBoolean blockHolder = new AtomicBoolean(false);
+        Supplier<TestPipelineSubscriber> subscriberSupplier = () -> {
+            TestPipelineSubscriber subscriber = Mockito.mock(TestPipelineSubscriber.class);
+            Mockito
+                    .when(subscriber.block())
+                    .thenAnswer(new Answer<Result<Object>>() {
+                        @Override
+                        public Result<Object> answer(InvocationOnMock invocation) throws Throwable {
+                            blockHolder.set(true);
+                            return null;
+                        }
+                    });
+
+            return subscriber;
+        };
+
+        DefaultPublisherPipeline<Message> pipeline = new DefaultPublisherPipeline<>();
+        pipeline.subscribe(subscriberSupplier.get());
+
+        pipeline.start();
+        pipeline.stop();
+
+        assertThat(blockHolder).isTrue();
+    }
+
     @Test
     void shouldCheckOffer_ifNotStarted() {
         Supplier<TestPipelineBox> testPipelineBoxSupplier = () -> {
@@ -277,32 +424,6 @@ class DefaultPublisherPipelineTest {
                 result,
                 ResultUtil.fail(DefaultPublisherPipeline.Code.OFFER_QUEUE_IS_FULL.getValue()))).isTrue();
     }
-
-    // TODO: 05.11.2023 !!!
-//    @Test
-//    void shouldCheckBoxProcessorSubmit() {
-//        AtomicReference<Object> handlerAR = new AtomicReference<>();
-//
-//        Supplier<ExecutorService> executorServiceSupplier = () -> {
-//            ExecutorService service = Mockito.mock(ExecutorService.class);
-//            Mockito
-//                    .when(service.submit(Mockito.any(Runnable.class)))
-//                    .thenAnswer(new Answer<Future<?>>() {
-//                        @Override
-//                        public Future<?> answer(InvocationOnMock invocation) throws Throwable {
-//                            handlerAR.set(invocation.getArgument(0));
-//                            return null;
-//                        }
-//                    });
-//
-//            return service;
-//        };
-//
-//        DefaultPublisherPipeline<Message> pipeline
-//                = new DefaultPublisherPipeline<>(null, executorServiceSupplier.get(), null);
-//
-//        assertThat(handlerAR.get()).isNotNull();
-//    }
 
     private interface TestPipelineSubscriber extends PipelineSubscriber<PublisherTask<Message>> {}
     private interface TestPublisherTask extends PublisherTask<Message> {}
