@@ -174,7 +174,16 @@ public class DefaultPublisherPipeline<T extends ConversationItem> implements Pip
     @Override
     public Result<Object> stop() {
         log.info("The attempt of stopping");
+        return reset(false);
+    }
 
+    @Override
+    public Result<Object> stopWithClearing() {
+        log.info("The attempt of stopping with clearing");
+        return reset(true);
+    }
+
+    private Result<Object> reset(final boolean clearQueue){
         __wLock__.lock();
         if (!alive){
             __wLock__.unlock();
@@ -191,14 +200,12 @@ public class DefaultPublisherPipeline<T extends ConversationItem> implements Pip
         boxHandler.shutdown();
         boxProcessor = null;
         boxHandler = null;
+        if (clearQueue){
+            queue.clear();
+        }
         __wLock__.unlock();
 
         return DefaultResultBuilder.<Object>ok(null);
-    }
-
-    @Override
-    public Result<Object> stopWithoutClearing() {
-        return null;
     }
 
     private void processBoxes(){

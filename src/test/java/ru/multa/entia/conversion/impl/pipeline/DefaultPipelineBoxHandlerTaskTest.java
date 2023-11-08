@@ -1,6 +1,5 @@
 package ru.multa.entia.conversion.impl.pipeline;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import ru.multa.entia.conversion.api.message.Message;

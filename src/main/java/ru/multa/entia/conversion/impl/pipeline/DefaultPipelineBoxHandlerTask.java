@@ -10,10 +10,10 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.locks.Lock;
 
-public record DefaultPipelineBoxHandlerTask<T extends ConversationItem>(
+record DefaultPipelineBoxHandlerTask<T extends ConversationItem>(
         PipelineBox<PublisherTask<T>> box,
         Map<UUID, PipelineSubscriber<PublisherTask<T>>> actor,
         UUID sessionId,
         Lock actorLock)
-        implements PipelineBoxHandlerTask<T> {
+        implements PipelineBoxHandlerTask<PublisherTask<T>> {
 }

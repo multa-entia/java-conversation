@@ -8,5 +8,5 @@ public interface Pipeline<T> {
     Result<T> offer(PipelineBox<T> box);
     Result<Object> start();
     Result<Object> stop();
-    Result<Object> stopWithoutClearing();
+    Result<Object> stopWithClearing();
 }

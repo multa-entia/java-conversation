@@ -425,6 +425,65 @@ class DefaultPublisherPipelineTest {
                 ResultUtil.fail(DefaultPublisherPipeline.Code.OFFER_QUEUE_IS_FULL.getValue()))).isTrue();
     }
 
+    @SneakyThrows
+    @Test
+    void shouldCheckStopImpact_onQueue() {
+        Supplier<TestPublisherTask> testPublisherTaskSupplier = () -> {
+            return Mockito.mock(TestPublisherTask.class);
+        };
+
+        Function<TestPublisherTask, TestPipelineBox> testPipelineBoxFunction = task -> {
+            TestPipelineBox box = Mockito.mock(TestPipelineBox.class);
+            Mockito.when(box.value()).thenReturn(task);
+
+            return box;
+        };
+
+        ArrayBlockingQueue<PipelineBox<PublisherTask<Message>>> queue = new ArrayBlockingQueue<>(10);
+        DefaultPublisherPipeline<Message> pipeline = new DefaultPublisherPipeline<>(
+                queue,
+                null,
+                null
+        );
+
+        pipeline.start();
+        TestPipelineBox expectedBox = testPipelineBoxFunction.apply(testPublisherTaskSupplier.get());
+        pipeline.offer(expectedBox);
+        pipeline.stop();
+
+        assertThat(queue).hasSize(1);
+        assertThat(queue.take()).isEqualTo(expectedBox);
+    }
+
+    @SneakyThrows
+    @Test
+    void shouldCheckStopWithClearingImpact_onQueue() {
+        Supplier<TestPublisherTask> testPublisherTaskSupplier = () -> {
+            return Mockito.mock(TestPublisherTask.class);
+        };
+
+        Function<TestPublisherTask, TestPipelineBox> testPipelineBoxFunction = task -> {
+            TestPipelineBox box = Mockito.mock(TestPipelineBox.class);
+            Mockito.when(box.value()).thenReturn(task);
+
+            return box;
+        };
+
+        ArrayBlockingQueue<PipelineBox<PublisherTask<Message>>> queue = new ArrayBlockingQueue<>(10);
+        DefaultPublisherPipeline<Message> pipeline = new DefaultPublisherPipeline<>(
+                queue,
+                null,
+                null
+        );
+
+        pipeline.start();
+        TestPipelineBox expectedBox = testPipelineBoxFunction.apply(testPublisherTaskSupplier.get());
+        pipeline.offer(expectedBox);
+        pipeline.stopWithClearing();
+
+        assertThat(queue).isEmpty();
+    }
+
     private interface TestPipelineSubscriber extends PipelineSubscriber<PublisherTask<Message>> {}
     private interface TestPublisherTask extends PublisherTask<Message> {}
     private interface TestPipelineBox extends PipelineBox<PublisherTask<Message>> {}
