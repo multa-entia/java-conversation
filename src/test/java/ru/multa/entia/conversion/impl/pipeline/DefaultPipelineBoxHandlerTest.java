@@ -54,8 +54,7 @@ class DefaultPipelineBoxHandlerTest {
         DefaultPipelineBoxHandlerTask<Message> task = new DefaultPipelineBoxHandlerTask<>(
                 null,
                 null,
-                null,
-                new ReentrantLock()
+                null
         );
 
         Result<Object> result = new DefaultPipelineBoxHandler<Message>().handle(task);
@@ -78,8 +77,7 @@ class DefaultPipelineBoxHandlerTest {
         DefaultPipelineBoxHandlerTask<Message> task = new DefaultPipelineBoxHandlerTask<>(
                 testPipelineBoxSupplier.get(),
                 null,
-                null,
-                new ReentrantLock()
+                null
         );
 
         Result<Object> result = new DefaultPipelineBoxHandler<Message>().handle(task);
@@ -104,8 +102,7 @@ class DefaultPipelineBoxHandlerTest {
         DefaultPipelineBoxHandlerTask<Message> task = new DefaultPipelineBoxHandlerTask<>(
                 testPipelineBoxSupplier.get(),
                 null,
-                null,
-                new ReentrantLock()
+                null
         );
 
         Result<Object> result = new DefaultPipelineBoxHandler<Message>().handle(task);
@@ -130,8 +127,7 @@ class DefaultPipelineBoxHandlerTest {
         DefaultPipelineBoxHandlerTask<Message> task = new DefaultPipelineBoxHandlerTask<>(
                 testPipelineBoxSupplier.get(),
                 null,
-                Faker.uuid_().random(),
-                new ReentrantLock()
+                Faker.uuid_().random()
         );
 
         Result<Object> result = new DefaultPipelineBoxHandler<Message>().handle(task);
@@ -156,8 +152,7 @@ class DefaultPipelineBoxHandlerTest {
         DefaultPipelineBoxHandlerTask<Message> task = new DefaultPipelineBoxHandlerTask<>(
                 testPipelineBoxSupplier.get(),
                 new HashMap<>(),
-                Faker.uuid_().random(),
-                new ReentrantLock()
+                Faker.uuid_().random()
         );
 
         Result<Object> result = new DefaultPipelineBoxHandler<Message>().handle(task);
@@ -194,8 +189,7 @@ class DefaultPipelineBoxHandlerTest {
         DefaultPipelineBoxHandlerTask<Message> task = new DefaultPipelineBoxHandlerTask<>(
                 testPipelineBoxSupplier.get(),
                 actor,
-                Faker.uuid_().random(),
-                new ReentrantLock()
+                Faker.uuid_().random()
         );
 
         Result<Object> result = new DefaultPipelineBoxHandler<Message>().handle(task);
@@ -247,8 +241,7 @@ class DefaultPipelineBoxHandlerTest {
         DefaultPipelineBoxHandlerTask<Message> task = new DefaultPipelineBoxHandlerTask<>(
                 testPipelineBoxFunction.apply(expectedPublisherTask),
                 actor,
-                expectedSessionId,
-                new ReentrantLock()
+                expectedSessionId
         );
 
         Result<Object> result = new DefaultPipelineBoxHandler<Message>().handle(task);

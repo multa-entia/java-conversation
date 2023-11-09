@@ -13,10 +13,7 @@ import ru.multa.entia.results.impl.result.DefaultResultBuilder;
 
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 class DefaultPipelineBoxHandler<T extends ConversationItem> implements PipelineBoxHandler<PublisherTask<T>> {
     @RequiredArgsConstructor
@@ -53,8 +50,6 @@ class DefaultPipelineBoxHandler<T extends ConversationItem> implements PipelineB
                 code = Code.INVALID_TASK_SESSION_ID;
             } else {
                 Map<UUID, PipelineSubscriber<PublisherTask<T>>> actor = castTask.actor();
-                Lock __lock__ = Objects.requireNonNullElseGet(castTask.actorLock(), ReentrantLock::new);
-                __lock__.lock();
                 if (actor != null && !actor.isEmpty()){
                     ArrayList<Seed> seeds = new ArrayList<>();
                     for (Map.Entry<UUID, PipelineSubscriber<PublisherTask<T>>> entry : actor.entrySet()) {
@@ -72,7 +67,6 @@ class DefaultPipelineBoxHandler<T extends ConversationItem> implements PipelineB
                 else {
                     code = Code.INVALID_ACTOR;
                 }
-                __lock__.unlock();
             }
         }
 

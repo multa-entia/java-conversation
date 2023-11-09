@@ -13,7 +13,6 @@ import java.util.concurrent.locks.Lock;
 record DefaultPipelineBoxHandlerTask<T extends ConversationItem>(
         PipelineBox<PublisherTask<T>> box,
         Map<UUID, PipelineSubscriber<PublisherTask<T>>> actor,
-        UUID sessionId,
-        Lock actorLock)
+        UUID sessionId)
         implements PipelineBoxHandlerTask<PublisherTask<T>> {
 }

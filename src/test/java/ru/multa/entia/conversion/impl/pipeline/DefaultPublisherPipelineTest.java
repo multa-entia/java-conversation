@@ -7,6 +7,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import ru.multa.entia.conversion.api.message.Message;
 import ru.multa.entia.conversion.api.pipeline.PipelineBox;
+import ru.multa.entia.conversion.api.pipeline.PipelineReceiver;
 import ru.multa.entia.conversion.api.pipeline.PipelineSubscriber;
 import ru.multa.entia.conversion.api.publisher.PublisherTask;
 import ru.multa.entia.fakers.impl.Faker;
@@ -46,14 +47,30 @@ class DefaultPublisherPipelineTest {
             return service;
         };
 
+        AtomicReference<Object> sessionIdHolder = new AtomicReference<>();
+        Supplier<TestPipelineReceiver> testPipelineReceiverSupplier = () -> {
+            TestPipelineReceiver receiver = Mockito.mock(TestPipelineReceiver.class);
+            Mockito
+                    .when(receiver.blockOut(Mockito.any()))
+                    .thenAnswer(new Answer<Result<Object>>() {
+                        @Override
+                        public Result<Object> answer(InvocationOnMock invocation) throws Throwable {
+                            sessionIdHolder.set(invocation.getArgument(0));
+                            return null;
+                        }
+                    });
+
+            return receiver;
+        };
+
         DefaultPublisherPipeline<Message> pipeline = new DefaultPublisherPipeline<>(
-                null, executorServiceSupplier, null
+                null, testPipelineReceiverSupplier.get(), executorServiceSupplier
         );
         Result<Object> result = pipeline.start();
 
         Field field = pipeline.getClass().getDeclaredField("alive");
         field.setAccessible(true);
-        Boolean gottenAlive = (Boolean) field.get(pipeline);
+        AtomicBoolean gottenAlive = (AtomicBoolean) field.get(pipeline);
 
         field = pipeline.getClass().getDeclaredField("sessionId");
         field.setAccessible(true);
@@ -63,43 +80,50 @@ class DefaultPublisherPipelineTest {
         field.setAccessible(true);
         Object boxProcessor = field.get(pipeline);
 
-        field = pipeline.getClass().getDeclaredField("boxHandler");
-        field.setAccessible(true);
-        Object boxHandler = field.get(pipeline);
-
         assertThat(ResultUtil.isEqual(result, ResultUtil.ok(null))).isTrue();
         assertThat(gottenAlive).isTrue();
         assertThat(sessionId).isNotNull();
         assertThat(boxProcessor).isNotNull();
-        assertThat(boxHandler).isNotNull();
         assertThat(submitHolder.get()).isNotNull();
+        assertThat(sessionIdHolder.get()).isEqualTo(sessionId);
     }
 
     @SneakyThrows
     @Test
     void shouldCheckStart_ifAlreadyStarted() {
-        DefaultPublisherPipeline<Message> pipeline = new DefaultPublisherPipeline<>();
+        Supplier<TestPipelineReceiver> testPipelineReceiverSupplier = () -> {
+            return Mockito.mock(TestPipelineReceiver.class);
+        };
+
+        DefaultPublisherPipeline<Message> pipeline = new DefaultPublisherPipeline<>(
+                null,
+                testPipelineReceiverSupplier.get(),
+                null
+        );
         pipeline.start();
         Result<Object> result = pipeline.start();
 
-        Field field = pipeline.getClass().getDeclaredField("alive");
-        field.setAccessible(true);
-        Boolean gottenAlive = (Boolean) field.get(pipeline);
-
         assertThat(ResultUtil.isEqual(result, ResultUtil.fail(DefaultPublisherPipeline.Code.ALREADY_STARTED.getValue())))
                 .isTrue();
-        assertThat(gottenAlive).isTrue();
     }
 
     @SneakyThrows
     @Test
     void shouldCheckStop_ifAlreadyStopped() {
-        DefaultPublisherPipeline<Message> pipeline = new DefaultPublisherPipeline<>();
-        Result<Object> result = pipeline.stop();
+        // TODO: 09.11.2023 move to const 
+        Supplier<TestPipelineReceiver> testPipelineReceiverSupplier = () -> {
+            return Mockito.mock(TestPipelineReceiver.class);
+        };
+
+        DefaultPublisherPipeline<Message> pipeline = new DefaultPublisherPipeline<>(
+                null,
+                testPipelineReceiverSupplier.get()
+        );
+        Result<Object> result = pipeline.stop(false);
 
         Field field = pipeline.getClass().getDeclaredField("alive");
         field.setAccessible(true);
-        Boolean gottenAlive = (Boolean) field.get(pipeline);
+        AtomicBoolean gottenAlive = (AtomicBoolean) field.get(pipeline);
 
         assertThat(ResultUtil.isEqual(result, ResultUtil.fail(DefaultPublisherPipeline.Code.ALREADY_STOPPED.getValue())))
                 .isTrue();
@@ -109,7 +133,7 @@ class DefaultPublisherPipelineTest {
     @SneakyThrows
     @Test
     void shouldCheckStop() {
-        AtomicReference<Boolean> boxProcessorShutdownIsCall = new AtomicReference<>(false);
+        AtomicBoolean boxProcessorShutdownIsCall = new AtomicBoolean(false);
         Supplier<ExecutorService> boxProcessorSupplier = () -> {
             ExecutorService service = Mockito.mock(ExecutorService.class);
             Mockito
@@ -126,34 +150,33 @@ class DefaultPublisherPipelineTest {
             return service;
         };
 
-        AtomicReference<Boolean> boxHandlerShutdownIsCall = new AtomicReference<>(false);
-        Supplier<ExecutorService> boxHandlerSupplier = () -> {
-            ExecutorService service = Mockito.mock(ExecutorService.class);
+        AtomicBoolean blockMethodHolder = new AtomicBoolean(false);
+        Supplier<TestPipelineReceiver> testPipelineReceiverSupplier = () -> {
+            TestPipelineReceiver receiver = Mockito.mock(TestPipelineReceiver.class);
             Mockito
-                    .doAnswer(new Answer<Void>() {
+                    .when(receiver.block())
+                    .thenAnswer(new Answer<Result<Object>>() {
                         @Override
-                        public Void answer(InvocationOnMock invocation) throws Throwable {
-                            boxHandlerShutdownIsCall.set(true);
+                        public Result<Object> answer(InvocationOnMock invocation) throws Throwable {
+                            blockMethodHolder.set(true);
                             return null;
                         }
-                    })
-                    .when(service)
-                    .shutdown();
+                    });
 
-            return service;
+            return receiver;
         };
 
         DefaultPublisherPipeline<Message> pipeline = new DefaultPublisherPipeline<>(
                 null,
-                boxProcessorSupplier,
-                boxHandlerSupplier
+                testPipelineReceiverSupplier.get(),
+                boxProcessorSupplier
         );
         pipeline.start();
-        Result<Object> result = pipeline.stop();
+        Result<Object> result = pipeline.stop(false);
 
         Field field = pipeline.getClass().getDeclaredField("alive");
         field.setAccessible(true);
-        Boolean gottenAlive = (Boolean) field.get(pipeline);
+        AtomicBoolean gottenAlive = (AtomicBoolean) field.get(pipeline);
 
         field = pipeline.getClass().getDeclaredField("sessionId");
         field.setAccessible(true);
@@ -163,187 +186,14 @@ class DefaultPublisherPipelineTest {
         field.setAccessible(true);
         Object boxProcessor = field.get(pipeline);
 
-        field = pipeline.getClass().getDeclaredField("boxHandler");
-        field.setAccessible(true);
-        Object boxHandler = field.get(pipeline);
 
         assertThat(ResultUtil.isEqual(result, ResultUtil.ok(null)))
                 .isTrue();
         assertThat(gottenAlive).isFalse();
         assertThat(sessionId).isNull();
         assertThat(boxProcessor).isNull();
-        assertThat(boxHandler).isNull();
-        assertThat(boxProcessorShutdownIsCall.get()).isTrue();
-        assertThat(boxHandlerShutdownIsCall.get()).isTrue();
-    }
-
-    @Test
-    void shouldCheckSubscription_itIsStarted() {
-        Supplier<TestPipelineSubscriber> pipelineSubscriberSupplier = () -> {
-            TestPipelineSubscriber subscriber = Mockito.mock(TestPipelineSubscriber.class);
-            Mockito.when(subscriber.getId()).thenReturn(Faker.uuid_().random());
-
-            return subscriber;
-        };
-
-        DefaultPublisherPipeline<Message> pipeline = new DefaultPublisherPipeline<>();
-        pipeline.start();
-
-        Result<PipelineSubscriber<PublisherTask<Message>>> result = pipeline.subscribe(pipelineSubscriberSupplier.get());
-
-        assertThat(ResultUtil.isEqual(
-                result,
-                ResultUtil.fail(DefaultPublisherPipeline.Code.SUBSCRIPTION_IF_STARTED.getValue()))).isTrue();
-    }
-
-    @Test
-    void shouldCheckSubscription() {
-        Supplier<TestPipelineSubscriber> pipelineSubscriberSupplier = () -> {
-            TestPipelineSubscriber subscriber = Mockito.mock(TestPipelineSubscriber.class);
-            Mockito.when(subscriber.getId()).thenReturn(Faker.uuid_().random());
-
-            return subscriber;
-        };
-
-        DefaultPublisherPipeline<Message> pipeline = new DefaultPublisherPipeline<>();
-
-        TestPipelineSubscriber expectedSubscriber = pipelineSubscriberSupplier.get();
-        Result<PipelineSubscriber<PublisherTask<Message>>> result = pipeline.subscribe(expectedSubscriber);
-
-        assertThat(ResultUtil.isEqual(
-                result,
-                ResultUtil.ok(expectedSubscriber))).isTrue();
-    }
-
-    @Test
-    void shouldCheckSubscription_ifAlreadySubscribe() {
-        Function<UUID, TestPipelineSubscriber> pipelineSubscriberFunction = id -> {
-            TestPipelineSubscriber subscriber = Mockito.mock(TestPipelineSubscriber.class);
-            Mockito.when(subscriber.getId()).thenReturn(id);
-
-            return subscriber;
-        };
-
-        DefaultPublisherPipeline<Message> pipeline = new DefaultPublisherPipeline<>();
-
-        UUID id = Faker.uuid_().random();
-        pipeline.subscribe(pipelineSubscriberFunction.apply(id));
-        Result<PipelineSubscriber<PublisherTask<Message>>> result
-                = pipeline.subscribe(pipelineSubscriberFunction.apply(id));
-
-        assertThat(ResultUtil.isEqual(
-                result,
-                ResultUtil.fail(DefaultPublisherPipeline.Code.ALREADY_SUBSCRIBED.getValue()))).isTrue();
-    }
-
-    @Test
-    void shouldCheckUnsubscription_itIsStarted() {
-        Supplier<TestPipelineSubscriber> pipelineSubscriberSupplier = () -> {
-            return Mockito.mock(TestPipelineSubscriber.class);
-        };
-
-        DefaultPublisherPipeline<Message> pipeline = new DefaultPublisherPipeline<>();
-        pipeline.start();
-
-        Result<PipelineSubscriber<PublisherTask<Message>>> result = pipeline.unsubscribe(pipelineSubscriberSupplier.get());
-
-        assertThat(ResultUtil.isEqual(
-                result,
-                ResultUtil.fail(DefaultPublisherPipeline.Code.UNSUBSCRIPTION_IF_STARTED.getValue()))).isTrue();
-    }
-
-    @Test
-    void shouldCheckUnsubscription() {
-        Function<UUID, TestPipelineSubscriber> pipelineSubscriberFunction = id -> {
-            TestPipelineSubscriber subscriber = Mockito.mock(TestPipelineSubscriber.class);
-            Mockito.when(subscriber.getId()).thenReturn(id);
-
-            return subscriber;
-        };
-
-        UUID id = Faker.uuid_().random();
-        TestPipelineSubscriber expectedSubscriber = pipelineSubscriberFunction.apply(id);
-
-        DefaultPublisherPipeline<Message> pipeline = new DefaultPublisherPipeline<>();
-        pipeline.subscribe(expectedSubscriber);
-        Result<PipelineSubscriber<PublisherTask<Message>>> result = pipeline.unsubscribe(expectedSubscriber);
-
-        assertThat(ResultUtil.isEqual(result, ResultUtil.ok(expectedSubscriber))).isTrue();
-    }
-
-    @Test
-    void shouldCheckUnsubscription_ifNotSubscribed() {
-        Supplier<TestPipelineSubscriber> pipelineSubscriberSupplier = () -> {
-            TestPipelineSubscriber subscriber = Mockito.mock(TestPipelineSubscriber.class);
-            Mockito.when(subscriber.getId()).thenReturn(Faker.uuid_().random());
-
-            return subscriber;
-        };
-
-        DefaultPublisherPipeline<Message> pipeline = new DefaultPublisherPipeline<>();
-        Result<PipelineSubscriber<PublisherTask<Message>>> result = pipeline.unsubscribe(pipelineSubscriberSupplier.get());
-
-        assertThat(ResultUtil.isEqual(
-                result,
-                ResultUtil.fail(DefaultPublisherPipeline.Code.NOT_UNSUBSCRIBED.getValue()))).isTrue();
-    }
-
-    @SneakyThrows
-    @Test
-    void shouldCheckImpactOnSubscriberOnStart() {
-        AtomicReference<Object> blockOutHolder = new AtomicReference<>();
-        Supplier<TestPipelineSubscriber> subscriberSupplier = () -> {
-            TestPipelineSubscriber subscriber = Mockito.mock(TestPipelineSubscriber.class);
-            Mockito
-                    .when(subscriber.blockOut(Mockito.any()))
-                    .thenAnswer(new Answer<Result<Object>>() {
-                        @Override
-                        public Result<Object> answer(InvocationOnMock invocation) throws Throwable {
-                            blockOutHolder.set(invocation.getArgument(0));
-                            return null;
-                        }
-                    });
-
-            return subscriber;
-        };
-
-        DefaultPublisherPipeline<Message> pipeline = new DefaultPublisherPipeline<>();
-        pipeline.subscribe(subscriberSupplier.get());
-
-        pipeline.start();
-
-        Field field = pipeline.getClass().getDeclaredField("sessionId");
-        field.setAccessible(true);
-        UUID sessionId = (UUID) field.get(pipeline);
-
-        assertThat(blockOutHolder.get()).isEqualTo(sessionId);
-    }
-
-    @Test
-    void shouldCheckImpactOnSubscriberOnStop() {
-        AtomicBoolean blockHolder = new AtomicBoolean(false);
-        Supplier<TestPipelineSubscriber> subscriberSupplier = () -> {
-            TestPipelineSubscriber subscriber = Mockito.mock(TestPipelineSubscriber.class);
-            Mockito
-                    .when(subscriber.block())
-                    .thenAnswer(new Answer<Result<Object>>() {
-                        @Override
-                        public Result<Object> answer(InvocationOnMock invocation) throws Throwable {
-                            blockHolder.set(true);
-                            return null;
-                        }
-                    });
-
-            return subscriber;
-        };
-
-        DefaultPublisherPipeline<Message> pipeline = new DefaultPublisherPipeline<>();
-        pipeline.subscribe(subscriberSupplier.get());
-
-        pipeline.start();
-        pipeline.stop();
-
-        assertThat(blockHolder).isTrue();
+        assertThat(boxProcessorShutdownIsCall).isTrue();
+        assertThat(blockMethodHolder).isTrue();
     }
 
     @Test
@@ -356,7 +206,8 @@ class DefaultPublisherPipelineTest {
             return box;
         };
 
-        DefaultPublisherPipeline<Message> pipeline = new DefaultPublisherPipeline<>();
+        ArrayBlockingQueue<PipelineBox<PublisherTask<Message>>> queue = new ArrayBlockingQueue<>(1_000);
+        DefaultPublisherPipeline<Message> pipeline = new DefaultPublisherPipeline<>(queue, null);
         Result<PublisherTask<Message>> result = pipeline.offer(testPipelineBoxSupplier.get());
 
         assertThat(ResultUtil.isEqual(
@@ -367,6 +218,10 @@ class DefaultPublisherPipelineTest {
     @SneakyThrows
     @Test
     void shouldCheckOffer() {
+        Supplier<TestPipelineReceiver> testPipelineReceiverSupplier = () -> {
+            return Mockito.mock(TestPipelineReceiver.class);
+        };
+
         Supplier<TestPublisherTask> testPublisherTaskSupplier = () -> {
             return Mockito.mock(TestPublisherTask.class);
         };
@@ -379,7 +234,10 @@ class DefaultPublisherPipelineTest {
         };
 
         ArrayBlockingQueue<PipelineBox<PublisherTask<Message>>> queue = new ArrayBlockingQueue<>(1_000);
-        DefaultPublisherPipeline<Message> pipeline = new DefaultPublisherPipeline<>(queue, null, null);
+        DefaultPublisherPipeline<Message> pipeline = new DefaultPublisherPipeline<>(
+                queue,
+                testPipelineReceiverSupplier.get()
+        );
         pipeline.start();
 
         Integer size = Faker.int_().random(10, 20);
@@ -402,6 +260,10 @@ class DefaultPublisherPipelineTest {
 
     @Test
     void shouldCheckOffer_ifQueueIsFull() {
+        Supplier<TestPipelineReceiver> testPipelineReceiverSupplier = () -> {
+            return Mockito.mock(TestPipelineReceiver.class);
+        };
+
         Supplier<TestPublisherTask> testPublisherTaskSupplier = () -> {
             return Mockito.mock(TestPublisherTask.class);
         };
@@ -414,7 +276,10 @@ class DefaultPublisherPipelineTest {
         };
 
         ArrayBlockingQueue<PipelineBox<PublisherTask<Message>>> queue = new ArrayBlockingQueue<>(1);
-        DefaultPublisherPipeline<Message> pipeline = new DefaultPublisherPipeline<>(queue, null, null);
+        DefaultPublisherPipeline<Message> pipeline = new DefaultPublisherPipeline<>(
+                queue,
+                testPipelineReceiverSupplier.get()
+        );
         pipeline.start();
 
         pipeline.offer(testPipelineBoxFunction.apply(testPublisherTaskSupplier.get()));
@@ -428,6 +293,10 @@ class DefaultPublisherPipelineTest {
     @SneakyThrows
     @Test
     void shouldCheckStopImpact_onQueue() {
+        Supplier<TestPipelineReceiver> testPipelineReceiverSupplier = () -> {
+            return Mockito.mock(TestPipelineReceiver.class);
+        };
+
         Supplier<TestPublisherTask> testPublisherTaskSupplier = () -> {
             return Mockito.mock(TestPublisherTask.class);
         };
@@ -442,14 +311,13 @@ class DefaultPublisherPipelineTest {
         ArrayBlockingQueue<PipelineBox<PublisherTask<Message>>> queue = new ArrayBlockingQueue<>(10);
         DefaultPublisherPipeline<Message> pipeline = new DefaultPublisherPipeline<>(
                 queue,
-                null,
-                null
+                testPipelineReceiverSupplier.get()
         );
 
         pipeline.start();
         TestPipelineBox expectedBox = testPipelineBoxFunction.apply(testPublisherTaskSupplier.get());
         pipeline.offer(expectedBox);
-        pipeline.stop();
+        pipeline.stop(false);
 
         assertThat(queue).hasSize(1);
         assertThat(queue.take()).isEqualTo(expectedBox);
@@ -458,6 +326,10 @@ class DefaultPublisherPipelineTest {
     @SneakyThrows
     @Test
     void shouldCheckStopWithClearingImpact_onQueue() {
+        Supplier<TestPipelineReceiver> testPipelineReceiverSupplier = () -> {
+            return Mockito.mock(TestPipelineReceiver.class);
+        };
+
         Supplier<TestPublisherTask> testPublisherTaskSupplier = () -> {
             return Mockito.mock(TestPublisherTask.class);
         };
@@ -472,18 +344,23 @@ class DefaultPublisherPipelineTest {
         ArrayBlockingQueue<PipelineBox<PublisherTask<Message>>> queue = new ArrayBlockingQueue<>(10);
         DefaultPublisherPipeline<Message> pipeline = new DefaultPublisherPipeline<>(
                 queue,
-                null,
-                null
+                testPipelineReceiverSupplier.get()
         );
 
         pipeline.start();
         TestPipelineBox expectedBox = testPipelineBoxFunction.apply(testPublisherTaskSupplier.get());
         pipeline.offer(expectedBox);
-        pipeline.stopWithClearing();
+        pipeline.stop(true);
 
         assertThat(queue).isEmpty();
     }
 
+    @Test
+    void shouldCheckPipelineExecution() {
+        // TODO: 08.11.2023 ???
+    }
+
+    private interface TestPipelineReceiver extends PipelineReceiver<PublisherTask<Message>> {}
     private interface TestPipelineSubscriber extends PipelineSubscriber<PublisherTask<Message>> {}
     private interface TestPublisherTask extends PublisherTask<Message> {}
     private interface TestPipelineBox extends PipelineBox<PublisherTask<Message>> {}

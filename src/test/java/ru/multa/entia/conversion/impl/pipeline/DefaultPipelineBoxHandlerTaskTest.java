@@ -28,7 +28,6 @@ class DefaultPipelineBoxHandlerTaskTest {
         PipelineBox<PublisherTask<Message>> box = new DefaultPipelineBoxHandlerTask<Message>(
                 expectedBox,
                 null,
-                null,
                 null
         ).box();
 
@@ -49,7 +48,6 @@ class DefaultPipelineBoxHandlerTaskTest {
         Map<UUID, PipelineSubscriber<PublisherTask<Message>>> actor = new DefaultPipelineBoxHandlerTask<Message>(
                 null,
                 expectedActor,
-                null,
                 null
         ).actor();
 
@@ -62,24 +60,10 @@ class DefaultPipelineBoxHandlerTaskTest {
         UUID sessionId = new DefaultPipelineBoxHandlerTask<Message>(
                 null,
                 null,
-                expectedSessionId,
-                null
+                expectedSessionId
         ).sessionId();
 
         assertThat(sessionId).isEqualTo(expectedSessionId);
-    }
-
-    @Test
-    void shouldCheckActorLockGetting() {
-        Lock expectedActorLock = new ReentrantLock();
-        Lock actorLock = new DefaultPipelineBoxHandlerTask<Message>(
-                null,
-                null,
-                null,
-                expectedActorLock
-        ).actorLock();
-
-        assertThat(actorLock).isEqualTo(expectedActorLock);
     }
 
     private interface TestPipelineBox extends PipelineBox<PublisherTask<Message>> {}
