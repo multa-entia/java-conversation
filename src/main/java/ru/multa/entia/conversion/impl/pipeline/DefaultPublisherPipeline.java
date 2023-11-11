@@ -26,12 +26,6 @@ public class DefaultPublisherPipeline<T extends ConversationItem> implements Pip
 
         ALREADY_STOPPED("default-publisher-pipeline.already-stopped"),
 
-        SUBSCRIPTION_IF_STARTED("default-publisher-pipeline.subscription-if-started"),
-        ALREADY_SUBSCRIBED("default-publisher-pipeline.already-subscribed"),
-
-        UNSUBSCRIPTION_IF_STARTED("default-publisher-pipeline.unsubscription-if-started"),
-        NOT_UNSUBSCRIBED("default-publisher-pipeline.not-unsubscribed"),
-
         OFFER_IF_NOT_STARTED("default-publisher-pipeline.offer-if-not-started"),
         OFFER_QUEUE_IS_FULL("default-publisher-pipeline.offer-queue-is-gull");
 

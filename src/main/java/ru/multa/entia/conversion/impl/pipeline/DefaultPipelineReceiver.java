@@ -1,17 +1,35 @@
 package ru.multa.entia.conversion.impl.pipeline;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import ru.multa.entia.conversion.api.ConversationItem;
 import ru.multa.entia.conversion.api.pipeline.PipelineBox;
 import ru.multa.entia.conversion.api.pipeline.PipelineReceiver;
+import ru.multa.entia.conversion.api.pipeline.PipelineSubscriber;
 import ru.multa.entia.conversion.api.publisher.Publisher;
 import ru.multa.entia.results.api.result.Result;
+import ru.multa.entia.results.impl.result.DefaultResultBuilder;
 
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
+@Slf4j
 public class DefaultPipelineReceiver<T extends ConversationItem> implements PipelineReceiver<Publisher<T>> {
+    @RequiredArgsConstructor
+    @Getter
+    public enum Code {
+        ALREADY_BLOCKED_OUT("default-publisher-receiver.already-blocked-out"),
+        ALREADY_SUBSCRIBED("default-publisher-receiver.already-subscribed"),
+        ALREADY_UNSUBSCRIBED("default-publisher-receiver.already-unsubscribed");
+
+        private final String value;
+    }
+
+    private AtomicReference<UUID> sessionId = new AtomicReference<>();
 
     @Override
-    public Result<Object> receive(UUID sessionId, PipelineBox<Publisher<T>> box) {
+    public Result<Object> receive(final UUID sessionId, final PipelineBox<Publisher<T>> box) {
         return null;
     }
 
@@ -21,7 +39,23 @@ public class DefaultPipelineReceiver<T extends ConversationItem> implements Pipe
     }
 
     @Override
-    public Result<Object> blockOut(UUID sessionId) {
+    public Result<Object> blockOut(final UUID sessionId) {
+        log.info("The attempt of blocking out {}", sessionId);
+        if (this.sessionId.compareAndSet(null, sessionId)) {
+            log.info("It is blocked out {}", sessionId);
+            return DefaultResultBuilder.<Object>ok(null);
+        }
+
+        return DefaultResultBuilder.<Object>fail(Code.ALREADY_BLOCKED_OUT.getValue());
+    }
+
+    @Override
+    public Result<PipelineSubscriber<Publisher<T>>> subscribe(final PipelineSubscriber<Publisher<T>> subscriber) {
+        return null;
+    }
+
+    @Override
+    public Result<PipelineSubscriber<Publisher<T>>> unsubscribe(final PipelineSubscriber<Publisher<T>> subscriber) {
         return null;
     }
 }
