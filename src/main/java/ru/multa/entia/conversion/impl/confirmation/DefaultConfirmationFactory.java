@@ -15,6 +15,7 @@ import ru.multa.entia.results.api.result.Result;
 import ru.multa.entia.results.api.seed.Seed;
 import ru.multa.entia.results.impl.result.DefaultResultBuilder;
 
+import java.util.Objects;
 import java.util.function.Function;
 
 public class DefaultConfirmationFactory implements SimpleFactory<Message, Confirmation> {
@@ -43,17 +44,13 @@ public class DefaultConfirmationFactory implements SimpleFactory<Message, Confir
                                       final Function<Object[], Result<AddressDecorator>> fromDecoratorGetter,
                                       final Function<Object[], Result<String>> codeGetter,
                                       final Function<Object[], Result<Object[]>> argsGetter) {
-        this.checker = checker == null ? new DefaultConfirmationChecker() : checker;
-        this.creator = creator == null ? new DefaultConfirmationCreator() : creator;
-        this.fromDecoratorGetter = fromDecoratorGetter == null
-                ? new DefaultValueGetter<>(Key.FROM_DECORATOR, DefaultAddressDecorator::new)
-                : fromDecoratorGetter;
-        this.codeGetter = codeGetter == null
-                ? new DefaultValueGetter<>(Key.CODE, () -> {return null;})
-                : codeGetter;
-        this.argsGetter = argsGetter == null
-                ? new DefaultArgsGetter<>(Key.ARGS)
-                : argsGetter;
+        this.checker = Objects.requireNonNullElse(checker, new DefaultConfirmationChecker());
+        this.creator = Objects.requireNonNullElse(creator, new DefaultConfirmationCreator());
+        this.fromDecoratorGetter = Objects.requireNonNullElse(
+                fromDecoratorGetter,
+                new DefaultValueGetter<>(Key.FROM_DECORATOR, DefaultAddressDecorator::new));
+        this.codeGetter = Objects.requireNonNullElse(codeGetter, new DefaultValueGetter<>(Key.CODE, () -> {return null;}));
+        this.argsGetter = Objects.requireNonNullElse(argsGetter, new DefaultArgsGetter<>(Key.ARGS));
     }
 
     @Override

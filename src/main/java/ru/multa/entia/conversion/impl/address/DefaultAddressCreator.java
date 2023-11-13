@@ -6,7 +6,7 @@ import ru.multa.entia.conversion.api.address.AddressCreator;
 class DefaultAddressCreator implements AddressCreator {
 
     @Override
-    public Address create(String value) {
+    public Address create(final String value) {
         return new DefaultAddress(value);
     }
 }

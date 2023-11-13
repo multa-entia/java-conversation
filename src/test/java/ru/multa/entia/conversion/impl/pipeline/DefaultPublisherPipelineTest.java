@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import ru.multa.entia.conversion.api.block.Blocking;
 import ru.multa.entia.conversion.api.message.Message;
 import ru.multa.entia.conversion.api.pipeline.PipelineBox;
 import ru.multa.entia.conversion.api.pipeline.PipelineReceiver;
@@ -14,6 +15,7 @@ import ru.multa.entia.results.api.result.Result;
 import utils.ResultUtil;
 
 import java.lang.reflect.Field;
+import java.util.UUID;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;

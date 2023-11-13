@@ -14,6 +14,7 @@ import ru.multa.entia.results.impl.result.DefaultResultBuilder;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -60,7 +61,7 @@ class DefaultPublisherTaskBuilder<T extends ConversationItem> implements Publish
         this.timeoutStrategySup = timeoutStrategySup;
         this.releaseStrategySup = releaseStrategySup;
         this.service = service;
-        this.creator = creator == null ? new DefaultPublisherTaskCreator<>() : creator;
+        this.creator = Objects.requireNonNullElse(creator, new DefaultPublisherTaskCreator<>());
     }
 
     @Override

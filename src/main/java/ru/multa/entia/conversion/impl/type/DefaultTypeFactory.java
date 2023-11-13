@@ -8,6 +8,8 @@ import ru.multa.entia.results.api.result.Result;
 import ru.multa.entia.results.api.seed.Seed;
 import ru.multa.entia.results.impl.result.DefaultResultBuilder;
 
+import java.util.Objects;
+
 public class DefaultTypeFactory implements SimpleFactory<Object, Type> {
     private final Checker<Object> checker;
     private final TypeCreator creator;
@@ -17,8 +19,8 @@ public class DefaultTypeFactory implements SimpleFactory<Object, Type> {
     }
 
     public DefaultTypeFactory(final Checker<Object> checker, final TypeCreator creator) {
-        this.checker = checker == null ? new DefaultTypeValueChecker() : checker;
-        this.creator = creator == null ? new DefaultTypeCreator() : creator;
+        this.checker = Objects.requireNonNullElse(checker, new DefaultTypeValueChecker());
+        this.creator = Objects.requireNonNullElse(creator, new DefaultTypeCreator());
     }
 
     @Override

@@ -8,6 +8,8 @@ import ru.multa.entia.results.api.result.Result;
 import ru.multa.entia.results.api.seed.Seed;
 import ru.multa.entia.results.impl.result.DefaultResultBuilder;
 
+import java.util.Objects;
+
 public class DefaultAddressFactory implements SimpleFactory<Object, Address> {
     private final Checker<Object> checker;
     private final AddressCreator creator;
@@ -17,8 +19,8 @@ public class DefaultAddressFactory implements SimpleFactory<Object, Address> {
     }
 
     public DefaultAddressFactory(final Checker<Object> checker, final AddressCreator creator) {
-        this.checker = checker == null ? new DefaultAddressChecker() : checker;
-        this.creator = creator == null ? new DefaultAddressCreator() : creator;
+        this.checker = Objects.requireNonNullElse(checker, new DefaultAddressChecker());
+        this.creator = Objects.requireNonNullElse(creator, new DefaultAddressCreator());
     }
 
     @Override

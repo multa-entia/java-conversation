@@ -6,7 +6,7 @@ import ru.multa.entia.conversion.api.type.Type;
 
 class DefaultContentCreator implements ContentCreator {
     @Override
-    public Content create(Type type, String value) {
+    public Content create(final Type type, final String value) {
         return new DefaultContent(type, value);
     }
 }

@@ -10,6 +10,7 @@ import ru.multa.entia.results.api.result.Result;
 import ru.multa.entia.results.api.seed.Seed;
 import ru.multa.entia.results.impl.result.DefaultResultBuilder;
 
+import java.util.Objects;
 import java.util.function.Function;
 
 public class DefaultContentFactory implements SimpleFactory<Object, Content> {
@@ -26,10 +27,10 @@ public class DefaultContentFactory implements SimpleFactory<Object, Content> {
                                  final Checker<Object> checker,
                                  final Function<Object,Result<String>> serializer,
                                  final ContentCreator creator) {
-        this.typeFactory = typeFactory == null ? new DefaultTypeFactory() : typeFactory;
-        this.checker = checker == null ? new DefaultContentChecker() : checker;
-        this.serializer = serializer == null ? new DefaultContentSerializer() : serializer;
-        this.creator = creator == null ? new DefaultContentCreator() : creator;
+        this.typeFactory = Objects.requireNonNullElse(typeFactory, new DefaultTypeFactory());
+        this.checker = Objects.requireNonNullElse(checker, new DefaultContentChecker());
+        this.serializer = Objects.requireNonNullElse(serializer, new DefaultContentSerializer());
+        this.creator = Objects.requireNonNullElse(creator, new DefaultContentCreator());
     }
 
     @Override

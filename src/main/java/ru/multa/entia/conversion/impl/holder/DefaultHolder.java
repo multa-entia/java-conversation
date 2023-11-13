@@ -10,6 +10,7 @@ import ru.multa.entia.results.impl.result.DefaultResultBuilder;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -62,8 +63,10 @@ public class DefaultHolder implements Holder {
 
     public DefaultHolder(final int size, final HolderItemCreator creator, final ScheduledExecutorService scheduleService) {
         this.size = size > EXCLUDED_MIN_THRESHOLD ? size : DEFAULT_SIZE;
-        this.creator = creator == null ? new DefaultHolderItemCreator() : creator;
-        this.scheduleService = scheduleService == null ? Executors.newScheduledThreadPool(DEFAULT_POOL_SIZE) : scheduleService;
+        this.creator = Objects.requireNonNullElse(creator, new DefaultHolderItemCreator());
+        this.scheduleService = Objects.requireNonNullElse(
+                scheduleService,
+                Executors.newScheduledThreadPool(DEFAULT_POOL_SIZE));
     }
 
     @Override
@@ -73,8 +76,8 @@ public class DefaultHolder implements Holder {
 
     @Override
     public Result<HolderItem> hold(final Message message,
-                                                final HolderTimeoutStrategy timeoutStrategy,
-                                                final HolderReleaseStrategy releaseStrategy) {
+                                   final HolderTimeoutStrategy timeoutStrategy,
+                                   final HolderReleaseStrategy releaseStrategy) {
         HolderItem item = null;
         Code code = null;
         if (message == null){

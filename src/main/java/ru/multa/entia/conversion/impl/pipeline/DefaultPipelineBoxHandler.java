@@ -31,7 +31,7 @@ class DefaultPipelineBoxHandler<T extends ConversationItem> implements PipelineB
     };
 
     @Override
-    public Result<Object> handle(PipelineBoxHandlerTask<PublisherTask<T>> task) {
+    public Result<Object> handle(final PipelineBoxHandlerTask<PublisherTask<T>> task) {
         Code code = null;
         Object[] args = new Object[0];
 

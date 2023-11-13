@@ -64,6 +64,8 @@ public class DefaultPublisherPipelineSubscriber<T extends ConversationItem> impl
                 : DefaultResultBuilder.<PublisherTask<T>>fail(result.seed());
     }
 
+
+
     @Override
     public Result<Object> block() {
         UUID previous = sessionId.getAndSet(null);

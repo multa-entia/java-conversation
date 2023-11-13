@@ -17,6 +17,7 @@ import ru.multa.entia.results.impl.result.DefaultResultBuilder;
 import ru.multa.entia.results.impl.seed.DefaultSeedBuilder;
 
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -64,30 +65,31 @@ public class DefaultMessageFactory implements SimpleFactory<Object, Message> {
                                  final Function<Object[], Result<Address>> toGetter,
                                  final Function<Object[], Result<Boolean>> confirmGetter,
                                  final MessageCreator creator) {
-        this.checker = checker == null ? new DefaultMessageChecker() : checker;
-        this.contentFactory = contentFactory == null ? new DefaultContentFactory() : contentFactory;
-        this.idGetter = idGetter == null ? new DefaultValueGetter<>(Key.ID, UUID::randomUUID) : idGetter;
-        this.conversationGetter = conversationGetter == null
-                ? new DefaultValueGetter<>(Key.CONVERSATION, UUID::randomUUID)
-                : conversationGetter;
-        this.fromGetter = fromGetter == null
-                ? new DefaultConditionGetter<>(Key.FROM, object -> {
+        this.checker = Objects.requireNonNullElse(checker, new DefaultMessageChecker());
+        this.contentFactory = Objects.requireNonNullElse(contentFactory, new DefaultContentFactory());
+        this.idGetter = Objects.requireNonNullElse(idGetter, new DefaultValueGetter<>(Key.ID, UUID::randomUUID));
+        this.conversationGetter = Objects.requireNonNullElse(
+                conversationGetter,
+                new DefaultValueGetter<>(Key.CONVERSATION, UUID::randomUUID)
+        );
+        this.fromGetter = Objects.requireNonNullElse(
+                fromGetter,
+                new DefaultConditionGetter<>(Key.FROM, object -> {
                     return object != null && Arrays.stream(object.getClass().getInterfaces()).collect(Collectors.toSet()).contains(Address.class)
                             ? null
                             : new DefaultSeedBuilder<Address>().code(Code.FROM_ABSENCE.getValue()).build();
                 })
-                : fromGetter;
-        this.toGetter = toGetter == null
-                ? new DefaultConditionGetter<>(Key.TO, object -> {
+        );
+        this.toGetter = Objects.requireNonNullElse(
+                toGetter,
+                new DefaultConditionGetter<>(Key.TO, object -> {
                     return object != null && Arrays.stream(object.getClass().getInterfaces()).collect(Collectors.toSet()).contains(Address.class)
-                        ? null
-                        : new DefaultSeedBuilder<Address>().code(Code.TO_ABSENCE.getValue()).build();
+                            ? null
+                            : new DefaultSeedBuilder<Address>().code(Code.TO_ABSENCE.getValue()).build();
                 })
-                : toGetter;
-        this.confirmGetter = confirmGetter == null
-                ? new DefaultValueGetter<>(Key.CONFIRM, () -> {return true;})
-                : confirmGetter;
-        this.creator = creator == null ? new DefaultMessageCreator() : creator;
+        );
+        this.confirmGetter = Objects.requireNonNullElse(confirmGetter, new DefaultValueGetter<>(Key.CONFIRM, () -> {return true;}));
+        this.creator = Objects.requireNonNullElse(creator, new DefaultMessageCreator());
     }
 
     @Override

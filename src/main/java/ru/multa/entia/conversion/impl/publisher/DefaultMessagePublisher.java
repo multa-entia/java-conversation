@@ -10,6 +10,8 @@ import ru.multa.entia.conversion.impl.holder.DefaultHolder;
 import ru.multa.entia.results.api.result.Result;
 import ru.multa.entia.results.impl.result.DefaultResultBuilder;
 
+import java.util.Objects;
+
 public class DefaultMessagePublisher implements Publisher<Message> {
     private final Sender<Message> sender;
     private final Holder holder;
@@ -20,7 +22,7 @@ public class DefaultMessagePublisher implements Publisher<Message> {
 
     public DefaultMessagePublisher(final Sender<Message> sender, final Holder holder) {
         this.sender = sender;
-        this.holder = holder == null ? new DefaultHolder() : holder;
+        this.holder = Objects.requireNonNullElse(holder, new DefaultHolder());
     }
 
     @Override

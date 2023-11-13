@@ -9,6 +9,7 @@ import ru.multa.entia.conversion.api.publisher.PublisherTaskBuilder;
 import ru.multa.entia.conversion.api.publisher.PublisherTaskCreator;
 import ru.multa.entia.results.api.result.Result;
 
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -29,22 +30,22 @@ public class DefaultPublisherService<T extends ConversationItem> implements Publ
                                    final Function<PublisherService<T>, PublisherTaskBuilder<T>> builderCreator,
                                    final PublisherTaskCreator<T> taskCreator) {
         this.output = output;
-        this.timeoutStrategySupplier = timeoutStrategySupplier == null ? () -> {return null;} : timeoutStrategySupplier;
-        this.releaseStrategySupplier = releaseStrategySupplier == null ? () -> {return null;} : releaseStrategySupplier;
+        this.timeoutStrategySupplier = Objects.requireNonNullElse(timeoutStrategySupplier, () -> {return null;});
+        this.releaseStrategySupplier = Objects.requireNonNullElse(releaseStrategySupplier, () -> {return null;});
         this.builderCreator = checkOrCreateBuilderCreator(
                 builderCreator,
                 this.timeoutStrategySupplier,
                 this.releaseStrategySupplier);
-        this.taskCreator = taskCreator == null ? new DefaultPublisherTaskCreator<>() : taskCreator;
+        this.taskCreator = Objects.requireNonNullElse(taskCreator, new DefaultPublisherTaskCreator<>());
     }
 
     @Override
-    public Result<PublisherTask<T>> publish(T item) {
+    public Result<PublisherTask<T>> publish(final T item) {
         return publish(taskCreator.create(item, timeoutStrategySupplier.get(), releaseStrategySupplier.get()));
     }
 
     @Override
-    public Result<PublisherTask<T>> publish(PublisherTask<T> task) {
+    public Result<PublisherTask<T>> publish(final PublisherTask<T> task) {
         return output.apply(task);
     }
 
