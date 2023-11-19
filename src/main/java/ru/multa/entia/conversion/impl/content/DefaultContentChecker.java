@@ -22,14 +22,13 @@ class DefaultContentChecker implements Checker<Object> {
 
     @Override
     public Seed check(final Object instance) {
-        if (instance == null){
-            return new DefaultSeedBuilder<Object>().code(Code.IS_NULL.getValue()).build();
-        }
-
-        if (!Arrays.stream(instance.getClass().getInterfaces()).collect(Collectors.toSet()).contains(Value.class)){
-            return new DefaultSeedBuilder<Object>().code(Code.BAD_PARENT.getValue()).build();
-        }
-
-        return null;
+        return DefaultSeedBuilder.<Object>computeFromCodes(
+                () -> {return instance == null ? Code.IS_NULL.getValue(): null;},
+                () -> {
+                    return Arrays.stream(instance.getClass().getInterfaces()).collect(Collectors.toSet()).contains(Value.class)
+                            ? null
+                            : Code.BAD_PARENT.getValue();
+                }
+        );
     }
 }

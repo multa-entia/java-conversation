@@ -11,6 +11,7 @@ import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+// TODO: 18.11.2023 faked bool
 class DefaultValueGetterTest {
     private static final UUID DEFAULT_VALUE = Faker.uuid_().random();
     private static final DefaultMessageFactory.Key KEY = DefaultMessageFactory.Key.ID;

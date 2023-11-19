@@ -22,6 +22,7 @@ import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+// TODO: 18.11.2023 faked bool
 class DefaultMessageFactoryTest {
     private static final Function<Seed, TestChecker> CHECKER_FUNC = seed -> {
         TestChecker checker = Mockito.mock(TestChecker.class);

@@ -21,6 +21,7 @@ import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+// TODO: 18.11.2023 faked bool
 class DefaultContentFactoryTest {
 
     private static final Function<Result<Type>, TestTypeFactory> TYPE_FACTORY_FUNC = result -> {

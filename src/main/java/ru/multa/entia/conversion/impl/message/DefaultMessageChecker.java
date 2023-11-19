@@ -17,8 +17,10 @@ class DefaultMessageChecker implements Checker<Object> {
 
     @Override
     public Seed check(final Object instance) {
-        return instance == null
-                ? new DefaultSeedBuilder<Object>().code(Code.IS_NULL.getValue()).build()
-                : null;
+        return DefaultSeedBuilder.<Object>computeFromCodes(
+                () -> {
+                    return instance == null ? Code.IS_NULL.getValue() : null;
+                }
+        );
     }
 }

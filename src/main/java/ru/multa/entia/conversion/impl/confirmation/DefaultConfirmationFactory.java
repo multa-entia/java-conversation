@@ -12,10 +12,10 @@ import ru.multa.entia.conversion.impl.address.DefaultAddressDecorator;
 import ru.multa.entia.conversion.impl.getter.DefaultArgsGetter;
 import ru.multa.entia.conversion.impl.getter.DefaultValueGetter;
 import ru.multa.entia.results.api.result.Result;
-import ru.multa.entia.results.api.seed.Seed;
 import ru.multa.entia.results.impl.result.DefaultResultBuilder;
 
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 
 public class DefaultConfirmationFactory implements SimpleFactory<Message, Confirmation> {
@@ -55,34 +55,36 @@ public class DefaultConfirmationFactory implements SimpleFactory<Message, Confir
 
     @Override
     public Result<Confirmation> create(final Message message, final Object... args) {
-        Seed seed = checker.check(message);
-        if (seed != null){
-            return DefaultResultBuilder.<Confirmation>fail(seed);
-        }
+        AtomicReference<Result<AddressDecorator>> decoratorResult = new AtomicReference<>();
+        AtomicReference<Result<String>> codeResult = new AtomicReference<>();
+        AtomicReference<Result<Object[]>> argsResult = new AtomicReference<>();
 
-        Result<AddressDecorator> decoratorResult = fromDecoratorGetter.apply(args);
-        if (!decoratorResult.ok()){
-            return DefaultResultBuilder.<Confirmation>fail(decoratorResult.seed());
-        }
-
-        Result<String> codeResult = codeGetter.apply(args);
-        if (!codeResult.ok()){
-            return DefaultResultBuilder.<Confirmation>fail(codeResult.seed());
-        }
-
-        Result<Object[]> argsResult = argsGetter.apply(args);
-        if (!argsResult.ok()){
-            return DefaultResultBuilder.<Confirmation>fail(argsResult.seed());
-        }
-
-        Confirmation confirmation = creator.create(
-                message.id(),
-                message.conversation(),
-                decoratorResult.value().decorate(message.to()),
-                message.from(),
-                codeResult.value(),
-                argsResult.value()
+        return DefaultResultBuilder.<Confirmation>compute(
+                () -> {
+                    return creator.create(
+                            message.id(),
+                            message.conversation(),
+                            decoratorResult.get().value().decorate(message.to()),
+                            message.from(),
+                            codeResult.get().value(),
+                            argsResult.get().value()
+                    );
+                },
+                () -> {
+                    return checker.check(message);
+                },
+                () -> {
+                    decoratorResult.set(fromDecoratorGetter.apply(args));
+                    return decoratorResult.get().ok() ? null : decoratorResult.get().seed();
+                },
+                () -> {
+                    codeResult.set(codeGetter.apply(args));
+                    return codeResult.get().ok() ? null : codeResult.get().seed();
+                },
+                () -> {
+                    argsResult.set(argsGetter.apply(args));
+                    return argsResult.get().ok() ? null : argsResult.get().seed();
+                }
         );
-        return DefaultResultBuilder.<Confirmation>ok(confirmation);
     }
 }

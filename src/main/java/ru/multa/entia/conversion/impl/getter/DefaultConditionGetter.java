@@ -5,6 +5,7 @@ import ru.multa.entia.results.api.result.Result;
 import ru.multa.entia.results.api.seed.Seed;
 import ru.multa.entia.results.impl.result.DefaultResultBuilder;
 
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 
 @RequiredArgsConstructor
@@ -14,21 +15,21 @@ public class DefaultConditionGetter<T, K> implements Function<Object[], Result<T
 
     @Override
     public Result<T> apply(final Object[] args) {
-        Object arg = null;
+        AtomicReference<Object> arg = new AtomicReference<>();
         if (args != null){
             int length = args.length;
             for (int i = 0; i < length; i++) {
                 if (checkKey(args[i]) && i+1 < length){
-                    arg = args[i+1];
+                    arg.set(args[i+1]);
                     break;
                 }
             }
         }
 
-        Seed seed = condition.apply(arg);
-        return seed == null
-                ? DefaultResultBuilder.<T>ok((T) arg)
-                : DefaultResultBuilder.<T>fail(seed);
+        return DefaultResultBuilder.<T>compute(
+                () -> {return (T) arg.get();},
+                () -> {return condition.apply(arg.get());}
+        );
     }
 
     private boolean checkKey(final Object arg){

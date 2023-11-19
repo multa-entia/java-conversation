@@ -8,7 +8,6 @@ import ru.multa.entia.conversion.api.publisher.PublisherTask;
 
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.locks.Lock;
 
 record DefaultPipelineBoxHandlerTask<T extends ConversationItem>(
         PipelineBox<PublisherTask<T>> box,

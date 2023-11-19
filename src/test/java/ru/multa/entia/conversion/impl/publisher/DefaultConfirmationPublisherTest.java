@@ -19,6 +19,7 @@ import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+// TODO: 18.11.2023 faked bool
 class DefaultConfirmationPublisherTest {
 
     private static final Function<Confirmation, TestConfirmationPublisherTask> TASK_CREATOR = confirmation -> {

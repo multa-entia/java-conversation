@@ -8,6 +8,7 @@ import ru.multa.entia.conversion.api.publisher.Publisher;
 import ru.multa.entia.conversion.api.publisher.PublisherTask;
 import ru.multa.entia.results.api.result.Result;
 import ru.multa.entia.results.impl.result.DefaultResultBuilder;
+import ru.multa.entia.results.impl.seed.DefaultSeedBuilder;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -47,43 +48,41 @@ public class DefaultPublisherPipelineSubscriber<T extends ConversationItem> impl
 
     @Override
     public Result<PublisherTask<T>> give(final PublisherTask<T> task, final UUID sessionId) {
-        Code code = null;
-        if (sessionId == null) {
-            code = Code.DISALLOWED_SESSION_ID;
-        } else if (this.sessionId.get() == null) {
-            code = Code.SESSION_ID_IS_NOT_SET;
-        }
-
-        if (code != null) {
-            return DefaultResultBuilder.<PublisherTask<T>>fail(code.getValue());
-        }
-
-        Result<T> result = publisher.publish(task);
-        return result.ok()
-                ? DefaultResultBuilder.<PublisherTask<T>>ok(task)
-                : DefaultResultBuilder.<PublisherTask<T>>fail(result.seed());
+        return DefaultResultBuilder.<PublisherTask<T>>compute(
+                () -> {return task;},
+                () -> {
+                    return DefaultSeedBuilder.<PublisherTask<T>>computeFromCodes(
+                            () -> {return sessionId == null ? Code.DISALLOWED_SESSION_ID.getValue() : null;},
+                            () -> {return this.sessionId.get() == null ? Code.SESSION_ID_IS_NOT_SET.getValue() : null;}
+                    );
+                },
+                () -> {
+                    Result<T> result = publisher.publish(task);
+                    return result.ok() ? null : result.seed();
+                }
+        );
     }
-
-
 
     @Override
     public Result<Object> block() {
-        UUID previous = sessionId.getAndSet(null);
-        return previous == null
-                ? DefaultResultBuilder.<Object>fail(Code.SESSION_ID_ALREADY_RESET.getValue())
-                : DefaultResultBuilder.<Object>ok(null);
+        return DefaultResultBuilder.<Object>computeFromCodes(
+                () -> {return null;},
+                () -> {
+                    UUID previous = sessionId.getAndSet(null);
+                    return previous == null ? Code.SESSION_ID_ALREADY_RESET.getValue() : null;
+                }
+        );
     }
 
     @Override
     public Result<Object> blockOut(final UUID sessionId) {
-        Code code = Code.SESSION_ID_ON_BLOCK_OUT_IS_NULL;
-        if (sessionId != null){
-            UUID previous = this.sessionId.getAndSet(sessionId);
-            code = previous == sessionId ? Code.THIS_SESSION_ID_ALREADY_SET : null;
-        }
-
-        return code == null
-                ? DefaultResultBuilder.<Object>ok(null)
-                : DefaultResultBuilder.<Object>fail(code.getValue());
+        return DefaultResultBuilder.<Object>computeFromCodes(
+                () -> {return null;},
+                () -> {return sessionId == null ? Code.SESSION_ID_ON_BLOCK_OUT_IS_NULL.getValue() : null;},
+                () -> {
+                    UUID previous = this.sessionId.getAndSet(sessionId);
+                    return previous == sessionId ? Code.THIS_SESSION_ID_ALREADY_SET.getValue() : null;
+                }
+        );
     }
 }

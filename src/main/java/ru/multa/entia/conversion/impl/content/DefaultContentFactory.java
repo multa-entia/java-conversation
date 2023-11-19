@@ -7,10 +7,10 @@ import ru.multa.entia.conversion.api.content.ContentCreator;
 import ru.multa.entia.conversion.api.type.Type;
 import ru.multa.entia.conversion.impl.type.DefaultTypeFactory;
 import ru.multa.entia.results.api.result.Result;
-import ru.multa.entia.results.api.seed.Seed;
 import ru.multa.entia.results.impl.result.DefaultResultBuilder;
 
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 
 public class DefaultContentFactory implements SimpleFactory<Object, Content> {
@@ -35,21 +35,24 @@ public class DefaultContentFactory implements SimpleFactory<Object, Content> {
 
     @Override
     public Result<Content> create(final Object instance, final Object... args) {
-        Result<Type> result = typeFactory.create(instance, args);
-        if (!result.ok()){
-            return DefaultResultBuilder.<Content>fail(result.seed());
-        }
+        AtomicReference<Result<Type>> typeFactoryResult = new AtomicReference<>();
+        AtomicReference<Result<String>> serializeResult = new AtomicReference<>();
 
-        Seed seed = checker.check(instance);
-        if (seed != null){
-            return DefaultResultBuilder.<Content>fail(seed);
-        }
-
-        Result<String> serializeResult = serializer.apply(instance);
-        if (!serializeResult.ok()){
-            return DefaultResultBuilder.<Content>fail(serializeResult.seed());
-        }
-
-        return DefaultResultBuilder.<Content>ok(creator.create(result.value(), serializeResult.value()));
+        return DefaultResultBuilder.<Content>compute(
+                () -> {
+                    return creator.create(typeFactoryResult.get().value(), serializeResult.get().value());
+                },
+                () -> {
+                    typeFactoryResult.set(typeFactory.create(instance, args));
+                    return typeFactoryResult.get().ok() ? null : typeFactoryResult.get().seed();
+                },
+                () -> {
+                    return checker.check(instance);
+                },
+                () -> {
+                    serializeResult.set(serializer.apply(instance));
+                    return serializeResult.get().ok() ? null : serializeResult.get().seed();
+                }
+        );
     }
 }

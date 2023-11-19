@@ -4,6 +4,7 @@ import ru.multa.entia.conversion.api.confirmation.Confirmation;
 import ru.multa.entia.conversion.api.message.Message;
 import ru.multa.entia.fakers.impl.Faker;
 
+// TODO: 18.11.2023 faked bool
 public class FakerUtil {
     public static Message randomMessage(){
         return new TestMessage(

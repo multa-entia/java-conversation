@@ -6,6 +6,7 @@ import ru.multa.entia.results.api.seed.Seed;
 import java.util.Arrays;
 import java.util.Objects;
 
+// TODO: 18.11.2023 del 
 public class ResultUtil {
 
     public static Seed seed(final String code, Object... args){

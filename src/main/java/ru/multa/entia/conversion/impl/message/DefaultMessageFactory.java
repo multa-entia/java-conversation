@@ -12,13 +12,13 @@ import ru.multa.entia.conversion.impl.content.DefaultContentFactory;
 import ru.multa.entia.conversion.impl.getter.DefaultConditionGetter;
 import ru.multa.entia.conversion.impl.getter.DefaultValueGetter;
 import ru.multa.entia.results.api.result.Result;
-import ru.multa.entia.results.api.seed.Seed;
 import ru.multa.entia.results.impl.result.DefaultResultBuilder;
 import ru.multa.entia.results.impl.seed.DefaultSeedBuilder;
 
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -94,50 +94,51 @@ public class DefaultMessageFactory implements SimpleFactory<Object, Message> {
 
     @Override
     public Result<Message> create(final Object instance, final Object... args) {
-        Seed seed = checker.check(instance);
-        if (seed != null){
-            return DefaultResultBuilder.<Message>fail(seed);
-        }
+        AtomicReference<Result<Content>> contentResult = new AtomicReference<>();
+        AtomicReference<Result<UUID>> idResult = new AtomicReference<>();
+        AtomicReference<Result<UUID>> conversationResult = new AtomicReference<>();
+        AtomicReference<Result<Address>> fromResult = new AtomicReference<>();
+        AtomicReference<Result<Address>> toResult = new AtomicReference<>();
+        AtomicReference<Result<Boolean>> confirmResult = new AtomicReference<>();
 
-        Result<Content> contentResult = contentFactory.create(instance, args);
-        if (!contentResult.ok()){
-            return DefaultResultBuilder.<Message>fail(contentResult.seed());
-        }
-
-        Result<UUID> idResult = idGetter.apply(args);
-        if (!idResult.ok()){
-            return DefaultResultBuilder.<Message>fail(idResult.seed());
-        }
-
-        Result<UUID> conversationResult = conversationGetter.apply(args);
-        if (!conversationResult.ok()){
-            return DefaultResultBuilder.<Message>fail(conversationResult.seed());
-        }
-
-        Result<Address> fromResult = fromGetter.apply(args);
-        if (!fromResult.ok()){
-            return DefaultResultBuilder.<Message>fail(fromResult.seed());
-        }
-
-        Result<Address> toResult = toGetter.apply(args);
-        if (!toResult.ok()){
-            return DefaultResultBuilder.<Message>fail(toResult.seed());
-        }
-
-        Result<Boolean> confirmResult = confirmGetter.apply(args);
-        if (!confirmResult.ok()){
-            return DefaultResultBuilder.<Message>fail(confirmResult.seed());
-        }
-
-        return DefaultResultBuilder.<Message>ok(
-                creator.create(
-                        idResult.value(),
-                        conversationResult.value(),
-                        fromResult.value(),
-                        toResult.value(),
-                        confirmResult.value(),
-                        contentResult.value()
-                )
+        return DefaultResultBuilder.<Message>compute(
+                () -> {
+                    return creator.create(
+                            idResult.get().value(),
+                            conversationResult.get().value(),
+                            fromResult.get().value(),
+                            toResult.get().value(),
+                            confirmResult.get().value(),
+                            contentResult.get().value()
+                    );
+                },
+                () -> {
+                    return checker.check(instance);
+                },
+                () -> {
+                    contentResult.set(contentFactory.create(instance, args));
+                    return contentResult.get().ok() ? null : contentResult.get().seed();
+                },
+                () -> {
+                    idResult.set(idGetter.apply(args));
+                    return idResult.get().ok() ? null : idResult.get().seed();
+                },
+                () -> {
+                    conversationResult.set(conversationGetter.apply(args));
+                    return conversationResult.get().ok() ? null : conversationResult.get().seed();
+                },
+                () -> {
+                    fromResult.set(fromGetter.apply(args));
+                    return fromResult.get().ok() ? null : fromResult.get().seed();
+                },
+                () -> {
+                    toResult.set(toGetter.apply(args));
+                    return toResult.get().ok() ? null : toResult.get().seed();
+                },
+                () -> {
+                    confirmResult.set(confirmGetter.apply(args));
+                    return confirmResult.get().ok() ? null : confirmResult.get().seed();
+                }
         );
     }
 }

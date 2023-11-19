@@ -18,15 +18,9 @@ class DefaultTypeValueChecker implements Checker<Object> {
 
     @Override
     public Seed check(final Object value) {
-        String code = null;
-        if (value == null){
-            code = Code.IS_NULL.getValue();
-        } else if (!value.getClass().equals(String.class)) {
-            code = Code.IS_NOT_STR.getValue();
-        }
-
-        return code == null
-                ? null
-                : new DefaultSeedBuilder<Object>().code(code).build();
+        return DefaultSeedBuilder.<Object>computeFromCodes(
+                () -> {return value == null ? Code.IS_NULL.getValue() : null;},
+                () -> {return !value.getClass().equals(String.class) ? Code.IS_NOT_STR.getValue() : null;}
+        );
     }
 }

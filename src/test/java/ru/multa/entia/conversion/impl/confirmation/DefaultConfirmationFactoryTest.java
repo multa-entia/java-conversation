@@ -22,6 +22,7 @@ import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+// TODO: 18.11.2023 faked bool
 class DefaultConfirmationFactoryTest {
 
     @Test

@@ -19,15 +19,10 @@ class DefaultAddressChecker implements Checker<Object> {
 
     @Override
     public Seed check(final Object instance) {
-        String code = null;
-        if (instance == null){
-            code = Code.INSTANCE_IS_NULL.getValue();
-        } else if (!instance.getClass().equals(String.class)) {
-            code = Code.INSTANCE_IS_NOT_STR.getValue();
-        } else if (((String) instance).isBlank()) {
-            code = Code.INSTANCE_IS_BLANK.getValue();
-        }
-
-        return code == null ? null : new DefaultSeedBuilder<Object>().code(code).build();
+        return DefaultSeedBuilder.<Object>computeFromCodes(
+                () -> {return instance == null ? Code.INSTANCE_IS_NULL.getValue() : null;},
+                () -> {return instance.getClass().equals(String.class) ? null : Code.INSTANCE_IS_NOT_STR.getValue();},
+                () -> {return ((String) instance).isBlank() ? Code.INSTANCE_IS_BLANK.getValue() : null;}
+        );
     }
 }
