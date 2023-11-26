@@ -10,8 +10,8 @@ import ru.multa.entia.conversion.api.sender.Sender;
 import ru.multa.entia.fakers.impl.Faker;
 import ru.multa.entia.results.api.result.Result;
 import ru.multa.entia.results.impl.result.DefaultResultBuilder;
+import ru.multa.entia.results.utils.Results;
 import utils.FakerUtil;
-import utils.ResultUtil;
 
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
@@ -19,7 +19,6 @@ import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-// TODO: 18.11.2023 faked bool
 class DefaultConfirmationPublisherTest {
 
     private static final Function<Confirmation, TestConfirmationPublisherTask> TASK_CREATOR = confirmation -> {
@@ -42,7 +41,12 @@ class DefaultConfirmationPublisherTest {
         Result<Confirmation> result = new DefaultConfirmationPublisher(supp.get())
                 .publish(TASK_CREATOR.apply(FakerUtil.randomConfirm()));
 
-        assertThat(ResultUtil.isEqual(result, ResultUtil.fail(expectedCode))).isTrue();
+        assertThat(Results.comparator(result)
+                .isFail()
+                .seedsComparator()
+                .code(expectedCode)
+                .back()
+                .compare()).isTrue();
     }
 
     @Test
@@ -67,7 +71,10 @@ class DefaultConfirmationPublisherTest {
         Result<Confirmation> result = new DefaultConfirmationPublisher(supp.get())
                 .publish(TASK_CREATOR.apply(expectedConfirmation));
 
-        assertThat(ResultUtil.isEqual(result, ResultUtil.ok(expectedConfirmation))).isTrue();
+        assertThat(Results.comparator(result)
+                .isSuccess()
+                .value(expectedConfirmation)
+                .compare()).isTrue();
         assertThat(holder.get()).isEqualTo(expectedConfirmation);
     }
 

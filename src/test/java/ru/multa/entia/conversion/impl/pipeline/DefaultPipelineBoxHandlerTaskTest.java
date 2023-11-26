@@ -11,13 +11,10 @@ import ru.multa.entia.fakers.impl.Faker;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-// TODO: 18.11.2023 faked bool
 class DefaultPipelineBoxHandlerTaskTest {
     @Test
     void shouldCheckBoxGetting() {

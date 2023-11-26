@@ -4,32 +4,31 @@ import org.junit.jupiter.api.Test;
 import ru.multa.entia.conversion.api.value.Value;
 import ru.multa.entia.fakers.impl.Faker;
 import ru.multa.entia.results.api.seed.Seed;
-import utils.ResultUtil;
+import ru.multa.entia.results.utils.Seeds;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-// TODO: 18.11.2023 faked bool
 class DefaultContentCheckerTest {
 
     @Test
     void shouldCheckChecking_ifInstanceIsNull() {
         Seed seed = new DefaultContentChecker().check(null);
 
-        assertThat(ResultUtil.isEqual(seed, ResultUtil.seed(DefaultContentChecker.Code.IS_NULL.getValue()))).isTrue();
+        assertThat(Seeds.comparator(seed).code(DefaultContentChecker.Code.IS_NULL.getValue()).compare()).isTrue();
     }
 
     @Test
     void shouldCheckChecking_ifInstanceHasBadParent() {
         Seed seed = new DefaultContentChecker().check(new BadParentTestValue());
 
-        assertThat(ResultUtil.isEqual(seed, ResultUtil.seed(DefaultContentChecker.Code.BAD_PARENT.getValue()))).isTrue();
+        assertThat(Seeds.comparator(seed).code(DefaultContentChecker.Code.BAD_PARENT.getValue()).compare()).isTrue();
     }
 
     @Test
     void shouldCheckChecking() {
         Seed seed = new DefaultContentChecker().check(new TestValue(Faker.int_().random()));
 
-        assertThat(seed).isNull();
+        assertThat(Seeds.comparator(seed).isNull().compare()).isTrue();
     }
 
     private static class BadParentTestValue {}

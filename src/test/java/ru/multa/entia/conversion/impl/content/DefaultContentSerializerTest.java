@@ -5,18 +5,22 @@ import org.junit.jupiter.api.Test;
 import ru.multa.entia.conversion.api.value.Value;
 import ru.multa.entia.fakers.impl.Faker;
 import ru.multa.entia.results.api.result.Result;
-import utils.ResultUtil;
+import ru.multa.entia.results.utils.Results;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-// TODO: 18.11.2023 faked bool
 class DefaultContentSerializerTest {
 
     @Test
     void shouldCheckSerialization_ifBadAccess() {
         Result<String> result = new DefaultContentSerializer().apply(new BadAccessTestValue());
 
-        assertThat(ResultUtil.isEqual(result, ResultUtil.fail(DefaultContentSerializer.Code.BAD_ACCESS.getValue()))).isTrue();
+        assertThat(Results.comparator(result)
+                .isFail()
+                .seedsComparator()
+                .code(DefaultContentSerializer.Code.BAD_ACCESS.getValue())
+                .back()
+                .compare()).isTrue();
     }
 
     @Test
@@ -26,7 +30,10 @@ class DefaultContentSerializerTest {
 
         Result<String> result = new DefaultContentSerializer().apply(new TestValue(intValue));
 
-        assertThat(ResultUtil.isEqual(result, ResultUtil.ok(expectedValue))).isTrue();
+        assertThat(Results.comparator(result)
+                .isSuccess()
+                .value(expectedValue)
+                .compare()).isTrue();
     }
 
     private static class BadAccessTestValue implements Value {}

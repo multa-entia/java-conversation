@@ -12,6 +12,7 @@ import ru.multa.entia.fakers.impl.Faker;
 import ru.multa.entia.results.api.result.Result;
 import ru.multa.entia.results.api.seed.Seed;
 import ru.multa.entia.results.impl.result.DefaultResultBuilder;
+import ru.multa.entia.results.utils.Results;
 import utils.ResultUtil;
 import utils.TestType;
 
@@ -21,7 +22,6 @@ import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-// TODO: 18.11.2023 faked bool
 class DefaultContentFactoryTest {
 
     private static final Function<Result<Type>, TestTypeFactory> TYPE_FACTORY_FUNC = result -> {
@@ -57,7 +57,12 @@ class DefaultContentFactoryTest {
                 null
         ).create(null);
 
-        assertThat(ResultUtil.isEqual(result, ResultUtil.fail(expectedCode))).isTrue();
+        assertThat(Results.comparator(result)
+                .isFail()
+                .seedsComparator()
+                .code(expectedCode)
+                .back()
+                .compare()).isTrue();
     }
 
     @Test
@@ -71,7 +76,12 @@ class DefaultContentFactoryTest {
                 null
         ).create(null);
 
-        assertThat(ResultUtil.isEqual(result, ResultUtil.fail(expectedCode))).isTrue();
+        assertThat(Results.comparator(result)
+                .isFail()
+                .seedsComparator()
+                .code(expectedCode)
+                .back()
+                .compare()).isTrue();
     }
 
     @Test
@@ -85,7 +95,12 @@ class DefaultContentFactoryTest {
                 null
         ).create("12345");
 
-        assertThat(ResultUtil.isEqual(result, ResultUtil.fail(expectedCode))).isTrue();
+        assertThat(Results.comparator(result)
+                .isFail()
+                .seedsComparator()
+                .code(expectedCode)
+                .back()
+                .compare()).isTrue();
     }
 
     @Test
@@ -153,10 +168,9 @@ class DefaultContentFactoryTest {
                 null
         ).create(instance, args);
 
-        assertThat(result.ok()).isTrue();
+        assertThat(Results.comparator(result).isSuccess().seedsComparator().isNull().back().compare()).isTrue();
         assertThat(result.value().type()).isEqualTo(expectedType);
         assertThat(result.value().value()).isEqualTo(expectedValue);
-        assertThat(result.seed()).isNull();
 
         assertThat(typeFactoryInstanceHolder.get()).isEqualTo(instance);
         assertThat(typeFactoryArgHolder.get()).isEqualTo(arg);

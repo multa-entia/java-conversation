@@ -5,17 +5,15 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import ru.multa.entia.conversion.api.block.Blocking;
 import ru.multa.entia.conversion.api.message.Message;
 import ru.multa.entia.conversion.api.pipeline.PipelineBox;
 import ru.multa.entia.conversion.api.pipeline.PipelineReceiver;
 import ru.multa.entia.conversion.api.publisher.PublisherTask;
 import ru.multa.entia.fakers.impl.Faker;
 import ru.multa.entia.results.api.result.Result;
-import utils.ResultUtil;
+import ru.multa.entia.results.utils.Results;
 
 import java.lang.reflect.Field;
-import java.util.UUID;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -27,7 +25,6 @@ import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-// TODO: 18.11.2023 faked bool
 class DefaultPublisherPipelineTest {
 
     private static final Supplier<TestPipelineReceiver> TEST_PIPELINE_RECEIVER_SUPPLIER = () -> {
@@ -97,7 +94,7 @@ class DefaultPublisherPipelineTest {
         field.setAccessible(true);
         Object boxProcessor = field.get(pipeline);
 
-        assertThat(ResultUtil.isEqual(result, ResultUtil.ok(null))).isTrue();
+        assertThat(Results.comparator(result).isSuccess().value(null).compare()).isTrue();
         assertThat(gottenAlive).isTrue();
         assertThat(sessionId).isNotNull();
         assertThat(boxProcessor).isNotNull();
@@ -116,8 +113,12 @@ class DefaultPublisherPipelineTest {
         pipeline.start();
         Result<Object> result = pipeline.start();
 
-        assertThat(ResultUtil.isEqual(result, ResultUtil.fail(DefaultPublisherPipeline.Code.ALREADY_STARTED.getValue())))
-                .isTrue();
+        assertThat(Results.comparator(result)
+                .isFail()
+                .seedsComparator()
+                .code(DefaultPublisherPipeline.Code.ALREADY_STARTED.getValue())
+                .back()
+                .compare()).isTrue();
     }
 
     @SneakyThrows
@@ -133,8 +134,12 @@ class DefaultPublisherPipelineTest {
         field.setAccessible(true);
         AtomicBoolean gottenAlive = (AtomicBoolean) field.get(pipeline);
 
-        assertThat(ResultUtil.isEqual(result, ResultUtil.fail(DefaultPublisherPipeline.Code.ALREADY_STOPPED.getValue())))
-                .isTrue();
+        assertThat(Results.comparator(result)
+                .isFail()
+                .seedsComparator()
+                .code(DefaultPublisherPipeline.Code.ALREADY_STOPPED.getValue())
+                .back()
+                .compare()).isTrue();
         assertThat(gottenAlive).isFalse();
     }
 
@@ -194,9 +199,7 @@ class DefaultPublisherPipelineTest {
         field.setAccessible(true);
         Object boxProcessor = field.get(pipeline);
 
-
-        assertThat(ResultUtil.isEqual(result, ResultUtil.ok(null)))
-                .isTrue();
+        assertThat(Results.comparator(result).isSuccess().value(null).compare()).isTrue();
         assertThat(gottenAlive).isFalse();
         assertThat(sessionId).isNull();
         assertThat(boxProcessor).isNull();
@@ -218,9 +221,12 @@ class DefaultPublisherPipelineTest {
         DefaultPublisherPipeline<Message> pipeline = new DefaultPublisherPipeline<>(queue, null);
         Result<PublisherTask<Message>> result = pipeline.offer(testPipelineBoxSupplier.get());
 
-        assertThat(ResultUtil.isEqual(
-                result,
-                ResultUtil.fail(DefaultPublisherPipeline.Code.OFFER_IF_NOT_STARTED.getValue()))).isTrue();
+        assertThat(Results.comparator(result)
+                .isFail()
+                .seedsComparator()
+                .code(DefaultPublisherPipeline.Code.OFFER_IF_NOT_STARTED.getValue())
+                .back()
+                .compare()).isTrue();
     }
 
     @SneakyThrows
@@ -254,7 +260,7 @@ class DefaultPublisherPipelineTest {
             TestPublisherTask task = TEST_PUBLISHER_TASK_SUPPLIER.get();
             Result<PublisherTask<Message>> result = pipeline.offer(TEST_PIPELINE_BOX_FUNCTION.apply(task));
 
-            assertThat(ResultUtil.isEqual(result, ResultUtil.ok(task))).isTrue();
+            assertThat(Results.comparator(result).isSuccess().value(task).compare()).isTrue();
         }
 
         Thread.sleep(10);
@@ -290,9 +296,12 @@ class DefaultPublisherPipelineTest {
         pipeline.offer(TEST_PIPELINE_BOX_FUNCTION.apply(TEST_PUBLISHER_TASK_SUPPLIER.get()));
         Result<PublisherTask<Message>> result = pipeline.offer(TEST_PIPELINE_BOX_FUNCTION.apply(TEST_PUBLISHER_TASK_SUPPLIER.get()));
 
-        assertThat(ResultUtil.isEqual(
-                result,
-                ResultUtil.fail(DefaultPublisherPipeline.Code.OFFER_QUEUE_IS_FULL.getValue()))).isTrue();
+        assertThat(Results.comparator(result)
+                .isFail()
+                .seedsComparator()
+                .code(DefaultPublisherPipeline.Code.OFFER_QUEUE_IS_FULL.getValue())
+                .back()
+                .compare()).isTrue();
     }
 
     @SneakyThrows

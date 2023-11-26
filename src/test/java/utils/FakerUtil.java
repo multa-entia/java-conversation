@@ -4,7 +4,6 @@ import ru.multa.entia.conversion.api.confirmation.Confirmation;
 import ru.multa.entia.conversion.api.message.Message;
 import ru.multa.entia.fakers.impl.Faker;
 
-// TODO: 18.11.2023 faked bool
 public class FakerUtil {
     public static Message randomMessage(){
         return new TestMessage(
@@ -12,8 +11,7 @@ public class FakerUtil {
                 Faker.uuid_().random(),
                 new TestAddress(Faker.str_().random()),
                 new TestAddress(Faker.str_().random()),
-                // TODO: 18.10.2023 use faker
-                false,
+                Faker.bool_().random(),
                 new TestContent(new TestType(Faker.str_().random()), Faker.str_().random())
         );
     }

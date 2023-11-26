@@ -11,6 +11,7 @@ import ru.multa.entia.conversion.impl.address.DefaultAddressDecorator;
 import ru.multa.entia.fakers.impl.Faker;
 import ru.multa.entia.results.api.result.Result;
 import ru.multa.entia.results.impl.result.DefaultResultBuilder;
+import ru.multa.entia.results.utils.Results;
 import utils.ResultUtil;
 import utils.TestAddress;
 import utils.TestConfirmation;
@@ -22,7 +23,6 @@ import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-// TODO: 18.11.2023 faked bool
 class DefaultConfirmationFactoryTest {
 
     @Test
@@ -42,7 +42,13 @@ class DefaultConfirmationFactoryTest {
 
         Result<Confirmation> result = factory.create(null);
 
-        assertThat(ResultUtil.isEqual(result, ResultUtil.fail(expectedCode))).isTrue();
+        assertThat(Results
+                .comparator(result)
+                .isFail()
+                .seedsComparator()
+                .code(expectedCode)
+                .back()
+                .compare()).isTrue();
     }
 
     @Test
@@ -62,7 +68,13 @@ class DefaultConfirmationFactoryTest {
 
         Result<Confirmation> result = factory.create(null);
 
-        assertThat(ResultUtil.isEqual(result, ResultUtil.fail(expectedCode))).isTrue();
+        assertThat(Results
+                .comparator(result)
+                .isFail()
+                .seedsComparator()
+                .code(expectedCode)
+                .back()
+                .compare()).isTrue();
     }
 
     @Test
@@ -82,7 +94,13 @@ class DefaultConfirmationFactoryTest {
 
         Result<Confirmation> result = factory.create(null);
 
-        assertThat(ResultUtil.isEqual(result, ResultUtil.fail(expectedCode))).isTrue();
+        assertThat(Results
+                .comparator(result)
+                .isFail()
+                .seedsComparator()
+                .code(expectedCode)
+                .back()
+                .compare()).isTrue();
     }
 
     @Test
@@ -102,7 +120,13 @@ class DefaultConfirmationFactoryTest {
 
         Result<Confirmation> result = factory.create(null);
 
-        assertThat(ResultUtil.isEqual(result, ResultUtil.fail(expectedCode))).isTrue();
+        assertThat(Results
+                .comparator(result)
+                .isFail()
+                .seedsComparator()
+                .code(expectedCode)
+                .back()
+                .compare()).isTrue();
     }
 
     @Test
@@ -166,8 +190,7 @@ class DefaultConfirmationFactoryTest {
 
         Result<Confirmation> result = factory.create(message, expectedArgs);
 
-        assertThat(result.ok()).isTrue();
-        assertThat(result.seed()).isNull();
+        assertThat(Results.comparator(result).isSuccess().seedsComparator().isNull().back().compare()).isTrue();
 
         Confirmation confirmation = result.value();
         assertThat(confirmation.id()).isEqualTo(expectedId);

@@ -10,6 +10,7 @@ import ru.multa.entia.conversion.api.publisher.PublisherTask;
 import ru.multa.entia.conversion.api.publisher.PublisherTaskBuilder;
 import ru.multa.entia.results.api.result.Result;
 import ru.multa.entia.results.impl.result.DefaultResultBuilder;
+import ru.multa.entia.results.utils.Results;
 import utils.FakerUtil;
 import utils.TestHolderReleaseStrategy;
 import utils.TestHolderTimeoutStrategy;
@@ -20,7 +21,6 @@ import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-// TODO: 18.11.2023 faked bool
 class DefaultPublisherServiceTest {
 
     @SuppressWarnings("unchecked")
@@ -47,8 +47,7 @@ class DefaultPublisherServiceTest {
                 null);
         Result<PublisherTask<Message>> result = service.publish(expectedMessage);
 
-        assertThat(result.ok()).isTrue();
-        assertThat(result.seed()).isNull();
+        assertThat(Results.comparator(result).isSuccess().seedsComparator().isNull().back().compare()).isTrue();
         assertThat(result.value()).isNotNull();
 
         PublisherTask<Message> task = result.value();
@@ -92,8 +91,7 @@ class DefaultPublisherServiceTest {
 
         Result<PublisherTask<Message>> result = service.publish(publisherTaskSupplier.get());
 
-        assertThat(result.ok()).isTrue();
-        assertThat(result.seed()).isNull();
+        assertThat(Results.comparator(result).isSuccess().seedsComparator().isNull().back().compare()).isTrue();
         assertThat(result.value()).isNotNull();
 
         PublisherTask<Message> task = result.value();

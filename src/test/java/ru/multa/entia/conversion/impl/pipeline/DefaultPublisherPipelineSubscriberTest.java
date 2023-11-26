@@ -11,6 +11,7 @@ import ru.multa.entia.conversion.api.publisher.PublisherTask;
 import ru.multa.entia.fakers.impl.Faker;
 import ru.multa.entia.results.api.result.Result;
 import ru.multa.entia.results.api.seed.Seed;
+import ru.multa.entia.results.utils.Results;
 import utils.FakerUtil;
 import utils.ResultUtil;
 import utils.TestHolderReleaseStrategy;
@@ -19,13 +20,11 @@ import utils.TestHolderTimeoutStrategy;
 
 import java.lang.reflect.Field;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-// TODO: 18.11.2023 faked bool
 class DefaultPublisherPipelineSubscriberTest {
 
     @Test
@@ -53,9 +52,12 @@ class DefaultPublisherPipelineSubscriberTest {
 
         Result<Object> result = subscriber.block();
 
-        assertThat(ResultUtil.isEqual(
-                result,
-                ResultUtil.fail(DefaultPublisherPipelineSubscriber.Code.SESSION_ID_ALREADY_RESET.getValue()))).isTrue();
+        assertThat(Results.comparator(result)
+                .isFail()
+                .seedsComparator()
+                .code(DefaultPublisherPipelineSubscriber.Code.SESSION_ID_ALREADY_RESET.getValue())
+                .back()
+                .compare()).isTrue();
     }
 
     @SuppressWarnings("unchecked")
@@ -71,7 +73,10 @@ class DefaultPublisherPipelineSubscriberTest {
 
         AtomicReference<UUID> gottenSessionId = (AtomicReference<UUID>) field.get(subscriber);
 
-        assertThat(ResultUtil.isEqual(result, ResultUtil.ok(null))).isTrue();
+        assertThat(Results.comparator(result)
+                .isSuccess()
+                .value(null)
+                .compare()).isTrue();
         assertThat(gottenSessionId.get()).isNull();
     }
 
@@ -83,9 +88,12 @@ class DefaultPublisherPipelineSubscriberTest {
 
         Result<Object> result = subscriber.blockOut(expectedSessionId);
 
-        assertThat(ResultUtil.isEqual(
-                result,
-                ResultUtil.fail(DefaultPublisherPipelineSubscriber.Code.THIS_SESSION_ID_ALREADY_SET.getValue()))).isTrue();
+        assertThat(Results.comparator(result)
+                .isFail()
+                .seedsComparator()
+                .code(DefaultPublisherPipelineSubscriber.Code.THIS_SESSION_ID_ALREADY_SET.getValue())
+                .back()
+                .compare()).isTrue();
     }
 
     @Test
@@ -95,9 +103,12 @@ class DefaultPublisherPipelineSubscriberTest {
 
         Result<Object> result = subscriber.blockOut(null);
 
-        assertThat(ResultUtil.isEqual(
-                result,
-                ResultUtil.fail(DefaultPublisherPipelineSubscriber.Code.SESSION_ID_ON_BLOCK_OUT_IS_NULL.getValue()))).isTrue();
+        assertThat(Results.comparator(result)
+                .isFail()
+                .seedsComparator()
+                .code(DefaultPublisherPipelineSubscriber.Code.SESSION_ID_ON_BLOCK_OUT_IS_NULL.getValue())
+                .back()
+                .compare()).isTrue();
     }
 
     @SuppressWarnings("unchecked")
@@ -114,7 +125,10 @@ class DefaultPublisherPipelineSubscriberTest {
 
         AtomicReference<UUID> gottenSessionId = (AtomicReference<UUID>) field.get(subscriber);
 
-        assertThat(ResultUtil.isEqual(result, ResultUtil.ok(null))).isTrue();
+        assertThat(Results.comparator(result)
+                .isSuccess()
+                .value(null)
+                .compare()).isTrue();
         assertThat(gottenSessionId.get()).isEqualTo(expectedSessionId);
     }
 
@@ -138,9 +152,12 @@ class DefaultPublisherPipelineSubscriberTest {
                 = new DefaultPublisherPipelineSubscriber<Message>(null, null, null)
                 .give(task, Faker.uuid_().random());
 
-        assertThat(ResultUtil.isEqual(
-                result,
-                ResultUtil.fail(DefaultPublisherPipelineSubscriber.Code.SESSION_ID_IS_NOT_SET.getValue()))).isTrue();
+        assertThat(Results.comparator(result)
+                .isFail()
+                .seedsComparator()
+                .code(DefaultPublisherPipelineSubscriber.Code.SESSION_ID_IS_NOT_SET.getValue())
+                .back()
+                .compare()).isTrue();
     }
 
     @Test
@@ -163,9 +180,12 @@ class DefaultPublisherPipelineSubscriberTest {
                 = new DefaultPublisherPipelineSubscriber<Message>(null, null, Faker.uuid_().random())
                 .give(task, null);
 
-        assertThat(ResultUtil.isEqual(
-                result,
-                ResultUtil.fail(DefaultPublisherPipelineSubscriber.Code.DISALLOWED_SESSION_ID.getValue()))).isTrue();
+        assertThat(Results.comparator(result)
+                .isFail()
+                .seedsComparator()
+                .code(DefaultPublisherPipelineSubscriber.Code.DISALLOWED_SESSION_ID.getValue())
+                .back()
+                .compare()).isTrue();
     }
 
     @Test
@@ -207,7 +227,13 @@ class DefaultPublisherPipelineSubscriberTest {
                 = new DefaultPublisherPipelineSubscriber<Message>(publisherSupplier.get(), null, sessionId)
                 .give(task, sessionId);
 
-        assertThat(ResultUtil.isEqual(result, ResultUtil.fail(expectedSeed))).isTrue();
+        assertThat(Results.comparator(result)
+                .isFail()
+                .seedsComparator()
+                .code(expectedSeed.code())
+                .args(expectedSeed.args())
+                .back()
+                .compare()).isTrue();
 
         TestPublisherTask holtTask = (TestPublisherTask) taskAR.get();
         assertThat(holtTask.item()).isEqualTo(expectedMessage);
@@ -253,8 +279,12 @@ class DefaultPublisherPipelineSubscriberTest {
                 = new DefaultPublisherPipelineSubscriber<Message>(publisherSupplier.get(), null, sessionId)
                 .give(task, sessionId);
 
-        assertThat(result.ok()).isTrue();
-        assertThat(result.seed()).isNull();
+        assertThat(Results.comparator(result)
+                .isSuccess()
+                .seedsComparator()
+                .isNull()
+                .back()
+                .compare()).isTrue();
 
         TestPublisherTask resultTask = (TestPublisherTask) result.value();
         assertThat(resultTask.item()).isEqualTo(expectedMessage);

@@ -13,8 +13,8 @@ import ru.multa.entia.conversion.api.publisher.PublisherTaskCreator;
 import ru.multa.entia.fakers.impl.Faker;
 import ru.multa.entia.results.api.result.Result;
 import ru.multa.entia.results.impl.result.DefaultResultBuilder;
+import ru.multa.entia.results.utils.Results;
 import utils.FakerUtil;
-import utils.ResultUtil;
 import utils.TestHolderReleaseStrategy;
 import utils.TestHolderTimeoutStrategy;
 
@@ -23,7 +23,6 @@ import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-// TODO: 18.11.2023 faked bool
 class DefaultPublisherTaskBuilderTest {
 
     private static final PublisherTaskCreator<Message> CREATOR = (item, timeoutStrategy, releaseStrategy) -> {
@@ -218,7 +217,12 @@ class DefaultPublisherTaskBuilderTest {
                 .item(expectedItem)
                 .buildAndPublish();
 
-        assertThat(ResultUtil.isEqual(result, ResultUtil.fail(DefaultPublisherTaskBuilder.Code.SERVICE_IS_NULL.getValue()))).isTrue();
+        assertThat(Results.comparator(result)
+                .isFail()
+                .seedsComparator()
+                .code(DefaultPublisherTaskBuilder.Code.SERVICE_IS_NULL.getValue())
+                .back()
+                .compare()).isTrue();
     }
 
     @Test
@@ -243,7 +247,12 @@ class DefaultPublisherTaskBuilderTest {
                 .item(expectedItem)
                 .buildAndPublish();
 
-        assertThat(ResultUtil.isEqual(result, ResultUtil.fail(expectedCode))).isTrue();
+        assertThat(Results.comparator(result)
+                .isFail()
+                .seedsComparator()
+                .code(expectedCode)
+                .back()
+                .compare()).isTrue();
     }
 
     @Test
@@ -268,9 +277,13 @@ class DefaultPublisherTaskBuilderTest {
                 .item(expectedItem)
                 .buildAndPublish();
 
-        assertThat(result.ok()).isTrue();
+        assertThat(Results.comparator(result)
+                .isSuccess()
+                .seedsComparator()
+                .isNull()
+                .back()
+                .compare()).isTrue();
         assertThat(result.value().item()).isEqualTo(expectedItem);
-        assertThat(result.seed()).isNull();
     }
 
     private interface TestPublisherTask extends PublisherTask<Message> {}

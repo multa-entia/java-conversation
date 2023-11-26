@@ -6,7 +6,6 @@ import utils.TestType;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-// TODO: 18.11.2023 faked bool
 class DefaultContentTest {
 
     @Test

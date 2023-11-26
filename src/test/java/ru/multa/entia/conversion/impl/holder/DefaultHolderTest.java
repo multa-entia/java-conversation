@@ -10,8 +10,8 @@ import ru.multa.entia.conversion.api.holder.HolderReleaseStrategy;
 import ru.multa.entia.conversion.api.holder.HolderTimeoutStrategy;
 import ru.multa.entia.conversion.api.message.Message;
 import ru.multa.entia.results.api.result.Result;
+import ru.multa.entia.results.utils.Results;
 import utils.FakerUtil;
-import utils.ResultUtil;
 
 import java.lang.reflect.Field;
 import java.util.Map;
@@ -20,7 +20,6 @@ import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-// TODO: 18.11.2023 faked bool
 class DefaultHolderTest {
 
     @SuppressWarnings("unchecked")
@@ -57,7 +56,12 @@ class DefaultHolderTest {
         DefaultHolder holder = new DefaultHolder();
         Result<HolderItem> result = holder.hold(null, null, null);
 
-        assertThat(ResultUtil.isEqual(result, ResultUtil.fail(DefaultHolder.Code.MESSAGE_IS_NULL.getValue()))).isTrue();
+        assertThat(Results.comparator(result)
+                .isFail()
+                .seedsComparator()
+                .code(DefaultHolder.Code.MESSAGE_IS_NULL.getValue())
+                .back()
+                .compare()).isTrue();
     }
 
     @Test
@@ -67,7 +71,12 @@ class DefaultHolderTest {
         holder.hold(message, null, null);
         Result<HolderItem> result = holder.hold(message, null, null);
 
-        assertThat(ResultUtil.isEqual(result, ResultUtil.fail(DefaultHolder.Code.MESSAGE_ALREADY_CONTAINED.getValue()))).isTrue();
+        assertThat(Results.comparator(result)
+                .isFail()
+                .seedsComparator()
+                .code(DefaultHolder.Code.MESSAGE_ALREADY_CONTAINED.getValue())
+                .back()
+                .compare()).isTrue();
     }
 
     @Test
@@ -76,7 +85,12 @@ class DefaultHolderTest {
         holder.hold(FakerUtil.randomMessage(), null, null);
         Result<HolderItem> result = holder.hold(FakerUtil.randomMessage(), null, null);
 
-        assertThat(ResultUtil.isEqual(result, ResultUtil.fail(DefaultHolder.Code.STORAGE_IS_FULL.getValue()))).isTrue();
+        assertThat(Results.comparator(result)
+                .isFail()
+                .seedsComparator()
+                .code(DefaultHolder.Code.STORAGE_IS_FULL.getValue())
+                .back()
+                .compare()).isTrue();
     }
 
     @Test
@@ -85,7 +99,12 @@ class DefaultHolderTest {
         holder.hold(FakerUtil.randomMessage(), null, null);
         Result<HolderItem> result = holder.release(null);
 
-        assertThat(ResultUtil.isEqual(result, ResultUtil.fail(DefaultHolder.Code.CONFIRMATION_IS_NULL.getValue()))).isTrue();
+        assertThat(Results.comparator(result)
+                .isFail()
+                .seedsComparator()
+                .code(DefaultHolder.Code.CONFIRMATION_IS_NULL.getValue())
+                .back()
+                .compare()).isTrue();
     }
 
     @Test
@@ -107,7 +126,12 @@ class DefaultHolderTest {
 
         Result<HolderItem> result = holder.release(confirmation);
 
-        assertThat(ResultUtil.isEqual(result, ResultUtil.fail(DefaultHolder.Code.CONFIRMATION_HAS_BAD_ID.getValue()))).isTrue();
+        assertThat(Results.comparator(result)
+                .isFail()
+                .seedsComparator()
+                .code(DefaultHolder.Code.CONFIRMATION_HAS_BAD_ID.getValue())
+                .back()
+                .compare()).isTrue();
     }
 
     @SuppressWarnings("unchecked")

@@ -13,6 +13,7 @@ import ru.multa.entia.fakers.impl.Faker;
 import ru.multa.entia.results.api.result.Result;
 import ru.multa.entia.results.api.seed.Seed;
 import ru.multa.entia.results.impl.result.DefaultResultBuilder;
+import ru.multa.entia.results.utils.Results;
 import utils.*;
 
 import java.util.UUID;
@@ -22,7 +23,6 @@ import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-// TODO: 18.11.2023 faked bool
 class DefaultMessageFactoryTest {
     private static final Function<Seed, TestChecker> CHECKER_FUNC = seed -> {
         TestChecker checker = Mockito.mock(TestChecker.class);
@@ -73,7 +73,12 @@ class DefaultMessageFactoryTest {
                 null
         ).create(null);
 
-        assertThat(ResultUtil.isEqual(result, ResultUtil.fail(expectedCode))).isTrue();
+        assertThat(Results.comparator(result)
+                .isFail()
+                .seedsComparator()
+                .code(expectedCode)
+                .back()
+                .compare()).isTrue();
     }
 
     @Test
@@ -90,7 +95,12 @@ class DefaultMessageFactoryTest {
                 null
         ).create(null);
 
-        assertThat(ResultUtil.isEqual(result, ResultUtil.fail(expectedCode))).isTrue();
+        assertThat(Results.comparator(result)
+                .isFail()
+                .seedsComparator()
+                .code(expectedCode)
+                .back()
+                .compare()).isTrue();
     }
 
     @Test
@@ -108,7 +118,12 @@ class DefaultMessageFactoryTest {
                 null
         ).create(null);
 
-        assertThat(ResultUtil.isEqual(result, ResultUtil.fail(expectedCode))).isTrue();
+        assertThat(Results.comparator(result)
+                .isFail()
+                .seedsComparator()
+                .code(expectedCode)
+                .back()
+                .compare()).isTrue();
     }
 
     @Test
@@ -126,7 +141,12 @@ class DefaultMessageFactoryTest {
                 null
         ).create(null);
 
-        assertThat(ResultUtil.isEqual(result, ResultUtil.fail(expectedCode))).isTrue();
+        assertThat(Results.comparator(result)
+                .isFail()
+                .seedsComparator()
+                .code(expectedCode)
+                .back()
+                .compare()).isTrue();
     }
 
     @Test
@@ -144,7 +164,12 @@ class DefaultMessageFactoryTest {
                 null
         ).create(null);
 
-        assertThat(ResultUtil.isEqual(result, ResultUtil.fail(expectedCode))).isTrue();
+        assertThat(Results.comparator(result)
+                .isFail()
+                .seedsComparator()
+                .code(expectedCode)
+                .back()
+                .compare()).isTrue();
     }
 
     @Test
@@ -162,7 +187,12 @@ class DefaultMessageFactoryTest {
                 null
         ).create(null);
 
-        assertThat(ResultUtil.isEqual(result, ResultUtil.fail(expectedCode))).isTrue();
+        assertThat(Results.comparator(result)
+                .isFail()
+                .seedsComparator()
+                .code(expectedCode)
+                .back()
+                .compare()).isTrue();
     }
 
     @Test
@@ -180,7 +210,12 @@ class DefaultMessageFactoryTest {
                 null
         ).create(null);
 
-        assertThat(ResultUtil.isEqual(result, ResultUtil.fail(expectedCode))).isTrue();
+        assertThat(Results.comparator(result)
+                .isFail()
+                .seedsComparator()
+                .code(expectedCode)
+                .back()
+                .compare()).isTrue();
     }
 
     @Test
@@ -321,8 +356,12 @@ class DefaultMessageFactoryTest {
                 new DefaultMessageCreator()
         ).create(instance, arg);
 
-        assertThat(result.ok()).isTrue();
-        assertThat(result.seed()).isNull();
+        assertThat(Results.comparator(result)
+                .isSuccess()
+                .seedsComparator()
+                .isNull()
+                .back()
+                .compare()).isTrue();
 
         Message message = result.value();
         assertThat(message.id()).isEqualTo(expectedId);

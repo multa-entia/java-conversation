@@ -6,6 +6,7 @@ import ru.multa.entia.conversion.impl.message.DefaultMessageFactory;
 import ru.multa.entia.fakers.impl.Faker;
 import ru.multa.entia.results.api.result.Result;
 import ru.multa.entia.results.api.seed.Seed;
+import ru.multa.entia.results.utils.Results;
 import utils.ResultUtil;
 import utils.TestAddress;
 
@@ -13,7 +14,6 @@ import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-// TODO: 18.11.2023 faked bool
 class DefaultConditionGetterTest {
     private static final String CODE = Faker.str_().random(5, 10);
     private static final DefaultMessageFactory.Key KEY = DefaultMessageFactory.Key.ID;
@@ -25,14 +25,24 @@ class DefaultConditionGetterTest {
     void shouldCheckGetting_ifArgsIsNull() {
         Result<Address> result = new DefaultConditionGetter<Address, DefaultMessageFactory.Key>(KEY, CONDITION).apply(null);
 
-        assertThat(ResultUtil.isEqual(result, ResultUtil.fail(CODE))).isTrue();
+        assertThat(Results.comparator(result)
+                .isFail()
+                .seedsComparator()
+                .code(CODE)
+                .back()
+                .compare()).isTrue();
     }
 
     @Test
     void shouldCheckGetting_ifArgsDoesNotContainKey() {
         Result<Address> result = new DefaultConditionGetter<Address, DefaultMessageFactory.Key>(KEY, CONDITION).apply(new Object[0]);
 
-        assertThat(ResultUtil.isEqual(result, ResultUtil.fail(CODE))).isTrue();
+        assertThat(Results.comparator(result)
+                .isFail()
+                .seedsComparator()
+                .code(CODE)
+                .back()
+                .compare()).isTrue();
     }
 
     @Test
@@ -43,7 +53,12 @@ class DefaultConditionGetterTest {
         };
         Result<Address> result = new DefaultConditionGetter<Address, DefaultMessageFactory.Key>(KEY, CONDITION).apply(args);
 
-        assertThat(ResultUtil.isEqual(result, ResultUtil.fail(CODE))).isTrue();
+        assertThat(Results.comparator(result)
+                .isFail()
+                .seedsComparator()
+                .code(CODE)
+                .back()
+                .compare()).isTrue();
     }
 
     @Test
@@ -61,7 +76,12 @@ class DefaultConditionGetterTest {
 
         Result<Address> result = new DefaultConditionGetter<Address, DefaultMessageFactory.Key>(KEY, condition).apply(args);
 
-        assertThat(ResultUtil.isEqual(result, ResultUtil.fail(expectedCode))).isTrue();
+        assertThat(Results.comparator(result)
+                .isFail()
+                .seedsComparator()
+                .code(expectedCode)
+                .back()
+                .compare()).isTrue();
     }
 
     @Test
@@ -78,6 +98,9 @@ class DefaultConditionGetterTest {
 
         Result<Address> result = new DefaultConditionGetter<Address, DefaultMessageFactory.Key>(KEY, condition).apply(args);
 
-        assertThat(ResultUtil.isEqual(result, ResultUtil.ok(expectedAddress))).isTrue();
+        assertThat(Results.comparator(result)
+                .isSuccess()
+                .value(expectedAddress)
+                .compare()).isTrue();
     }
 }

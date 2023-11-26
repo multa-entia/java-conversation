@@ -14,8 +14,8 @@ import ru.multa.entia.conversion.api.sender.Sender;
 import ru.multa.entia.fakers.impl.Faker;
 import ru.multa.entia.results.api.result.Result;
 import ru.multa.entia.results.impl.result.DefaultResultBuilder;
+import ru.multa.entia.results.utils.Results;
 import utils.FakerUtil;
-import utils.ResultUtil;
 import utils.TestHolderReleaseStrategy;
 import utils.TestHolderTimeoutStrategy;
 
@@ -25,7 +25,6 @@ import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-// TODO: 18.11.2023 faked bool
 class DefaultMessagePublisherTest {
     @Test
     void shouldCheckPublishing_ifFailSending() {
@@ -46,7 +45,12 @@ class DefaultMessagePublisherTest {
         Result<Message> result = new DefaultMessagePublisher(senderSupplier.get())
                 .publish(taskFunction.apply(FakerUtil.randomMessage()));
 
-        assertThat(ResultUtil.isEqual(result, ResultUtil.fail(expectedCode))).isTrue();
+        assertThat(Results.comparator(result)
+                .isFail()
+                .seedsComparator()
+                .code(expectedCode)
+                .back()
+                .compare()).isTrue();
     }
 
     @Test
@@ -77,7 +81,12 @@ class DefaultMessagePublisherTest {
         Result<Message> result = new DefaultMessagePublisher(senderSupplier.get(), holderSupplier.get())
                 .publish(taskFunction.apply(expectedMessage));
 
-        assertThat(ResultUtil.isEqual(result, ResultUtil.fail(expectedCode))).isTrue();
+        assertThat(Results.comparator(result)
+                .isFail()
+                .seedsComparator()
+                .code(expectedCode)
+                .back()
+                .compare()).isTrue();
     }
 
     @Test
@@ -140,7 +149,10 @@ class DefaultMessagePublisherTest {
         Result<Message> result = new DefaultMessagePublisher(senderSupplier.get(), holderSupplier.get())
                 .publish(taskSupplier.get());
 
-        assertThat(ResultUtil.isEqual(result, ResultUtil.ok(expectedMessage))).isTrue();
+        assertThat(Results.comparator(result)
+                .isSuccess()
+                .value(expectedMessage)
+                .compare()).isTrue();
 
         assertThat(senderArgAR.get()).isEqualTo(expectedMessage);
         assertThat(holderItemArgAR.get()).isEqualTo(expectedMessage);

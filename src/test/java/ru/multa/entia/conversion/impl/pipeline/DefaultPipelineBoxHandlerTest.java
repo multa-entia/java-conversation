@@ -11,28 +11,29 @@ import ru.multa.entia.conversion.api.pipeline.PipelineSubscriber;
 import ru.multa.entia.conversion.api.publisher.PublisherTask;
 import ru.multa.entia.fakers.impl.Faker;
 import ru.multa.entia.results.api.result.Result;
+import ru.multa.entia.results.utils.Results;
 import utils.ResultUtil;
 
 import java.util.HashMap;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-// TODO: 18.11.2023 faked bool
 class DefaultPipelineBoxHandlerTest {
 
     @Test
     void shouldCheckHandling_ifTypeIsNull() {
         Result<Object> result = new DefaultPipelineBoxHandler<Message>().handle(null);
 
-        assertThat(ResultUtil.isEqual(
-                result,
-                ResultUtil.fail(DefaultPipelineBoxHandler.Code.TASK_IS_NULL.getValue())
-        )).isTrue();
+        assertThat(Results.comparator(result)
+                .isFail()
+                .seedsComparator()
+                .code(DefaultPipelineBoxHandler.Code.TASK_IS_NULL.getValue())
+                .back()
+                .compare()).isTrue();
     }
 
     @Test
@@ -44,10 +45,12 @@ class DefaultPipelineBoxHandlerTest {
         Result<Object> result = new DefaultPipelineBoxHandler<Message>()
                 .handle(testPipelineBoxHandlerTaskSupplier.get());
 
-        assertThat(ResultUtil.isEqual(
-                result,
-                ResultUtil.fail(DefaultPipelineBoxHandler.Code.INVALID_TASK_TYPE.getValue())
-        )).isTrue();
+        assertThat(Results.comparator(result)
+                .isFail()
+                .seedsComparator()
+                .code(DefaultPipelineBoxHandler.Code.INVALID_TASK_TYPE.getValue())
+                .back()
+                .compare()).isTrue();
     }
 
     @Test
@@ -60,10 +63,12 @@ class DefaultPipelineBoxHandlerTest {
 
         Result<Object> result = new DefaultPipelineBoxHandler<Message>().handle(task);
 
-        assertThat(ResultUtil.isEqual(
-                result,
-                ResultUtil.fail(DefaultPipelineBoxHandler.Code.INVALID_TASK_BOX.getValue())
-        )).isTrue();
+        assertThat(Results.comparator(result)
+                .isFail()
+                .seedsComparator()
+                .code(DefaultPipelineBoxHandler.Code.INVALID_TASK_BOX.getValue())
+                .back()
+                .compare()).isTrue();
     }
 
     @Test
@@ -83,10 +88,12 @@ class DefaultPipelineBoxHandlerTest {
 
         Result<Object> result = new DefaultPipelineBoxHandler<Message>().handle(task);
 
-        assertThat(ResultUtil.isEqual(
-                result,
-                ResultUtil.fail(DefaultPipelineBoxHandler.Code.INVALID_TASK_BOX_VALUE.getValue())
-        )).isTrue();
+        assertThat(Results.comparator(result)
+                .isFail()
+                .seedsComparator()
+                .code(DefaultPipelineBoxHandler.Code.INVALID_TASK_BOX_VALUE.getValue())
+                .back()
+                .compare()).isTrue();
     }
 
     @Test
@@ -108,10 +115,12 @@ class DefaultPipelineBoxHandlerTest {
 
         Result<Object> result = new DefaultPipelineBoxHandler<Message>().handle(task);
 
-        assertThat(ResultUtil.isEqual(
-                result,
-                ResultUtil.fail(DefaultPipelineBoxHandler.Code.INVALID_TASK_SESSION_ID.getValue())
-        )).isTrue();
+        assertThat(Results.comparator(result)
+                .isFail()
+                .seedsComparator()
+                .code(DefaultPipelineBoxHandler.Code.INVALID_TASK_SESSION_ID.getValue())
+                .back()
+                .compare()).isTrue();
     }
 
     @Test
@@ -133,10 +142,12 @@ class DefaultPipelineBoxHandlerTest {
 
         Result<Object> result = new DefaultPipelineBoxHandler<Message>().handle(task);
 
-        assertThat(ResultUtil.isEqual(
-                result,
-                ResultUtil.fail(DefaultPipelineBoxHandler.Code.INVALID_ACTOR.getValue())
-        )).isTrue();
+        assertThat(Results.comparator(result)
+                .isFail()
+                .seedsComparator()
+                .code(DefaultPipelineBoxHandler.Code.INVALID_ACTOR.getValue())
+                .back()
+                .compare()).isTrue();
     }
 
     @Test
@@ -158,10 +169,12 @@ class DefaultPipelineBoxHandlerTest {
 
         Result<Object> result = new DefaultPipelineBoxHandler<Message>().handle(task);
 
-        assertThat(ResultUtil.isEqual(
-                result,
-                ResultUtil.fail(DefaultPipelineBoxHandler.Code.INVALID_ACTOR.getValue())
-        )).isTrue();
+        assertThat(Results.comparator(result)
+                .isFail()
+                .seedsComparator()
+                .code(DefaultPipelineBoxHandler.Code.INVALID_ACTOR.getValue())
+                .back()
+                .compare()).isTrue();
     }
 
     @Test
@@ -195,9 +208,14 @@ class DefaultPipelineBoxHandlerTest {
 
         Result<Object> result = new DefaultPipelineBoxHandler<Message>().handle(task);
 
-        assertThat(result.ok()).isFalse();
-        assertThat(result.value()).isNull();
-        assertThat(result.seed().code()).isEqualTo(DefaultPipelineBoxHandler.Code.FAIL_GIVING.getValue());
+        assertThat(Results.comparator(result)
+                .isFail()
+                .value(null)
+                .seedsComparator()
+                .code(DefaultPipelineBoxHandler.Code.FAIL_GIVING.getValue())
+                .back()
+                .compare()).isTrue();
+
         Object[] args = result.seed().args();
         assertThat(args.length).isEqualTo(1);
     }
@@ -247,7 +265,7 @@ class DefaultPipelineBoxHandlerTest {
 
         Result<Object> result = new DefaultPipelineBoxHandler<Message>().handle(task);
 
-        assertThat(ResultUtil.isEqual(result, ResultUtil.ok(null))).isTrue();
+        assertThat(Results.comparator(result).isSuccess().value(null).compare()).isTrue();
         assertThat(valueHolder.get()).isEqualTo(expectedPublisherTask);
         assertThat(sessionIdHolder.get()).isEqualTo(expectedSessionId);
     }

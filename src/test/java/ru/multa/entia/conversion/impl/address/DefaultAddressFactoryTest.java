@@ -5,12 +5,12 @@ import ru.multa.entia.conversion.api.Checker;
 import ru.multa.entia.conversion.api.address.Address;
 import ru.multa.entia.fakers.impl.Faker;
 import ru.multa.entia.results.api.result.Result;
+import ru.multa.entia.results.utils.Results;
 import utils.ResultUtil;
 import utils.TestAddress;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-// TODO: 18.11.2023 faked bool
 class DefaultAddressFactoryTest {
     @Test
     void shouldCheckCreation_checkerFail() {
@@ -21,7 +21,7 @@ class DefaultAddressFactoryTest {
 
         Result<Address> result = new DefaultAddressFactory(checker, null).create(null);
 
-        assertThat(ResultUtil.isEqual(result, ResultUtil.fail(expectedCode))).isTrue();
+        assertThat(Results.comparator(result).isFail().seedsComparator().code(expectedCode).back().compare()).isTrue();
     }
 
     @Test
@@ -31,6 +31,6 @@ class DefaultAddressFactoryTest {
 
         Result<Address> result = new DefaultAddressFactory(checker, TestAddress::new).create(expectedValue);
 
-        assertThat(ResultUtil.isEqual(result, ResultUtil.ok(new TestAddress(expectedValue)))).isTrue();
+        assertThat(Results.comparator(result).isSuccess().value(new TestAddress(expectedValue)).compare()).isTrue();
     }
 }

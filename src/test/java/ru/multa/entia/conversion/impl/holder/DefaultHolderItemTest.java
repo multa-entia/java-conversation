@@ -6,7 +6,6 @@ import utils.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-// TODO: 18.11.2023 faked bool
 class DefaultHolderItemTest {
 
     @Test
@@ -23,8 +22,7 @@ class DefaultHolderItemTest {
                 Faker.uuid_().random(),
                 new TestAddress(Faker.str_().random()),
                 new TestAddress(Faker.str_().random()),
-                // TODO: 18.10.2023 use faker
-                false,
+                Faker.bool_().random(),
                 new TestContent(new TestType(Faker.str_().random()), Faker.str_().random())
         );
         DefaultHolderItem item = new DefaultHolderItem(expectedMessage, null, null);
