@@ -6,7 +6,7 @@ import ru.multa.entia.conversion.api.listener.ListenerTaskCreator;
 
 class DefaultListenerTaskCreator<T extends ConversationItem> implements ListenerTaskCreator<T> {
     @Override
-    public ListenerTask<T> create(T item) {
+    public ListenerTask<T> create(final T item) {
         return new DefaultListenerTask<>(item);
     }
 }
