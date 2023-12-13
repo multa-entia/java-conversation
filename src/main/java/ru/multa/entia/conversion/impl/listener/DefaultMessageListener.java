@@ -12,7 +12,7 @@ public class DefaultMessageListener implements Listener<Message> {
     private final ListenerStrategy<Message> strategy;
 
     @Override
-    public Result<Message> listen(ListenerTask<Message> task) {
+    public Result<Message> listen(final ListenerTask<Message> task) {
         return strategy.execute(task.item());
     }
 }
