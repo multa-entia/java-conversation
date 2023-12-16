@@ -21,6 +21,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
+// TODO: 16.12.2023 rename or remake for ListenerTask too
 @Slf4j
 public class DefaultPipelineReceiver<T extends ConversationItem> implements PipelineReceiver<PublisherTask<T>> {
     @RequiredArgsConstructor
