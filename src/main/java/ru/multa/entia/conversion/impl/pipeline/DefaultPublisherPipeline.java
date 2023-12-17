@@ -32,7 +32,7 @@ public class DefaultPublisherPipeline<T extends ConversationItem> implements Pip
         private final String value;
     }
 
-    private static final String DEFAULT_BOX_PROCESSOR_THREAD_NAME = "box-processor-thread";
+    private static final String DEFAULT_BOX_PROCESSOR_THREAD_NAME = "publisher-box-processor-thread";
 
     private static final Supplier<ExecutorService> DEFAULT_BOX_PROCESSOR_SUPPLIER = () -> Executors.newSingleThreadExecutor(runnable -> {
         Thread thread = new Thread(runnable);
