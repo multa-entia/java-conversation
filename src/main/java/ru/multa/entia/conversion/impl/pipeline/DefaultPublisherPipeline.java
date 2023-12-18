@@ -115,14 +115,17 @@ public class DefaultPublisherPipeline<T extends ConversationItem> implements Pip
         while (alive.get()) {
             try {
                 PipelineBox<PublisherTask<T>> box = queue.take();
-                receiver.receive(sessionId, box);
+                // TODO: 18.12.2023 !!!
+                System.out.println("+++ " + box);
+                Result<Object> result = receiver.receive(sessionId, box);
+                // TODO: 18.12.2023 !!!
+                System.out.println("result: " + result);
             } catch (InterruptedException exception) {
                 log.error(exception.getMessage(), exception);
                 Thread.currentThread().interrupt();
             }
-
-            log.info("Box processing finished");
         }
+        log.info("Box processing finished");
     }
 }
 

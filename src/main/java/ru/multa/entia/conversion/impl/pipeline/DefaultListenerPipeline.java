@@ -122,8 +122,7 @@ public class DefaultListenerPipeline<T extends ConversationItem> implements Pipe
                 log.error(exception.getMessage(), exception);
                 Thread.currentThread().interrupt();
             }
-
-            log.info("Box processing finished");
         }
+        log.info("Box processing finished");
     }
 }

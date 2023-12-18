@@ -87,7 +87,11 @@ public class DefaultPipelinePublisherReceiver<T extends ConversationItem> implem
         ArrayList<Seed> seeds = new ArrayList<>();
         for (Map.Entry<UUID, PipelineSubscriber<PublisherTask<T>>> entry : subscribers.entrySet()) {
             boxHandler.submit(() -> {
-                entry.getValue().give(box.value(), sessionId);
+//                entry.getValue().give(box.value(), sessionId);
+                // TODO: 18.12.2023 !!!
+                Result<PublisherTask<T>> result = entry.getValue().give(box.value(), sessionId);
+                // TODO: 18.12.2023 !!!
+                System.out.println("give result : " + result);
             });
         }
 
@@ -125,6 +129,8 @@ public class DefaultPipelinePublisherReceiver<T extends ConversationItem> implem
         log.info("The attempt of subscription: {}", subscriber);
         if (subscribers.putIfAbsent(subscriber.getId(), subscriber) == null){
             log.info("Subscribed: {}", subscriber);
+            // TODO: 18.12.2023 !!! test
+            subscriber.blockOut(sessionId.get());
             return DefaultResultBuilder.<PipelineSubscriber<PublisherTask<T>>>ok(subscriber);
         }
 
@@ -137,6 +143,8 @@ public class DefaultPipelinePublisherReceiver<T extends ConversationItem> implem
         log.info("The attempt of unsubscription: {}", subscriber);
         if (subscribers.remove(subscriber.getId()) != null) {
             log.info("Unsubscribed: {}", subscriber);
+            // TODO: 18.12.2023 !!! test
+            subscriber.block();
             return DefaultResultBuilder.<PipelineSubscriber<PublisherTask<T>>>ok(subscriber);
         }
 
