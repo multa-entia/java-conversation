@@ -5,12 +5,9 @@ import lombok.RequiredArgsConstructor;
 import ru.multa.entia.conversion.api.ConversationItem;
 import ru.multa.entia.conversion.api.holder.HolderReleaseStrategy;
 import ru.multa.entia.conversion.api.holder.HolderTimeoutStrategy;
-import ru.multa.entia.conversion.api.publisher.PublisherService;
 import ru.multa.entia.conversion.api.publisher.PublisherTask;
 import ru.multa.entia.conversion.api.publisher.PublisherTaskBuilder;
 import ru.multa.entia.conversion.api.publisher.PublisherTaskCreator;
-import ru.multa.entia.results.api.result.Result;
-import ru.multa.entia.results.impl.result.DefaultResultBuilder;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,7 +15,7 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-class DefaultPublisherTaskBuilder<T extends ConversationItem> implements PublisherTaskBuilder<T> {
+public class DefaultPublisherTaskBuilder<T extends ConversationItem> implements PublisherTaskBuilder<T> {
     @RequiredArgsConstructor
     @Getter
     public enum Code {
@@ -41,7 +38,6 @@ class DefaultPublisherTaskBuilder<T extends ConversationItem> implements Publish
 
     private final Supplier<HolderTimeoutStrategy> timeoutStrategySup;
     private final Supplier<HolderReleaseStrategy> releaseStrategySup;
-    private final PublisherService<T> service;
     private final PublisherTaskCreator<T> creator;
 
     private StrategiesUsage strategiesUsage = StrategiesUsage.USE_SET;
@@ -51,16 +47,14 @@ class DefaultPublisherTaskBuilder<T extends ConversationItem> implements Publish
     private T item;
 
     public DefaultPublisherTaskBuilder() {
-        this(null, null, null, null);
+        this(null, null, null);
     }
 
     public DefaultPublisherTaskBuilder(final Supplier<HolderTimeoutStrategy> timeoutStrategySup,
                                        final Supplier<HolderReleaseStrategy> releaseStrategySup,
-                                       final PublisherService<T> service,
                                        final PublisherTaskCreator<T> creator) {
         this.timeoutStrategySup = timeoutStrategySup;
         this.releaseStrategySup = releaseStrategySup;
-        this.service = service;
         this.creator = Objects.requireNonNullElse(creator, new DefaultPublisherTaskCreator<>());
     }
 
@@ -103,13 +97,6 @@ class DefaultPublisherTaskBuilder<T extends ConversationItem> implements Publish
     @Override
     public PublisherTask<T> build() {
         return creators.get(strategiesUsage).apply(this);
-    }
-
-    @Override
-    public Result<PublisherTask<T>> buildAndPublish() {
-        return service == null
-                ? DefaultResultBuilder.<PublisherTask<T>>fail(Code.SERVICE_IS_NULL.getValue())
-                : service.publish(build());
     }
 
     private static <T extends ConversationItem> PublisherTask<T> createForDoNotUseStrategy(final DefaultPublisherTaskBuilder<T> builder) {

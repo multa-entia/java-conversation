@@ -6,10 +6,9 @@ import ru.multa.entia.conversion.api.listener.ListenerTask;
 import ru.multa.entia.conversion.api.message.Message;
 import ru.multa.entia.conversion.api.pipeline.PipelineBox;
 import ru.multa.entia.conversion.api.publisher.PublisherTask;
-import ru.multa.entia.conversion.impl.listener.DefaultListenerService;
+import ru.multa.entia.conversion.impl.listener.DefaultListenerTaskBuilder;
 import ru.multa.entia.conversion.impl.pipeline.DefaultPipelineBox;
-import ru.multa.entia.conversion.impl.publisher.DefaultPublisherService;
-import ru.multa.entia.results.impl.result.DefaultResultBuilder;
+import ru.multa.entia.conversion.impl.publisher.DefaultPublisherTaskBuilder;
 import utils.FakerUtil;
 
 import java.util.concurrent.ArrayBlockingQueue;
@@ -19,9 +18,6 @@ class DemoTest {
     @SneakyThrows
     @Test
     void run() {
-        DefaultPublisherService<Message> publisherService = new DefaultPublisherService<>(DefaultResultBuilder::<PublisherTask<Message>>ok);
-        DefaultListenerService<Message> listenerService = new DefaultListenerService<>(DefaultResultBuilder::<ListenerTask<Message>>ok);
-
         ArrayBlockingQueue<PipelineBox<PublisherTask<Message>>> publisherQueue = new ArrayBlockingQueue<>(100);
         ArrayBlockingQueue<Message> senderQueue = new ArrayBlockingQueue<>(100);
         ArrayBlockingQueue<PipelineBox<ListenerTask<Message>>> listenerQueue = new ArrayBlockingQueue<>(100);
@@ -40,10 +36,11 @@ class DemoTest {
         listenerDemo.start();
 
         Thread midThread = new Thread(() -> {
+            DefaultListenerTaskBuilder<Message> listenerTaskBuilder = new DefaultListenerTaskBuilder<>();
             while (true) {
                 try {
                     Message take = senderQueue.take();
-                    listenerQueue.offer(new DefaultPipelineBox<>(listenerService.builder().item(FakerUtil.randomMessage()).build()));
+                    listenerQueue.offer(new DefaultPipelineBox<>(listenerTaskBuilder.item(FakerUtil.randomMessage()).build()));
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
@@ -52,8 +49,9 @@ class DemoTest {
         midThread.start();
 
         Thread publisherThread = new Thread(() -> {
+            DefaultPublisherTaskBuilder<Message> publisherTaskBuilder = new DefaultPublisherTaskBuilder<>();
             for (int i = 0; i < 3; i++) {
-                publisherQueue.offer(new DefaultPipelineBox<>(publisherService.builder().item(FakerUtil.randomMessage()).build()));
+                publisherQueue.offer(new DefaultPipelineBox<>(publisherTaskBuilder.item(FakerUtil.randomMessage()).build()));
             }
         });
         publisherThread.start();

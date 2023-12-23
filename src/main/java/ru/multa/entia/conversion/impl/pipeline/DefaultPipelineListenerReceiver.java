@@ -124,7 +124,6 @@ public class DefaultPipelineListenerReceiver<T extends ConversationItem> impleme
         log.info("The attempt of subscription: {}", subscriber);
         if (subscribers.putIfAbsent(subscriber.getId(), subscriber) == null){
             log.info("Subscribed: {}", subscriber);
-            // TODO: 20.12.2023 !!! test
             subscriber.blockOut(sessionId.get());
             return DefaultResultBuilder.<PipelineSubscriber<ListenerTask<T>>>ok(subscriber);
         }
@@ -138,7 +137,6 @@ public class DefaultPipelineListenerReceiver<T extends ConversationItem> impleme
         log.info("The attempt of unsubscription: {}", subscriber);
         if (subscribers.remove(subscriber.getId()) != null) {
             log.info("Unsubscribed: {}", subscriber);
-            // TODO: 20.12.2023 !!! test
             subscriber.block();
             return DefaultResultBuilder.<PipelineSubscriber<ListenerTask<T>>>ok(subscriber);
         }
