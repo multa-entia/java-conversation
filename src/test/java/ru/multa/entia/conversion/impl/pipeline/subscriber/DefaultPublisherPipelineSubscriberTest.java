@@ -25,11 +25,11 @@ import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class DefaultPipelinePublisherSubscriberTest {
+class DefaultPublisherPipelineSubscriberTest {
 
     @Test
     void shouldCheckIdGetting_ifItIsNotSetOnCreation() {
-        DefaultPipelinePublisherSubscriber<Message> subscriber = new DefaultPipelinePublisherSubscriber<>(null);
+        DefaultPublisherPipelineSubscriber<Message> subscriber = new DefaultPublisherPipelineSubscriber<>(null);
         UUID id = subscriber.getId();
 
         assertThat(id).isNotNull();
@@ -38,8 +38,8 @@ class DefaultPipelinePublisherSubscriberTest {
     @Test
     void shouldCheckIdGetting() {
         UUID expectedId = Faker.uuid_().random();
-        DefaultPipelinePublisherSubscriber<Message> subscriber
-                = new DefaultPipelinePublisherSubscriber<>(null, expectedId, null);
+        DefaultPublisherPipelineSubscriber<Message> subscriber
+                = new DefaultPublisherPipelineSubscriber<>(null, expectedId, null);
         UUID id = subscriber.getId();
 
         assertThat(id).isEqualTo(expectedId);
@@ -47,15 +47,15 @@ class DefaultPipelinePublisherSubscriberTest {
 
     @Test
     void shouldCheckBlock_ifAlreadyBlock() {
-        DefaultPipelinePublisherSubscriber<Message> subscriber
-                = new DefaultPipelinePublisherSubscriber<>(null, null, null);
+        DefaultPublisherPipelineSubscriber<Message> subscriber
+                = new DefaultPublisherPipelineSubscriber<>(null, null, null);
 
         Result<Object> result = subscriber.block();
 
         assertThat(Results.comparator(result)
                 .isFail()
                 .seedsComparator()
-                .code(DefaultPipelinePublisherSubscriber.CODES.get(DefaultPipelinePublisherSubscriber.Code.SESSION_ID_ALREADY_RESET))
+                .code(DefaultPublisherPipelineSubscriber.CODES.get(DefaultPublisherPipelineSubscriber.Code.SESSION_ID_ALREADY_RESET))
                 .back()
                 .compare()).isTrue();
     }
@@ -64,8 +64,8 @@ class DefaultPipelinePublisherSubscriberTest {
     @SneakyThrows
     @Test
     void shouldCheckBlock() {
-        DefaultPipelinePublisherSubscriber<Message> subscriber
-                = new DefaultPipelinePublisherSubscriber<>(null, null, Faker.uuid_().random());
+        DefaultPublisherPipelineSubscriber<Message> subscriber
+                = new DefaultPublisherPipelineSubscriber<>(null, null, Faker.uuid_().random());
 
         Result<Object> result = subscriber.block();
         Field field = subscriber.getClass().getSuperclass().getDeclaredField("sessionId");
@@ -83,30 +83,30 @@ class DefaultPipelinePublisherSubscriberTest {
     @Test
     void shouldCheckBlockOut_ifAlreadyBlockedOut() {
         UUID expectedSessionId = Faker.uuid_().random();
-        DefaultPipelinePublisherSubscriber<Message> subscriber
-                = new DefaultPipelinePublisherSubscriber<>(null, null, expectedSessionId);
+        DefaultPublisherPipelineSubscriber<Message> subscriber
+                = new DefaultPublisherPipelineSubscriber<>(null, null, expectedSessionId);
 
         Result<Object> result = subscriber.blockOut(expectedSessionId);
 
         assertThat(Results.comparator(result)
                 .isFail()
                 .seedsComparator()
-                .code(DefaultPipelinePublisherSubscriber.CODES.get(DefaultPipelinePublisherSubscriber.Code.THIS_SESSION_ID_ALREADY_SET))
+                .code(DefaultPublisherPipelineSubscriber.CODES.get(DefaultPublisherPipelineSubscriber.Code.THIS_SESSION_ID_ALREADY_SET))
                 .back()
                 .compare()).isTrue();
     }
 
     @Test
     void shouldCheckBlockOut_ifSessionIdNull() {
-        DefaultPipelinePublisherSubscriber<Message> subscriber
-                = new DefaultPipelinePublisherSubscriber<>(null, null, null);
+        DefaultPublisherPipelineSubscriber<Message> subscriber
+                = new DefaultPublisherPipelineSubscriber<>(null, null, null);
 
         Result<Object> result = subscriber.blockOut(null);
 
         assertThat(Results.comparator(result)
                 .isFail()
                 .seedsComparator()
-                .code(DefaultPipelinePublisherSubscriber.CODES.get(DefaultPipelinePublisherSubscriber.Code.SESSION_ID_ON_BLOCK_OUT_IS_NULL))
+                .code(DefaultPublisherPipelineSubscriber.CODES.get(DefaultPublisherPipelineSubscriber.Code.SESSION_ID_ON_BLOCK_OUT_IS_NULL))
                 .back()
                 .compare()).isTrue();
     }
@@ -115,8 +115,8 @@ class DefaultPipelinePublisherSubscriberTest {
     @SneakyThrows
     @Test
     void shouldCheckBlockOut() {
-        DefaultPipelinePublisherSubscriber<Message> subscriber
-                = new DefaultPipelinePublisherSubscriber<>(null, null, null);
+        DefaultPublisherPipelineSubscriber<Message> subscriber
+                = new DefaultPublisherPipelineSubscriber<>(null, null, null);
 
         UUID expectedSessionId = Faker.uuid_().random();
         Result<Object> result = subscriber.blockOut(expectedSessionId);
@@ -149,13 +149,13 @@ class DefaultPipelinePublisherSubscriberTest {
 
         TestPublisherTask task = taskSupplier.get();
         Result<PublisherTask<Message>> result
-                = new DefaultPipelinePublisherSubscriber<Message>(null, null, null)
+                = new DefaultPublisherPipelineSubscriber<Message>(null, null, null)
                 .give(task, Faker.uuid_().random());
 
         assertThat(Results.comparator(result)
                 .isFail()
                 .seedsComparator()
-                .code(DefaultPipelinePublisherSubscriber.CODES.get(DefaultPipelinePublisherSubscriber.Code.SESSION_ID_IS_NOT_SET))
+                .code(DefaultPublisherPipelineSubscriber.CODES.get(DefaultPublisherPipelineSubscriber.Code.SESSION_ID_IS_NOT_SET))
                 .back()
                 .compare()).isTrue();
     }
@@ -177,13 +177,13 @@ class DefaultPipelinePublisherSubscriberTest {
 
         TestPublisherTask task = taskSupplier.get();
         Result<PublisherTask<Message>> result
-                = new DefaultPipelinePublisherSubscriber<Message>(null, null, Faker.uuid_().random())
+                = new DefaultPublisherPipelineSubscriber<Message>(null, null, Faker.uuid_().random())
                 .give(task, null);
 
         assertThat(Results.comparator(result)
                 .isFail()
                 .seedsComparator()
-                .code(DefaultPipelinePublisherSubscriber.CODES.get(DefaultPipelinePublisherSubscriber.Code.DISALLOWED_SESSION_ID))
+                .code(DefaultPublisherPipelineSubscriber.CODES.get(DefaultPublisherPipelineSubscriber.Code.DISALLOWED_SESSION_ID))
                 .back()
                 .compare()).isTrue();
     }
@@ -224,7 +224,7 @@ class DefaultPipelinePublisherSubscriberTest {
         TestPublisherTask task = taskSupplier.get();
         UUID sessionId = Faker.uuid_().random();
         Result<PublisherTask<Message>> result
-                = new DefaultPipelinePublisherSubscriber<Message>(publisherSupplier.get(), null, sessionId)
+                = new DefaultPublisherPipelineSubscriber<Message>(publisherSupplier.get(), null, sessionId)
                 .give(task, sessionId);
 
         assertThat(Results.comparator(result)
@@ -276,7 +276,7 @@ class DefaultPipelinePublisherSubscriberTest {
         TestPublisherTask task = taskSupplier.get();
         UUID sessionId = Faker.uuid_().random();
         Result<PublisherTask<Message>> result
-                = new DefaultPipelinePublisherSubscriber<Message>(publisherSupplier.get(), null, sessionId)
+                = new DefaultPublisherPipelineSubscriber<Message>(publisherSupplier.get(), null, sessionId)
                 .give(task, sessionId);
 
         assertThat(Results.comparator(result)

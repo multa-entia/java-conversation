@@ -11,7 +11,7 @@ import java.util.EnumMap;
 import java.util.UUID;
 
 
-public class DefaultPipelinePublisherSubscriber<T extends ConversationItem> extends AbstractPipelineSubscriber<T, PublisherTask<T>> {
+public class DefaultPublisherPipelineSubscriber<T extends ConversationItem> extends AbstractPipelineSubscriber<T, PublisherTask<T>> {
     public static final EnumMap<Code, String> CODES = new EnumMap<>(Code.class) {{
         put(Code.SESSION_ID_IS_NOT_SET, "default-publisher-pipeline-subscriber.session-is-not-set");
         put(Code.SESSION_ID_ALREADY_RESET, "default-publisher-pipeline-subscriber.session-already-reset");
@@ -25,12 +25,12 @@ public class DefaultPipelinePublisherSubscriber<T extends ConversationItem> exte
 
     private final Publisher<T> publisher;
 
-    public DefaultPipelinePublisherSubscriber(final Publisher<T> publisher) {
+    public DefaultPublisherPipelineSubscriber(final Publisher<T> publisher) {
         super(null, null);
         this.publisher = publisher;
     }
 
-    public DefaultPipelinePublisherSubscriber(final Publisher<T> publisher, final UUID id, final UUID sessionId) {
+    public DefaultPublisherPipelineSubscriber(final Publisher<T> publisher, final UUID id, final UUID sessionId) {
         super(id, sessionId);
         this.publisher = publisher;
     }

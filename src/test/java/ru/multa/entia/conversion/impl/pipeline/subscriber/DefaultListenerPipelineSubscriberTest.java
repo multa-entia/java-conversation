@@ -22,10 +22,10 @@ import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class DefaultPipelineListenerSubscriberTest {
+class DefaultListenerPipelineSubscriberTest {
     @Test
     void shouldCheckIdGetting_ifItIsNotSetOnCreation() {
-        DefaultPipelineListenerSubscriber<Message> subscriber = new DefaultPipelineListenerSubscriber<>(null);
+        DefaultListenerPipelineSubscriber<Message> subscriber = new DefaultListenerPipelineSubscriber<>(null);
 
         assertThat(subscriber.getId()).isNotNull();
     }
@@ -33,22 +33,22 @@ class DefaultPipelineListenerSubscriberTest {
     @Test
     void shouldCheckIdGetting() {
         UUID expectedId = Faker.uuid_().random();
-        DefaultPipelineListenerSubscriber<Message> subscriber =
-                new DefaultPipelineListenerSubscriber<>(null, expectedId, null);
+        DefaultListenerPipelineSubscriber<Message> subscriber =
+                new DefaultListenerPipelineSubscriber<>(null, expectedId, null);
 
         assertThat(subscriber.getId()).isEqualTo(expectedId);
     }
 
     @Test
     void shouldCheckBlock_ifAlreadyBlocked() {
-        DefaultPipelineListenerSubscriber<Message> subscriber = new DefaultPipelineListenerSubscriber<>(null);
+        DefaultListenerPipelineSubscriber<Message> subscriber = new DefaultListenerPipelineSubscriber<>(null);
         Result<Object> result = subscriber.block();
 
         assertThat(
                 Results.comparator(result)
                         .isFail()
                         .seedsComparator()
-                        .code(DefaultPipelineListenerSubscriber.CODES.get(DefaultPipelineListenerSubscriber.Code.SESSION_ID_ALREADY_RESET))
+                        .code(DefaultListenerPipelineSubscriber.CODES.get(DefaultListenerPipelineSubscriber.Code.SESSION_ID_ALREADY_RESET))
                         .back()
                         .compare()
         ).isTrue();
@@ -58,8 +58,8 @@ class DefaultPipelineListenerSubscriberTest {
     @SneakyThrows
     @Test
     void shouldCheckBlock() {
-        DefaultPipelineListenerSubscriber<Message> subscriber
-                = new DefaultPipelineListenerSubscriber<>(null, null, Faker.uuid_().random());
+        DefaultListenerPipelineSubscriber<Message> subscriber
+                = new DefaultListenerPipelineSubscriber<>(null, null, Faker.uuid_().random());
 
         Result<Object> result = subscriber.block();
         Field field = subscriber.getClass().getSuperclass().getDeclaredField("sessionId");
@@ -79,8 +79,8 @@ class DefaultPipelineListenerSubscriberTest {
     @Test
     void shouldCheckBlockOut_ifAlreadyBlockedOut() {
         UUID expectedSessionId = Faker.uuid_().random();
-        DefaultPipelineListenerSubscriber<Message> subscriber
-                = new DefaultPipelineListenerSubscriber<>(null, null, expectedSessionId);
+        DefaultListenerPipelineSubscriber<Message> subscriber
+                = new DefaultListenerPipelineSubscriber<>(null, null, expectedSessionId);
 
         Result<Object> result = subscriber.blockOut(expectedSessionId);
 
@@ -88,7 +88,7 @@ class DefaultPipelineListenerSubscriberTest {
                 Results.comparator(result)
                         .isFail()
                         .seedsComparator()
-                        .code(DefaultPipelineListenerSubscriber.CODES.get(DefaultPipelineListenerSubscriber.Code.THIS_SESSION_ID_ALREADY_SET))
+                        .code(DefaultListenerPipelineSubscriber.CODES.get(DefaultListenerPipelineSubscriber.Code.THIS_SESSION_ID_ALREADY_SET))
                         .back()
                         .compare()
         ).isTrue();
@@ -96,8 +96,8 @@ class DefaultPipelineListenerSubscriberTest {
 
     @Test
     void shouldCheckBlockOut_ifSessionIdNull() {
-        DefaultPipelineListenerSubscriber<Message> subscriber
-                = new DefaultPipelineListenerSubscriber<>(null, null, null);
+        DefaultListenerPipelineSubscriber<Message> subscriber
+                = new DefaultListenerPipelineSubscriber<>(null, null, null);
 
         Result<Object> result = subscriber.blockOut(null);
 
@@ -105,7 +105,7 @@ class DefaultPipelineListenerSubscriberTest {
                 Results.comparator(result)
                         .isFail()
                         .seedsComparator()
-                        .code(DefaultPipelineListenerSubscriber.CODES.get(DefaultPipelineListenerSubscriber.Code.SESSION_ID_ON_BLOCK_OUT_IS_NULL))
+                        .code(DefaultListenerPipelineSubscriber.CODES.get(DefaultListenerPipelineSubscriber.Code.SESSION_ID_ON_BLOCK_OUT_IS_NULL))
                         .back()
                         .compare()
         ).isTrue();
@@ -115,8 +115,8 @@ class DefaultPipelineListenerSubscriberTest {
     @SneakyThrows
     @Test
     void shouldCheckBlockOut() {
-        DefaultPipelineListenerSubscriber<Message> subscriber
-                = new DefaultPipelineListenerSubscriber<>(null, null, null);
+        DefaultListenerPipelineSubscriber<Message> subscriber
+                = new DefaultListenerPipelineSubscriber<>(null, null, null);
 
         UUID expectedSessionId = Faker.uuid_().random();
         Result<Object> result = subscriber.blockOut(expectedSessionId);
@@ -147,14 +147,14 @@ class DefaultPipelineListenerSubscriberTest {
 
         TestListenerTask task = taskSupplier.get();
         Result<ListenerTask<Message>> result =
-                new DefaultPipelineListenerSubscriber<Message>(null, null, null)
+                new DefaultListenerPipelineSubscriber<Message>(null, null, null)
                         .give(task, Faker.uuid_().random());
 
         assertThat(
                 Results.comparator(result)
                         .isFail()
                         .seedsComparator()
-                        .code(DefaultPipelineListenerSubscriber.CODES.get(DefaultPipelineListenerSubscriber.Code.SESSION_ID_IS_NOT_SET))
+                        .code(DefaultListenerPipelineSubscriber.CODES.get(DefaultListenerPipelineSubscriber.Code.SESSION_ID_IS_NOT_SET))
                         .back()
                         .compare()
         ).isTrue();
@@ -172,14 +172,14 @@ class DefaultPipelineListenerSubscriberTest {
 
         TestListenerTask task = taskSupplier.get();
         Result<ListenerTask<Message>> result =
-                new DefaultPipelineListenerSubscriber<Message>(null, null, Faker.uuid_().random())
+                new DefaultListenerPipelineSubscriber<Message>(null, null, Faker.uuid_().random())
                         .give(task, null);
 
         assertThat(
                 Results.comparator(result)
                         .isFail()
                         .seedsComparator()
-                        .code(DefaultPipelineListenerSubscriber.CODES.get(DefaultPipelineListenerSubscriber.Code.DISALLOWED_SESSION_ID))
+                        .code(DefaultListenerPipelineSubscriber.CODES.get(DefaultListenerPipelineSubscriber.Code.DISALLOWED_SESSION_ID))
                         .back()
                         .compare()
         ).isTrue();
@@ -215,7 +215,7 @@ class DefaultPipelineListenerSubscriberTest {
         TestListenerTask task = taskSupplier.get();
         UUID sessionId = Faker.uuid_().random();
         Result<ListenerTask<Message>> result =
-                new DefaultPipelineListenerSubscriber<Message>(listenerSupplier.get(), null, sessionId)
+                new DefaultListenerPipelineSubscriber<Message>(listenerSupplier.get(), null, sessionId)
                         .give(task, sessionId);
 
         assertThat(
@@ -261,7 +261,7 @@ class DefaultPipelineListenerSubscriberTest {
         TestListenerTask task = taskSupplier.get();
         UUID sessionId = Faker.uuid_().random();
         Result<ListenerTask<Message>> result =
-                new DefaultPipelineListenerSubscriber<Message>(listenerSupplier.get(), null, sessionId)
+                new DefaultListenerPipelineSubscriber<Message>(listenerSupplier.get(), null, sessionId)
                         .give(task, sessionId);
 
         assertThat(

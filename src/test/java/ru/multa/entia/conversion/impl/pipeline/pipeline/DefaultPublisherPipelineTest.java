@@ -1,4 +1,4 @@
-package ru.multa.entia.conversion.impl.pipeline;
+package ru.multa.entia.conversion.impl.pipeline.pipeline;
 
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
@@ -9,6 +9,7 @@ import ru.multa.entia.conversion.api.message.Message;
 import ru.multa.entia.conversion.api.pipeline.PipelineBox;
 import ru.multa.entia.conversion.api.pipeline.PipelineReceiver;
 import ru.multa.entia.conversion.api.publisher.PublisherTask;
+import ru.multa.entia.conversion.impl.pipeline.pipeline.DefaultPublisherPipeline;
 import ru.multa.entia.fakers.impl.Faker;
 import ru.multa.entia.results.api.result.Result;
 import ru.multa.entia.results.utils.Results;

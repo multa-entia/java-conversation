@@ -10,7 +10,7 @@ import ru.multa.entia.results.impl.seed.DefaultSeedBuilder;
 import java.util.EnumMap;
 import java.util.UUID;
 
-public class DefaultPipelineListenerSubscriber<T extends ConversationItem> extends AbstractPipelineSubscriber<T, ListenerTask<T>> {
+public class DefaultListenerPipelineSubscriber<T extends ConversationItem> extends AbstractPipelineSubscriber<T, ListenerTask<T>> {
     public static final EnumMap<Code, String> CODES = new EnumMap<>(Code.class) {{
         put(Code.SESSION_ID_IS_NOT_SET, "default-listener-pipeline-subscriber.session-is-not-set");
         put(Code.SESSION_ID_ALREADY_RESET, "default-listener-pipeline-subscriber.session-already-reset");
@@ -24,12 +24,12 @@ public class DefaultPipelineListenerSubscriber<T extends ConversationItem> exten
 
     private final Listener<T> listener;
 
-    public DefaultPipelineListenerSubscriber(final Listener<T> listener) {
+    public DefaultListenerPipelineSubscriber(final Listener<T> listener) {
         super(null, null);
         this.listener = listener;
     }
 
-    public DefaultPipelineListenerSubscriber(final Listener<T> listener, final UUID id, final UUID sessionId) {
+    public DefaultListenerPipelineSubscriber(final Listener<T> listener, final UUID id, final UUID sessionId) {
         super(id, sessionId);
         this.listener = listener;
     }

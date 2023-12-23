@@ -5,9 +5,9 @@ import ru.multa.entia.conversion.api.message.Message;
 import ru.multa.entia.conversion.api.pipeline.PipelineBox;
 import ru.multa.entia.conversion.api.publisher.PublisherTask;
 import ru.multa.entia.conversion.api.sender.Sender;
-import ru.multa.entia.conversion.impl.pipeline.DefaultPipelinePublisherReceiver;
-import ru.multa.entia.conversion.impl.pipeline.DefaultPublisherPipeline;
-import ru.multa.entia.conversion.impl.pipeline.subscriber.DefaultPipelinePublisherSubscriber;
+import ru.multa.entia.conversion.impl.pipeline.receiver.DefaultPublisherPipelineReceiver;
+import ru.multa.entia.conversion.impl.pipeline.pipeline.DefaultPublisherPipeline;
+import ru.multa.entia.conversion.impl.pipeline.subscriber.DefaultPublisherPipelineSubscriber;
 import ru.multa.entia.conversion.impl.publisher.DefaultMessagePublisher;
 import ru.multa.entia.results.api.result.Result;
 import ru.multa.entia.results.impl.result.DefaultResultBuilder;
@@ -20,12 +20,12 @@ public class PublisherDemo extends Thread{
 
     public static PublisherDemo create(final BlockingQueue<PipelineBox<PublisherTask<Message>>> publisherQueue,
                                        final BlockingQueue<Message> senderQueue) {
-        DefaultPipelinePublisherReceiver<Message> receiver = new DefaultPipelinePublisherReceiver<>();
+        DefaultPublisherPipelineReceiver<Message> receiver = new DefaultPublisherPipelineReceiver<>();
         DefaultPublisherPipeline<Message> pipeline = new DefaultPublisherPipeline<>(publisherQueue, receiver);
         pipeline.start();
 
         DefaultMessagePublisher publisher = new DefaultMessagePublisher(new DemoSender(senderQueue));
-        DefaultPipelinePublisherSubscriber<Message> subscriber = new DefaultPipelinePublisherSubscriber<>(publisher);
+        DefaultPublisherPipelineSubscriber<Message> subscriber = new DefaultPublisherPipelineSubscriber<>(publisher);
 
         receiver.subscribe(subscriber);
 

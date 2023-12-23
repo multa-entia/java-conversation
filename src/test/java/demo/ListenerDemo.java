@@ -6,8 +6,9 @@ import ru.multa.entia.conversion.api.listener.ListenerTask;
 import ru.multa.entia.conversion.api.message.Message;
 import ru.multa.entia.conversion.api.pipeline.PipelineBox;
 import ru.multa.entia.conversion.impl.listener.DefaultMessageListener;
-import ru.multa.entia.conversion.impl.pipeline.*;
-import ru.multa.entia.conversion.impl.pipeline.subscriber.DefaultPipelineListenerSubscriber;
+import ru.multa.entia.conversion.impl.pipeline.pipeline.DefaultListenerPipeline;
+import ru.multa.entia.conversion.impl.pipeline.receiver.DefaultListenerPipelineReceiver;
+import ru.multa.entia.conversion.impl.pipeline.subscriber.DefaultListenerPipelineSubscriber;
 import ru.multa.entia.results.api.result.Result;
 import ru.multa.entia.results.impl.result.DefaultResultBuilder;
 
@@ -19,12 +20,12 @@ public class ListenerDemo extends Thread{
 
     public static ListenerDemo create(final ArrayBlockingQueue<PipelineBox<ListenerTask<Message>>> listenerQueue,
                                       final ArrayBlockingQueue<Message> strategyQueue) {
-        DefaultPipelineListenerReceiver<Message> receiver = new DefaultPipelineListenerReceiver<>();
+        DefaultListenerPipelineReceiver<Message> receiver = new DefaultListenerPipelineReceiver<>();
         DefaultListenerPipeline<Message> pipeline = new DefaultListenerPipeline<Message>(listenerQueue, receiver);
         pipeline.start();
 
         DefaultMessageListener listener = new DefaultMessageListener(new DemoListenerStrategy(strategyQueue));
-        DefaultPipelineListenerSubscriber<Message> subscriber = new DefaultPipelineListenerSubscriber<>(listener);
+        DefaultListenerPipelineSubscriber<Message> subscriber = new DefaultListenerPipelineSubscriber<>(listener);
 
         receiver.subscribe(subscriber);
 

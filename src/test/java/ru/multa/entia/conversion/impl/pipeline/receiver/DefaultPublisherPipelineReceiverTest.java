@@ -1,4 +1,4 @@
-package ru.multa.entia.conversion.impl.pipeline;
+package ru.multa.entia.conversion.impl.pipeline.receiver;
 
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
@@ -22,7 +22,7 @@ import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class DefaultPipelinePublisherReceiverTest {
+class DefaultPublisherPipelineReceiverTest {
 
     private static final Function<UUID, TestPipelineSubscriber> TEST_PIPELINE_SUBSCRIBER_FUNCTION = id -> {
         TestPipelineSubscriber subscriber = Mockito.mock(TestPipelineSubscriber.class);
@@ -43,7 +43,7 @@ class DefaultPipelinePublisherReceiverTest {
     @Test
     void shouldCheckBlockOut() {
         UUID expectedSessionId = Faker.uuid_().random();
-        DefaultPipelinePublisherReceiver<Message> receiver = new DefaultPipelinePublisherReceiver<>();
+        DefaultPublisherPipelineReceiver<Message> receiver = new DefaultPublisherPipelineReceiver<>();
         Result<Object> result = receiver.blockOut(expectedSessionId);
 
         Field field = receiver.getClass().getDeclaredField("sessionId");
@@ -60,7 +60,7 @@ class DefaultPipelinePublisherReceiverTest {
     void shouldCheckBlockOut_ifAlreadyBlockedOut() {
         UUID firstSessionId = Faker.uuid_().random();
         UUID secondSessionId = Faker.uuid_().random();
-        DefaultPipelinePublisherReceiver<Message> receiver = new DefaultPipelinePublisherReceiver<>();
+        DefaultPublisherPipelineReceiver<Message> receiver = new DefaultPublisherPipelineReceiver<>();
         receiver.blockOut(firstSessionId);
         Result<Object> result = receiver.blockOut(secondSessionId);
 
@@ -71,7 +71,7 @@ class DefaultPipelinePublisherReceiverTest {
         assertThat(Results.comparator(result)
                 .isFail()
                 .seedsComparator()
-                .code(DefaultPipelinePublisherReceiver.Code.ALREADY_BLOCKED_OUT.getValue())
+                .code(DefaultPublisherPipelineReceiver.Code.ALREADY_BLOCKED_OUT.getValue())
                 .back()
                 .compare()).isTrue();
         assertThat(gottenSessionId.get()).isEqualTo(firstSessionId);
@@ -81,7 +81,7 @@ class DefaultPipelinePublisherReceiverTest {
     @SneakyThrows
     @Test
     void shouldCheckBlock_ifAlreadyBlocked() {
-        DefaultPipelinePublisherReceiver<Message> receiver = new DefaultPipelinePublisherReceiver<>();
+        DefaultPublisherPipelineReceiver<Message> receiver = new DefaultPublisherPipelineReceiver<>();
         Result<Object> result = receiver.block();
 
         Field field = receiver.getClass().getDeclaredField("sessionId");
@@ -91,7 +91,7 @@ class DefaultPipelinePublisherReceiverTest {
         assertThat(Results.comparator(result)
                 .isFail()
                 .seedsComparator()
-                .code(DefaultPipelinePublisherReceiver.Code.ALREADY_BLOCKED.getValue())
+                .code(DefaultPublisherPipelineReceiver.Code.ALREADY_BLOCKED.getValue())
                 .back()
                 .compare()).isTrue();
         assertThat(gottenSessionId.get()).isNull();
@@ -101,7 +101,7 @@ class DefaultPipelinePublisherReceiverTest {
     @SneakyThrows
     @Test
     void shouldCheckBlock() {
-        DefaultPipelinePublisherReceiver<Message> receiver = new DefaultPipelinePublisherReceiver<>();
+        DefaultPublisherPipelineReceiver<Message> receiver = new DefaultPublisherPipelineReceiver<>();
         receiver.blockOut(Faker.uuid_().random());
         Result<Object> result = receiver.block();
 
@@ -115,7 +115,7 @@ class DefaultPipelinePublisherReceiverTest {
 
     @Test
     void shouldCheckSubscription() {
-        DefaultPipelinePublisherReceiver<Message> receiver = new DefaultPipelinePublisherReceiver<>();
+        DefaultPublisherPipelineReceiver<Message> receiver = new DefaultPublisherPipelineReceiver<>();
         UUID expectedKey = Faker.uuid_().random();
         TestPipelineSubscriber expectedSubscriber = TEST_PIPELINE_SUBSCRIBER_FUNCTION.apply(expectedKey);
 
@@ -126,7 +126,7 @@ class DefaultPipelinePublisherReceiverTest {
 
     @Test
     void shouldCheckSubscription_ifAlreadySubscribed() {
-        DefaultPipelinePublisherReceiver<Message> receiver = new DefaultPipelinePublisherReceiver<>();
+        DefaultPublisherPipelineReceiver<Message> receiver = new DefaultPublisherPipelineReceiver<>();
         UUID expectedKey = Faker.uuid_().random();
         TestPipelineSubscriber expectedSubscriber = TEST_PIPELINE_SUBSCRIBER_FUNCTION.apply(expectedKey);
 
@@ -136,14 +136,14 @@ class DefaultPipelinePublisherReceiverTest {
         assertThat(Results.comparator(result)
                 .isFail()
                 .seedsComparator()
-                .code(DefaultPipelinePublisherReceiver.Code.ALREADY_SUBSCRIBED.getValue())
+                .code(DefaultPublisherPipelineReceiver.Code.ALREADY_SUBSCRIBED.getValue())
                 .back()
                 .compare()).isTrue();
     }
 
     @Test
     void shouldCheckUnsubscription() {
-        DefaultPipelinePublisherReceiver<Message> receiver = new DefaultPipelinePublisherReceiver<>();
+        DefaultPublisherPipelineReceiver<Message> receiver = new DefaultPublisherPipelineReceiver<>();
         UUID expectedKey = Faker.uuid_().random();
         TestPipelineSubscriber expectedSubscriber = TEST_PIPELINE_SUBSCRIBER_FUNCTION.apply(expectedKey);
 
@@ -155,7 +155,7 @@ class DefaultPipelinePublisherReceiverTest {
 
     @Test
     void shouldCheckUnsubscription_ifAlreadyUnsubscribed() {
-        DefaultPipelinePublisherReceiver<Message> receiver = new DefaultPipelinePublisherReceiver<>();
+        DefaultPublisherPipelineReceiver<Message> receiver = new DefaultPublisherPipelineReceiver<>();
         UUID expectedKey = Faker.uuid_().random();
         TestPipelineSubscriber expectedSubscriber = TEST_PIPELINE_SUBSCRIBER_FUNCTION.apply(expectedKey);
 
@@ -166,20 +166,20 @@ class DefaultPipelinePublisherReceiverTest {
         assertThat(Results.comparator(result)
                 .isFail()
                 .seedsComparator()
-                .code(DefaultPipelinePublisherReceiver.Code.ALREADY_UNSUBSCRIBED.getValue())
+                .code(DefaultPublisherPipelineReceiver.Code.ALREADY_UNSUBSCRIBED.getValue())
                 .back()
                 .compare()).isTrue();
     }
 
     @Test
     void shouldCheckReceiving_ifBlocked() {
-        DefaultPipelinePublisherReceiver<Message> receiver = new DefaultPipelinePublisherReceiver<>();
+        DefaultPublisherPipelineReceiver<Message> receiver = new DefaultPublisherPipelineReceiver<>();
         Result<Object> result = receiver.receive(Faker.uuid_().random(), TEST_PIPELINE_BOX_FUNCTION.apply(null));
 
         assertThat(Results.comparator(result)
                 .isFail()
                 .seedsComparator()
-                .code(DefaultPipelinePublisherReceiver.Code.IS_BLOCKED.getValue())
+                .code(DefaultPublisherPipelineReceiver.Code.IS_BLOCKED.getValue())
                 .back()
                 .compare()).isTrue();
     }
@@ -197,14 +197,14 @@ class DefaultPipelinePublisherReceiverTest {
 
         assertThat(rightSessionId).isNotEqualTo(badSessionId);
 
-        DefaultPipelinePublisherReceiver<Message> receiver = new DefaultPipelinePublisherReceiver<>();
+        DefaultPublisherPipelineReceiver<Message> receiver = new DefaultPublisherPipelineReceiver<>();
         receiver.blockOut(rightSessionId);
         Result<Object> result = receiver.receive(badSessionId, TEST_PIPELINE_BOX_FUNCTION.apply(null));
 
         assertThat(Results.comparator(result)
                 .isFail()
                 .seedsComparator()
-                .code(DefaultPipelinePublisherReceiver.Code.INVALID_SESSION_ID.getValue())
+                .code(DefaultPublisherPipelineReceiver.Code.INVALID_SESSION_ID.getValue())
                 .back()
                 .compare()).isTrue();
     }
@@ -213,14 +213,14 @@ class DefaultPipelinePublisherReceiverTest {
     void shouldCheckReceiving_ifSubscriberIsAbsence() {
         UUID sessionId = Faker.uuid_().random();
 
-        DefaultPipelinePublisherReceiver<Message> receiver = new DefaultPipelinePublisherReceiver<>();
+        DefaultPublisherPipelineReceiver<Message> receiver = new DefaultPublisherPipelineReceiver<>();
         receiver.blockOut(sessionId);
         Result<Object> result = receiver.receive(sessionId, TEST_PIPELINE_BOX_FUNCTION.apply(null));
 
         assertThat(Results.comparator(result)
                 .isFail()
                 .seedsComparator()
-                .code(DefaultPipelinePublisherReceiver.Code.NO_ONE_SUBSCRIBER.getValue())
+                .code(DefaultPublisherPipelineReceiver.Code.NO_ONE_SUBSCRIBER.getValue())
                 .back()
                 .compare()).isTrue();
     }
@@ -247,7 +247,7 @@ class DefaultPipelinePublisherReceiverTest {
             return subscriber;
         };
 
-        DefaultPipelinePublisherReceiver<Message> receiver = new DefaultPipelinePublisherReceiver<>();
+        DefaultPublisherPipelineReceiver<Message> receiver = new DefaultPublisherPipelineReceiver<>();
         Integer subscriberAmount = Faker.int_().between(3, 7);
         for (int i = 0; i < subscriberAmount; i++) {
             receiver.subscribe(uuidTestPipelineSubscriberFunction.apply(Faker.uuid_().random()));

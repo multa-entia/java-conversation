@@ -1,4 +1,4 @@
-package ru.multa.entia.conversion.impl.pipeline;
+package ru.multa.entia.conversion.impl.pipeline.receiver;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -21,8 +21,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
+// TODO: 23.12.2023 add abstract
 @Slf4j
-public class DefaultPipelineListenerReceiver<T extends ConversationItem> implements PipelineReceiver<ListenerTask<T>> {
+public class DefaultListenerPipelineReceiver<T extends ConversationItem> implements PipelineReceiver<ListenerTask<T>> {
     @RequiredArgsConstructor
     @Getter
     public enum Code {
@@ -61,11 +62,11 @@ public class DefaultPipelineListenerReceiver<T extends ConversationItem> impleme
 
     private ExecutorService boxHandler;
 
-    public DefaultPipelineListenerReceiver() {
+    public DefaultListenerPipelineReceiver() {
         this(null);
     }
 
-    public DefaultPipelineListenerReceiver(final Supplier<ExecutorService> boxHandlerSupplier) {
+    public DefaultListenerPipelineReceiver(final Supplier<ExecutorService> boxHandlerSupplier) {
         this.boxHandlerSupplier = Objects.requireNonNullElse(boxHandlerSupplier, DEFAULT_BOX_HANDLER_SUPPLIER);
     }
 

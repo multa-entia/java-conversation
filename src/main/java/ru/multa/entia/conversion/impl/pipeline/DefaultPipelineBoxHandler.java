@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.UUID;
 
+// TODO: 23.12.2023 is it used?
 class DefaultPipelineBoxHandler<T extends ConversationItem> implements PipelineBoxHandler<PublisherTask<T>> {
     @RequiredArgsConstructor
     @Getter

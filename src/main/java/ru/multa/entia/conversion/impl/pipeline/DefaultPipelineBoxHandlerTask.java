@@ -9,6 +9,7 @@ import ru.multa.entia.conversion.api.publisher.PublisherTask;
 import java.util.Map;
 import java.util.UUID;
 
+// TODO: 23.12.2023 is it used?
 record DefaultPipelineBoxHandlerTask<T extends ConversationItem>(
         PipelineBox<PublisherTask<T>> box,
         Map<UUID, PipelineSubscriber<PublisherTask<T>>> actor,
