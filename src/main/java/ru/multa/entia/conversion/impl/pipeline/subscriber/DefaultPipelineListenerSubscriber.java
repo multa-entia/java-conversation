@@ -1,4 +1,4 @@
-package ru.multa.entia.conversion.impl.pipeline;
+package ru.multa.entia.conversion.impl.pipeline.subscriber;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +14,10 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class DefaultListenerPipelineSubscriber<T extends ConversationItem> implements PipelineSubscriber<ListenerTask<T>> {
+// TODO: 23.12.2023 !!!
+//public class AbstractPipelineSubscriberImpl<T extends ConversationItem> extends AbstractPipelineSubscriber<T, ListenerTask<T>> {
+
+public class DefaultPipelineListenerSubscriber<T extends ConversationItem> implements PipelineSubscriber<ListenerTask<T>> {
     @RequiredArgsConstructor
     @Getter
     public enum Code {
@@ -36,11 +39,11 @@ public class DefaultListenerPipelineSubscriber<T extends ConversationItem> imple
     private final Listener<T> listener;
     private final AtomicReference<UUID> sessionId;
 
-    public DefaultListenerPipelineSubscriber(Listener<T> listener) {
+    public DefaultPipelineListenerSubscriber(Listener<T> listener) {
         this(listener, null, null);
     }
 
-    public DefaultListenerPipelineSubscriber(final Listener<T> listener, final UUID id, final UUID sessionId) {
+    public DefaultPipelineListenerSubscriber(final Listener<T> listener, final UUID id, final UUID sessionId) {
         this.listener = listener;
         this.id = Objects.requireNonNullElse(id, UUID.randomUUID());
         this.sessionId = new AtomicReference<>(sessionId);

@@ -7,7 +7,7 @@ import ru.multa.entia.conversion.api.publisher.PublisherTask;
 import ru.multa.entia.conversion.api.sender.Sender;
 import ru.multa.entia.conversion.impl.pipeline.DefaultPipelinePublisherReceiver;
 import ru.multa.entia.conversion.impl.pipeline.DefaultPublisherPipeline;
-import ru.multa.entia.conversion.impl.pipeline.DefaultPublisherPipelineSubscriber;
+import ru.multa.entia.conversion.impl.pipeline.subscriber.DefaultPipelinePublisherSubscriber;
 import ru.multa.entia.conversion.impl.publisher.DefaultMessagePublisher;
 import ru.multa.entia.results.api.result.Result;
 import ru.multa.entia.results.impl.result.DefaultResultBuilder;
@@ -20,26 +20,28 @@ public class PublisherDemo extends Thread{
 
     public static PublisherDemo create(final BlockingQueue<PipelineBox<PublisherTask<Message>>> publisherQueue,
                                        final BlockingQueue<Message> senderQueue) {
-        DefaultPipelinePublisherReceiver<Message> receiver = new DefaultPipelinePublisherReceiver<>();
-        DefaultPublisherPipeline<Message> pipeline = new DefaultPublisherPipeline<>(publisherQueue, receiver);
-        pipeline.start();
-
-        DefaultMessagePublisher publisher = new DefaultMessagePublisher(new DemoSender(senderQueue));
-        DefaultPublisherPipelineSubscriber<Message> subscriber = new DefaultPublisherPipelineSubscriber<>(publisher);
-
-        receiver.subscribe(subscriber);
-
-        Runnable target = () -> {
-            System.out.println("START");
-            try {
-                Thread.sleep(1_000);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-            System.out.println("STOP");
-        };
-
-        return new PublisherDemo(target, pipeline);
+//        DefaultPipelinePublisherReceiver<Message> receiver = new DefaultPipelinePublisherReceiver<>();
+//        DefaultPublisherPipeline<Message> pipeline = new DefaultPublisherPipeline<>(publisherQueue, receiver);
+//        pipeline.start();
+//
+//        DefaultMessagePublisher publisher = new DefaultMessagePublisher(new DemoSender(senderQueue));
+//        DefaultPipelinePublisherSubscriber<Message> subscriber = new DefaultPipelinePublisherSubscriber<>(publisher);
+//
+//        receiver.subscribe(subscriber);
+//
+//        Runnable target = () -> {
+//            System.out.println("START");
+//            try {
+//                Thread.sleep(1_000);
+//            } catch (InterruptedException e) {
+//                throw new RuntimeException(e);
+//            }
+//            System.out.println("STOP");
+//        };
+//
+//        return new PublisherDemo(target, pipeline);
+        // TODO: 23.12.2023 restore
+        return null;
     }
 
     private PublisherDemo(final Runnable target, final DefaultPublisherPipeline<Message> pipeline) {

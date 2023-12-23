@@ -7,6 +7,7 @@ import ru.multa.entia.conversion.api.message.Message;
 import ru.multa.entia.conversion.api.pipeline.PipelineBox;
 import ru.multa.entia.conversion.impl.listener.DefaultMessageListener;
 import ru.multa.entia.conversion.impl.pipeline.*;
+import ru.multa.entia.conversion.impl.pipeline.subscriber.DefaultPipelineListenerSubscriber;
 import ru.multa.entia.results.api.result.Result;
 import ru.multa.entia.results.impl.result.DefaultResultBuilder;
 
@@ -23,7 +24,7 @@ public class ListenerDemo extends Thread{
         pipeline.start();
 
         DefaultMessageListener listener = new DefaultMessageListener(new DemoListenerStrategy(strategyQueue));
-        DefaultListenerPipelineSubscriber<Message> subscriber = new DefaultListenerPipelineSubscriber<>(listener);
+        DefaultPipelineListenerSubscriber<Message> subscriber = new DefaultPipelineListenerSubscriber<>(listener);
 
         receiver.subscribe(subscriber);
 
