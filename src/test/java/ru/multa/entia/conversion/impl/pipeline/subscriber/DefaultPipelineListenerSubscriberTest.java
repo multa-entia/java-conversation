@@ -48,7 +48,7 @@ class DefaultPipelineListenerSubscriberTest {
                 Results.comparator(result)
                         .isFail()
                         .seedsComparator()
-                        .code(DefaultPipelineListenerSubscriber.Code.SESSION_ID_ALREADY_RESET.getValue())
+                        .code(DefaultPipelineListenerSubscriber.CODES.get(DefaultPipelineListenerSubscriber.Code.SESSION_ID_ALREADY_RESET))
                         .back()
                         .compare()
         ).isTrue();
@@ -62,7 +62,7 @@ class DefaultPipelineListenerSubscriberTest {
                 = new DefaultPipelineListenerSubscriber<>(null, null, Faker.uuid_().random());
 
         Result<Object> result = subscriber.block();
-        Field field = subscriber.getClass().getDeclaredField("sessionId");
+        Field field = subscriber.getClass().getSuperclass().getDeclaredField("sessionId");
         field.setAccessible(true);
 
         AtomicReference<UUID> gottenSessionId = (AtomicReference<UUID>) field.get(subscriber);
@@ -88,7 +88,7 @@ class DefaultPipelineListenerSubscriberTest {
                 Results.comparator(result)
                         .isFail()
                         .seedsComparator()
-                        .code(DefaultPipelineListenerSubscriber.Code.THIS_SESSION_ID_ALREADY_SET.getValue())
+                        .code(DefaultPipelineListenerSubscriber.CODES.get(DefaultPipelineListenerSubscriber.Code.THIS_SESSION_ID_ALREADY_SET))
                         .back()
                         .compare()
         ).isTrue();
@@ -105,7 +105,7 @@ class DefaultPipelineListenerSubscriberTest {
                 Results.comparator(result)
                         .isFail()
                         .seedsComparator()
-                        .code(DefaultPipelineListenerSubscriber.Code.SESSION_ID_ON_BLOCK_OUT_IS_NULL.getValue())
+                        .code(DefaultPipelineListenerSubscriber.CODES.get(DefaultPipelineListenerSubscriber.Code.SESSION_ID_ON_BLOCK_OUT_IS_NULL))
                         .back()
                         .compare()
         ).isTrue();
@@ -120,7 +120,7 @@ class DefaultPipelineListenerSubscriberTest {
 
         UUID expectedSessionId = Faker.uuid_().random();
         Result<Object> result = subscriber.blockOut(expectedSessionId);
-        Field field = subscriber.getClass().getDeclaredField("sessionId");
+        Field field = subscriber.getClass().getSuperclass().getDeclaredField("sessionId");
         field.setAccessible(true);
 
         AtomicReference<UUID> gottenSessionId = (AtomicReference<UUID>) field.get(subscriber);
@@ -154,7 +154,7 @@ class DefaultPipelineListenerSubscriberTest {
                 Results.comparator(result)
                         .isFail()
                         .seedsComparator()
-                        .code(DefaultPipelineListenerSubscriber.Code.SESSION_ID_IS_NOT_SET.getValue())
+                        .code(DefaultPipelineListenerSubscriber.CODES.get(DefaultPipelineListenerSubscriber.Code.SESSION_ID_IS_NOT_SET))
                         .back()
                         .compare()
         ).isTrue();
@@ -179,7 +179,7 @@ class DefaultPipelineListenerSubscriberTest {
                 Results.comparator(result)
                         .isFail()
                         .seedsComparator()
-                        .code(DefaultPipelineListenerSubscriber.Code.DISALLOWED_SESSION_ID.getValue())
+                        .code(DefaultPipelineListenerSubscriber.CODES.get(DefaultPipelineListenerSubscriber.Code.DISALLOWED_SESSION_ID))
                         .back()
                         .compare()
         ).isTrue();

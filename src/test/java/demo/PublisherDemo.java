@@ -20,28 +20,26 @@ public class PublisherDemo extends Thread{
 
     public static PublisherDemo create(final BlockingQueue<PipelineBox<PublisherTask<Message>>> publisherQueue,
                                        final BlockingQueue<Message> senderQueue) {
-//        DefaultPipelinePublisherReceiver<Message> receiver = new DefaultPipelinePublisherReceiver<>();
-//        DefaultPublisherPipeline<Message> pipeline = new DefaultPublisherPipeline<>(publisherQueue, receiver);
-//        pipeline.start();
-//
-//        DefaultMessagePublisher publisher = new DefaultMessagePublisher(new DemoSender(senderQueue));
-//        DefaultPipelinePublisherSubscriber<Message> subscriber = new DefaultPipelinePublisherSubscriber<>(publisher);
-//
-//        receiver.subscribe(subscriber);
-//
-//        Runnable target = () -> {
-//            System.out.println("START");
-//            try {
-//                Thread.sleep(1_000);
-//            } catch (InterruptedException e) {
-//                throw new RuntimeException(e);
-//            }
-//            System.out.println("STOP");
-//        };
-//
-//        return new PublisherDemo(target, pipeline);
-        // TODO: 23.12.2023 restore
-        return null;
+        DefaultPipelinePublisherReceiver<Message> receiver = new DefaultPipelinePublisherReceiver<>();
+        DefaultPublisherPipeline<Message> pipeline = new DefaultPublisherPipeline<>(publisherQueue, receiver);
+        pipeline.start();
+
+        DefaultMessagePublisher publisher = new DefaultMessagePublisher(new DemoSender(senderQueue));
+        DefaultPipelinePublisherSubscriber<Message> subscriber = new DefaultPipelinePublisherSubscriber<>(publisher);
+
+        receiver.subscribe(subscriber);
+
+        Runnable target = () -> {
+            System.out.println("START");
+            try {
+                Thread.sleep(1_000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            System.out.println("STOP");
+        };
+
+        return new PublisherDemo(target, pipeline);
     }
 
     private PublisherDemo(final Runnable target, final DefaultPublisherPipeline<Message> pipeline) {
