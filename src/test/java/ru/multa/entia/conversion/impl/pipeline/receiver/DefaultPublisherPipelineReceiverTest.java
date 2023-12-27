@@ -46,7 +46,7 @@ class DefaultPublisherPipelineReceiverTest {
         DefaultPublisherPipelineReceiver<Message> receiver = new DefaultPublisherPipelineReceiver<>();
         Result<Object> result = receiver.blockOut(expectedSessionId);
 
-        Field field = receiver.getClass().getDeclaredField("sessionId");
+        Field field = receiver.getClass().getSuperclass().getDeclaredField("sessionId");
         field.setAccessible(true);
         AtomicReference<UUID> gottenSessionId = (AtomicReference<UUID>) field.get(receiver);
 
@@ -64,14 +64,14 @@ class DefaultPublisherPipelineReceiverTest {
         receiver.blockOut(firstSessionId);
         Result<Object> result = receiver.blockOut(secondSessionId);
 
-        Field field = receiver.getClass().getDeclaredField("sessionId");
+        Field field = receiver.getClass().getSuperclass().getDeclaredField("sessionId");
         field.setAccessible(true);
         AtomicReference<UUID> gottenSessionId = (AtomicReference<UUID>) field.get(receiver);
 
         assertThat(Results.comparator(result)
                 .isFail()
                 .seedsComparator()
-                .code(DefaultPublisherPipelineReceiver.Code.ALREADY_BLOCKED_OUT.getValue())
+                .code(DefaultPublisherPipelineReceiver.CODES.get(DefaultPublisherPipelineReceiver.Code.ALREADY_BLOCKED_OUT))
                 .back()
                 .compare()).isTrue();
         assertThat(gottenSessionId.get()).isEqualTo(firstSessionId);
@@ -84,14 +84,14 @@ class DefaultPublisherPipelineReceiverTest {
         DefaultPublisherPipelineReceiver<Message> receiver = new DefaultPublisherPipelineReceiver<>();
         Result<Object> result = receiver.block();
 
-        Field field = receiver.getClass().getDeclaredField("sessionId");
+        Field field = receiver.getClass().getSuperclass().getDeclaredField("sessionId");
         field.setAccessible(true);
         AtomicReference<UUID> gottenSessionId = (AtomicReference<UUID>) field.get(receiver);
 
         assertThat(Results.comparator(result)
                 .isFail()
                 .seedsComparator()
-                .code(DefaultPublisherPipelineReceiver.Code.ALREADY_BLOCKED.getValue())
+                .code(DefaultPublisherPipelineReceiver.CODES.get(DefaultPublisherPipelineReceiver.Code.ALREADY_BLOCKED))
                 .back()
                 .compare()).isTrue();
         assertThat(gottenSessionId.get()).isNull();
@@ -105,7 +105,7 @@ class DefaultPublisherPipelineReceiverTest {
         receiver.blockOut(Faker.uuid_().random());
         Result<Object> result = receiver.block();
 
-        Field field = receiver.getClass().getDeclaredField("sessionId");
+        Field field = receiver.getClass().getSuperclass().getDeclaredField("sessionId");
         field.setAccessible(true);
         AtomicReference<UUID> gottenSessionId = (AtomicReference<UUID>) field.get(receiver);
 
@@ -136,7 +136,7 @@ class DefaultPublisherPipelineReceiverTest {
         assertThat(Results.comparator(result)
                 .isFail()
                 .seedsComparator()
-                .code(DefaultPublisherPipelineReceiver.Code.ALREADY_SUBSCRIBED.getValue())
+                .code(DefaultPublisherPipelineReceiver.CODES.get(DefaultPublisherPipelineReceiver.Code.ALREADY_SUBSCRIBED))
                 .back()
                 .compare()).isTrue();
     }
@@ -166,7 +166,7 @@ class DefaultPublisherPipelineReceiverTest {
         assertThat(Results.comparator(result)
                 .isFail()
                 .seedsComparator()
-                .code(DefaultPublisherPipelineReceiver.Code.ALREADY_UNSUBSCRIBED.getValue())
+                .code(DefaultPublisherPipelineReceiver.CODES.get(DefaultPublisherPipelineReceiver.Code.ALREADY_UNSUBSCRIBED))
                 .back()
                 .compare()).isTrue();
     }
@@ -179,7 +179,7 @@ class DefaultPublisherPipelineReceiverTest {
         assertThat(Results.comparator(result)
                 .isFail()
                 .seedsComparator()
-                .code(DefaultPublisherPipelineReceiver.Code.IS_BLOCKED.getValue())
+                .code(DefaultPublisherPipelineReceiver.CODES.get(DefaultPublisherPipelineReceiver.Code.IS_BLOCKED))
                 .back()
                 .compare()).isTrue();
     }
@@ -204,7 +204,7 @@ class DefaultPublisherPipelineReceiverTest {
         assertThat(Results.comparator(result)
                 .isFail()
                 .seedsComparator()
-                .code(DefaultPublisherPipelineReceiver.Code.INVALID_SESSION_ID.getValue())
+                .code(DefaultPublisherPipelineReceiver.CODES.get(DefaultPublisherPipelineReceiver.Code.INVALID_SESSION_ID))
                 .back()
                 .compare()).isTrue();
     }
@@ -220,7 +220,7 @@ class DefaultPublisherPipelineReceiverTest {
         assertThat(Results.comparator(result)
                 .isFail()
                 .seedsComparator()
-                .code(DefaultPublisherPipelineReceiver.Code.NO_ONE_SUBSCRIBER.getValue())
+                .code(DefaultPublisherPipelineReceiver.CODES.get(DefaultPublisherPipelineReceiver.Code.NO_ONE_SUBSCRIBER))
                 .back()
                 .compare()).isTrue();
     }

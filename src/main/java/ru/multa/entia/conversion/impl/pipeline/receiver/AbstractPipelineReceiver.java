@@ -31,8 +31,6 @@ abstract public class AbstractPipelineReceiver<T extends ConversationItem, TASK>
         SUBSCRIBER_FAIL;
     }
 
-    private static final String DEFAULT_BOX_HANDLER_THREAD_PREFIX = "box-handler-thread-";
-    private static final int BOX_HANDLER_THREAD_LIMIT = 8;
     private static final AtomicInteger threadNameCounter = new AtomicInteger(0);
 
     private static final Function<ThreadParams, ExecutorService> DEFAULT_BOX_HANDLER_FUNCTION = params -> Executors.newFixedThreadPool(

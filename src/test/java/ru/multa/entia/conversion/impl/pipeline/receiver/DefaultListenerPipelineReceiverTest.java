@@ -46,7 +46,7 @@ class DefaultListenerPipelineReceiverTest {
         DefaultListenerPipelineReceiver<Message> receiver = new DefaultListenerPipelineReceiver<>();
         Result<Object> result = receiver.blockOut(expectedSessionId);
 
-        Field field = receiver.getClass().getDeclaredField("sessionId");
+        Field field = receiver.getClass().getSuperclass().getDeclaredField("sessionId");
         field.setAccessible(true);
         AtomicReference<UUID> gottenSessionId = (AtomicReference<UUID>) field.get(receiver);
 
@@ -64,7 +64,7 @@ class DefaultListenerPipelineReceiverTest {
         receiver.blockOut(firstSessionId);
         Result<Object> result = receiver.blockOut(secondSessionId);
 
-        Field field = receiver.getClass().getDeclaredField("sessionId");
+        Field field = receiver.getClass().getSuperclass().getDeclaredField("sessionId");
         field.setAccessible(true);
         AtomicReference<UUID> gottenSessionId = (AtomicReference<UUID>) field.get(receiver);
 
@@ -72,7 +72,7 @@ class DefaultListenerPipelineReceiverTest {
                 Results.comparator(result)
                         .isFail()
                         .seedsComparator()
-                        .code(DefaultListenerPipelineReceiver.Code.ALREADY_BLOCKED_OUT.getValue())
+                        .code(DefaultListenerPipelineReceiver.CODES.get(DefaultListenerPipelineReceiver.Code.ALREADY_BLOCKED_OUT))
                         .back()
                         .compare()
         ).isTrue();
@@ -86,7 +86,7 @@ class DefaultListenerPipelineReceiverTest {
         DefaultListenerPipelineReceiver<Message> receiver = new DefaultListenerPipelineReceiver<>();
         Result<Object> result = receiver.block();
 
-        Field field = receiver.getClass().getDeclaredField("sessionId");
+        Field field = receiver.getClass().getSuperclass().getDeclaredField("sessionId");
         field.setAccessible(true);
         AtomicReference<UUID> gottenSessionId = (AtomicReference<UUID>) field.get(receiver);
 
@@ -94,7 +94,7 @@ class DefaultListenerPipelineReceiverTest {
                 Results.comparator(result)
                         .isFail()
                         .seedsComparator()
-                        .code(DefaultListenerPipelineReceiver.Code.ALREADY_BLOCKED.getValue())
+                        .code(DefaultListenerPipelineReceiver.CODES.get(DefaultListenerPipelineReceiver.Code.ALREADY_BLOCKED))
                         .back()
                         .compare()
         ).isTrue();
@@ -109,7 +109,7 @@ class DefaultListenerPipelineReceiverTest {
         receiver.blockOut(Faker.uuid_().random());
         Result<Object> result = receiver.block();
 
-        Field field = receiver.getClass().getDeclaredField("sessionId");
+        Field field = receiver.getClass().getSuperclass().getDeclaredField("sessionId");
         field.setAccessible(true);
         AtomicReference<UUID> gottenSessionId = (AtomicReference<UUID>) field.get(receiver);
 
@@ -141,7 +141,7 @@ class DefaultListenerPipelineReceiverTest {
                 Results.comparator(result)
                         .isFail()
                         .seedsComparator()
-                        .code(DefaultListenerPipelineReceiver.Code.ALREADY_SUBSCRIBED.getValue())
+                        .code(DefaultListenerPipelineReceiver.CODES.get(DefaultListenerPipelineReceiver.Code.ALREADY_SUBSCRIBED))
                         .back()
                         .compare()
         ).isTrue();
@@ -173,7 +173,7 @@ class DefaultListenerPipelineReceiverTest {
                 Results.comparator(result)
                         .isFail()
                         .seedsComparator()
-                        .code(DefaultListenerPipelineReceiver.Code.ALREADY_UNSUBSCRIBED.getValue())
+                        .code(DefaultListenerPipelineReceiver.CODES.get(DefaultListenerPipelineReceiver.Code.ALREADY_UNSUBSCRIBED))
                         .back()
                         .compare()
         ).isTrue();
@@ -188,7 +188,7 @@ class DefaultListenerPipelineReceiverTest {
                 Results.comparator(result)
                         .isFail()
                         .seedsComparator()
-                        .code(DefaultListenerPipelineReceiver.Code.IS_BLOCKED.getValue())
+                        .code(DefaultListenerPipelineReceiver.CODES.get(DefaultListenerPipelineReceiver.Code.IS_BLOCKED))
                         .back()
                         .compare()
         ).isTrue();
@@ -215,7 +215,7 @@ class DefaultListenerPipelineReceiverTest {
                 Results.comparator(result)
                         .isFail()
                         .seedsComparator()
-                        .code(DefaultListenerPipelineReceiver.Code.INVALID_SESSION_ID.getValue())
+                        .code(DefaultListenerPipelineReceiver.CODES.get(DefaultListenerPipelineReceiver.Code.INVALID_SESSION_ID))
                         .back()
                         .compare()
         ).isTrue();
@@ -233,7 +233,7 @@ class DefaultListenerPipelineReceiverTest {
                 Results.comparator(result)
                         .isFail()
                         .seedsComparator()
-                        .code(DefaultListenerPipelineReceiver.Code.NO_ONE_SUBSCRIBER.getValue())
+                        .code(DefaultListenerPipelineReceiver.CODES.get(DefaultListenerPipelineReceiver.Code.NO_ONE_SUBSCRIBER))
                         .back()
                         .compare()
         ).isTrue();
