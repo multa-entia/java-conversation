@@ -9,15 +9,12 @@ import ru.multa.entia.conversion.api.listener.ListenerTask;
 import ru.multa.entia.conversion.api.message.Message;
 import ru.multa.entia.conversion.api.pipeline.PipelineBox;
 import ru.multa.entia.conversion.api.pipeline.PipelineReceiver;
-import ru.multa.entia.conversion.impl.pipeline.pipeline.DefaultListenerPipeline;
 import ru.multa.entia.fakers.impl.Faker;
 import ru.multa.entia.results.api.result.Result;
 import ru.multa.entia.results.utils.Results;
 
 import java.lang.reflect.Field;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -45,22 +42,6 @@ class DefaultListenerPipelineTest {
     @SneakyThrows
     @Test
     void shouldCheckStart() {
-        AtomicReference<Object> submitHolder = new AtomicReference<>();
-        Supplier<ExecutorService> executorServiceSupplier = () -> {
-            ExecutorService service = Mockito.mock(ExecutorService.class);
-            Mockito
-                    .when(service.submit(Mockito.any(Runnable.class)))
-                    .thenAnswer(new Answer<Future<?>>() {
-                        @Override
-                        public Future<?> answer(InvocationOnMock invocation) throws Throwable {
-                            submitHolder.set(invocation.getArgument(0));
-                            return null;
-                        }
-                    });
-
-            return service;
-        };
-
         AtomicReference<Object> sessionIdHolder = new AtomicReference<>();
         Supplier<TestPipelineReceiver> testPipelineReceiverSupplier = () -> {
             TestPipelineReceiver receiver = Mockito.mock(TestPipelineReceiver.class);
@@ -79,28 +60,21 @@ class DefaultListenerPipelineTest {
 
         DefaultListenerPipeline<Message> pipeline = new DefaultListenerPipeline<>(
                 null,
-                testPipelineReceiverSupplier.get(),
-                executorServiceSupplier
+                testPipelineReceiverSupplier.get()
         );
         Result<Object> result = pipeline.start();
 
-        Field field = pipeline.getClass().getDeclaredField("alive");
+        Field field = pipeline.getClass().getSuperclass().getDeclaredField("alive");
         field.setAccessible(true);
         AtomicBoolean gottenAlive = (AtomicBoolean) field.get(pipeline);
 
-        field = pipeline.getClass().getDeclaredField("sessionId");
+        field = pipeline.getClass().getSuperclass().getDeclaredField("sessionId");
         field.setAccessible(true);
         Object sessionId = field.get(pipeline);
-
-        field = pipeline.getClass().getDeclaredField("boxProcessor");
-        field.setAccessible(true);
-        Object boxProcessor = field.get(pipeline);
 
         assertThat(Results.comparator(result).isSuccess().value(null).compare()).isTrue();
         assertThat(gottenAlive).isTrue();
         assertThat(sessionId).isNotNull();
-        assertThat(boxProcessor).isNotNull();
-        assertThat(submitHolder.get()).isNotNull();
         assertThat(sessionIdHolder.get()).isEqualTo(sessionId);
     }
 
@@ -119,7 +93,7 @@ class DefaultListenerPipelineTest {
                 Results.comparator(result)
                         .isFail()
                         .seedsComparator()
-                        .code(DefaultListenerPipeline.Code.ALREADY_STARTED.getValue())
+                        .code(DefaultListenerPipeline.CODES.get(DefaultListenerPipeline.Code.ALREADY_STARTED))
                         .back()
                         .compare()
         ).isTrue();
@@ -135,7 +109,7 @@ class DefaultListenerPipelineTest {
 
         Result<Object> result = pipeline.stop(false);
 
-        Field field = pipeline.getClass().getDeclaredField("alive");
+        Field field = pipeline.getClass().getSuperclass().getDeclaredField("alive");
         field.setAccessible(true);
         AtomicBoolean gottenAlive = (AtomicBoolean) field.get(pipeline);
 
@@ -143,7 +117,7 @@ class DefaultListenerPipelineTest {
                 Results.comparator(result)
                         .isFail()
                         .seedsComparator()
-                        .code(DefaultListenerPipeline.Code.ALREADY_STOPPED.getValue())
+                        .code(DefaultListenerPipeline.CODES.get(DefaultListenerPipeline.Code.ALREADY_STOPPED))
                         .back()
                         .compare()
         ).isTrue();
@@ -153,23 +127,6 @@ class DefaultListenerPipelineTest {
     @SneakyThrows
     @Test
     void shouldCheckStop() {
-        AtomicBoolean boxProcessorShutdownIsCall = new AtomicBoolean(false);
-        Supplier<ExecutorService> boxProcessorSupplier = () -> {
-            ExecutorService service = Mockito.mock(ExecutorService.class);
-            Mockito
-                    .doAnswer(new Answer<Void>() {
-                        @Override
-                        public Void answer(InvocationOnMock invocation) throws Throwable {
-                            boxProcessorShutdownIsCall.set(true);
-                            return null;
-                        }
-                    })
-                    .when(service)
-                    .shutdown();
-
-            return service;
-        };
-
         AtomicBoolean blockMethodHolder = new AtomicBoolean(false);
         Supplier<TestPipelineReceiver> testPipelineReceiverSupplier = () -> {
             TestPipelineReceiver receiver = Mockito.mock(TestPipelineReceiver.class);
@@ -188,29 +145,22 @@ class DefaultListenerPipelineTest {
 
         DefaultListenerPipeline<Message> pipeline = new DefaultListenerPipeline<>(
                 null,
-                testPipelineReceiverSupplier.get(),
-                boxProcessorSupplier
+                testPipelineReceiverSupplier.get()
         );
         pipeline.start();
         Result<Object> result = pipeline.stop(false);
 
-        Field field = pipeline.getClass().getDeclaredField("alive");
+        Field field = pipeline.getClass().getSuperclass().getDeclaredField("alive");
         field.setAccessible(true);
         AtomicBoolean gottenAlive = (AtomicBoolean) field.get(pipeline);
 
-        field = pipeline.getClass().getDeclaredField("sessionId");
+        field = pipeline.getClass().getSuperclass().getDeclaredField("sessionId");
         field.setAccessible(true);
         Object sessionId = field.get(pipeline);
-
-        field = pipeline.getClass().getDeclaredField("boxProcessor");
-        field.setAccessible(true);
-        Object boxProcessor = field.get(pipeline);
 
         assertThat(Results.comparator(result).isSuccess().value(null).compare()).isTrue();
         assertThat(gottenAlive).isFalse();
         assertThat(sessionId).isNull();
-        assertThat(boxProcessor).isNull();
-        assertThat(boxProcessorShutdownIsCall).isTrue();
         assertThat(blockMethodHolder).isTrue();
     }
 
@@ -232,7 +182,7 @@ class DefaultListenerPipelineTest {
                 Results.comparator(result)
                         .isFail()
                         .seedsComparator()
-                        .code(DefaultListenerPipeline.Code.OFFER_IF_NOT_STARTED.getValue())
+                        .code(DefaultListenerPipeline.CODES.get(DefaultListenerPipeline.Code.OFFER_IF_NOT_STARTED))
                         .back()
                         .compare()
         ).isTrue();
@@ -309,7 +259,7 @@ class DefaultListenerPipelineTest {
                 Results.comparator(result)
                         .isFail()
                         .seedsComparator()
-                        .code(DefaultListenerPipeline.Code.OFFER_QUEUE_IS_FULL.getValue())
+                        .code(DefaultListenerPipeline.CODES.get(DefaultListenerPipeline.Code.OFFER_QUEUE_IS_FULL))
                         .back()
                         .compare()
         ).isTrue();

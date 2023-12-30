@@ -139,19 +139,19 @@ abstract public class AbstractPipelineReceiver<T extends ConversationItem, TASK>
     protected abstract String getCode(Code code);
 
     public record ThreadParams(String prefix, int size) {
-        private static final String DEFAULT_BOX_HANDLER_THREAD_PREFIX = "box-handler-thread";
+        private static final String DEFAULT_PREFIX = "box-handler-thread";
         private static final int MIN_SIZE = 1;
         private static final int DEFAULT_SIZE = 8;
         private static final int MAX_SIZE = 32;
 
         public ThreadParams() {
-            this(DEFAULT_BOX_HANDLER_THREAD_PREFIX, DEFAULT_SIZE);
+            this(DEFAULT_PREFIX, DEFAULT_SIZE);
         }
 
         public ThreadParams(final String prefix, final int size) {
             this.prefix = prefix != null && !prefix.isBlank()
                     ? prefix
-                    : String.format("%s-%s-", DEFAULT_BOX_HANDLER_THREAD_PREFIX, UUID.randomUUID());
+                    : String.format("%s-%s-", DEFAULT_PREFIX, UUID.randomUUID());
             this.size = size >= MIN_SIZE && size <= MAX_SIZE ? size : DEFAULT_SIZE;
         }
     }
