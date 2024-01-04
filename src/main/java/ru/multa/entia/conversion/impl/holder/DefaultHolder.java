@@ -1,11 +1,11 @@
 package ru.multa.entia.conversion.impl.holder;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import ru.multa.entia.conversion.api.confirmation.Confirmation;
 import ru.multa.entia.conversion.api.holder.*;
 import ru.multa.entia.conversion.api.message.Message;
+import ru.multa.entia.results.api.repository.CodeRepository;
 import ru.multa.entia.results.api.result.Result;
+import ru.multa.entia.results.impl.repository.DefaultCodeRepository;
 import ru.multa.entia.results.impl.result.DefaultResultBuilder;
 
 import java.util.HashMap;
@@ -19,16 +19,21 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class DefaultHolder implements Holder {
-    @RequiredArgsConstructor
-    @Getter
-    public enum Code{
-        MESSAGE_IS_NULL("default-holder.message-is-null"),
-        MESSAGE_ALREADY_CONTAINED("default-holder.message-already-contained"),
-        STORAGE_IS_FULL("default-holder.storage-is-full"),
-        CONFIRMATION_IS_NULL("default-holder.confirmation-is-null"),
-        CONFIRMATION_HAS_BAD_ID("default-holder.confirmation-has-bad-id");
+    public enum Code {
+        MESSAGE_IS_NULL,
+        MESSAGE_ALREADY_CONTAINED,
+        STORAGE_IS_FULL,
+        CONFIRMATION_IS_NULL,
+        CONFIRMATION_HAS_BAD_ID;
+    }
 
-        private final String value;
+    private static final CodeRepository CR = DefaultCodeRepository.getDefaultInstance();
+    static {
+        CR.update(Code.MESSAGE_IS_NULL, "holder.default.message-is-null");
+        CR.update(Code.MESSAGE_ALREADY_CONTAINED, "holder.default.message-already-contained");
+        CR.update(Code.STORAGE_IS_FULL, "holder.default.storage-is-full");
+        CR.update(Code.CONFIRMATION_IS_NULL, "holder.default.confirmation-is-null");
+        CR.update(Code.CONFIRMATION_HAS_BAD_ID, "holder.default.confirmation-has-bad-id");
     }
 
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
@@ -101,7 +106,7 @@ public class DefaultHolder implements Holder {
         }
 
         return code != null
-                ? DefaultResultBuilder.<HolderItem>fail(code.getValue())
+                ? DefaultResultBuilder.<HolderItem>fail(CR.get(code))
                 : DefaultResultBuilder.<HolderItem>ok(item);
     }
 
@@ -127,7 +132,7 @@ public class DefaultHolder implements Holder {
         }
 
         return code != null
-                ? DefaultResultBuilder.<HolderItem>fail(code.getValue())
+                ? DefaultResultBuilder.<HolderItem>fail(CR.get(code))
                 : DefaultResultBuilder.<HolderItem>ok(item);
     }
 

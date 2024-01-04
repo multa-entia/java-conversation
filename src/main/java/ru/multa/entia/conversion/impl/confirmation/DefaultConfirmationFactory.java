@@ -1,7 +1,5 @@
 package ru.multa.entia.conversion.impl.confirmation;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import ru.multa.entia.conversion.api.Checker;
 import ru.multa.entia.conversion.api.SimpleFactory;
 import ru.multa.entia.conversion.api.address.AddressDecorator;
@@ -19,16 +17,11 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 
 public class DefaultConfirmationFactory implements SimpleFactory<Message, Confirmation> {
-    @RequiredArgsConstructor
-    @Getter
     public enum Key {
-        FROM_DECORATOR("default-confirmation-factory.key.from-decorator"),
-        CODE("default-confirmation-factory.key.code"),
-        ARGS("default-confirmation-factory.key.args");
-
-        private final String value;
+        FROM_DECORATOR,
+        CODE,
+        ARGS;
     }
-
     private final Checker<Message> checker;
     private final ConfirmationCreator creator;
     private final Function<Object[], Result<AddressDecorator>> fromDecoratorGetter;

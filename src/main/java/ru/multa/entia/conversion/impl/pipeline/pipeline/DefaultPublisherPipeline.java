@@ -4,17 +4,19 @@ import ru.multa.entia.conversion.api.ConversationItem;
 import ru.multa.entia.conversion.api.pipeline.PipelineBox;
 import ru.multa.entia.conversion.api.pipeline.PipelineReceiver;
 import ru.multa.entia.conversion.api.publisher.PublisherTask;
+import ru.multa.entia.results.api.repository.CodeRepository;
+import ru.multa.entia.results.impl.repository.DefaultCodeRepository;
 
-import java.util.EnumMap;
 import java.util.concurrent.*;
 
 public class DefaultPublisherPipeline<T extends ConversationItem> extends AbstractPipeline<T, PublisherTask<T>> {
-    public static final EnumMap<Code, String> CODES = new EnumMap<>(Code.class){{
-        put(Code.ALREADY_STARTED, "default-publisher-pipeline.already-started");
-        put(Code.ALREADY_STOPPED, "default-publisher-pipeline.already-stopped");
-        put(Code.OFFER_IF_NOT_STARTED, "default-publisher-pipeline.offer-if-not-started");
-        put(Code.OFFER_QUEUE_IS_FULL, "default-publisher-pipeline.offer-queue-is-gull");
-    }};
+    private static final CodeRepository CR = DefaultCodeRepository.getDefaultInstance();
+    static {
+        CR.update(new CodeKey(DefaultPublisherPipeline.class, Code.ALREADY_STARTED), "pipeline.publisher.default.already-started");
+        CR.update(new CodeKey(DefaultPublisherPipeline.class, Code.ALREADY_STOPPED), "pipeline.publisher.default.already-stopped");
+        CR.update(new CodeKey(DefaultPublisherPipeline.class, Code.OFFER_IF_NOT_STARTED), "pipeline.publisher.default.offer-if-not-started");
+        CR.update(new CodeKey(DefaultPublisherPipeline.class, Code.OFFER_QUEUE_IS_FULL), "pipeline.publisher.default.offer-queue-is-full");
+    }
 
     public DefaultPublisherPipeline(final BlockingQueue<PipelineBox<PublisherTask<T>>> queue,
                                     final PipelineReceiver<PublisherTask<T>> receiver) {
@@ -25,10 +27,5 @@ public class DefaultPublisherPipeline<T extends ConversationItem> extends Abstra
                                     final PipelineReceiver<PublisherTask<T>> receiver,
                                     final ThreadParams threadParams) {
         super(queue, receiver, threadParams);
-    }
-
-    @Override
-    protected String getCode(final Code code) {
-        return CODES.get(code);
     }
 }

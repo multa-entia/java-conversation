@@ -1,7 +1,5 @@
 package ru.multa.entia.conversion.impl.message;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import ru.multa.entia.conversion.api.Checker;
 import ru.multa.entia.conversion.api.SimpleFactory;
 import ru.multa.entia.conversion.api.address.Address;
@@ -11,7 +9,9 @@ import ru.multa.entia.conversion.api.message.MessageCreator;
 import ru.multa.entia.conversion.impl.content.DefaultContentFactory;
 import ru.multa.entia.conversion.impl.getter.DefaultConditionGetter;
 import ru.multa.entia.conversion.impl.getter.DefaultValueGetter;
+import ru.multa.entia.results.api.repository.CodeRepository;
 import ru.multa.entia.results.api.result.Result;
+import ru.multa.entia.results.impl.repository.DefaultCodeRepository;
 import ru.multa.entia.results.impl.result.DefaultResultBuilder;
 import ru.multa.entia.results.impl.seed.DefaultSeedBuilder;
 
@@ -23,25 +23,23 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class DefaultMessageFactory implements SimpleFactory<Object, Message> {
-    @RequiredArgsConstructor
-    @Getter
     public enum Key {
-        ID("default-message-factory.key.id"),
-        CONVERSATION("default-message-factory.key.conversation"),
-        CONFIRM("default-message-factory.key.confirm"),
-        FROM("default-message-factory.key.from"),
-        TO("default-message-factory.key.to");
-
-        private final String value;
+        ID,
+        CONVERSATION,
+        CONFIRM,
+        FROM,
+        TO;
     }
 
-    @RequiredArgsConstructor
-    @Getter
     public enum Code {
-        FROM_ABSENCE("default-message-factory.from-absence"),
-        TO_ABSENCE("default-message-factory.to-absence");
+        FROM_ABSENCE,
+        TO_ABSENCE;
+    }
 
-        private final String value;
+    private static final CodeRepository CR = DefaultCodeRepository.getDefaultInstance();
+    static {
+        CR.update(Code.FROM_ABSENCE, "factory.message.default.from-absence");
+        CR.update(Code.TO_ABSENCE, "factory.message.default.to-absence");
     }
 
     private final Checker<Object> checker;
@@ -77,7 +75,7 @@ public class DefaultMessageFactory implements SimpleFactory<Object, Message> {
                 new DefaultConditionGetter<>(Key.FROM, object -> {
                     return object != null && Arrays.stream(object.getClass().getInterfaces()).collect(Collectors.toSet()).contains(Address.class)
                             ? null
-                            : new DefaultSeedBuilder<Address>().code(Code.FROM_ABSENCE.getValue()).build();
+                            : new DefaultSeedBuilder<Address>().code(CR.get(Code.FROM_ABSENCE)).build();
                 })
         );
         this.toGetter = Objects.requireNonNullElse(
@@ -85,7 +83,7 @@ public class DefaultMessageFactory implements SimpleFactory<Object, Message> {
                 new DefaultConditionGetter<>(Key.TO, object -> {
                     return object != null && Arrays.stream(object.getClass().getInterfaces()).collect(Collectors.toSet()).contains(Address.class)
                             ? null
-                            : new DefaultSeedBuilder<Address>().code(Code.TO_ABSENCE.getValue()).build();
+                            : new DefaultSeedBuilder<Address>().code(CR.get(Code.TO_ABSENCE)).build();
                 })
         );
         this.confirmGetter = Objects.requireNonNullElse(confirmGetter, new DefaultValueGetter<>(Key.CONFIRM, () -> {return true;}));

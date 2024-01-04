@@ -4,13 +4,16 @@ package ru.multa.entia.conversion.impl.content;
 import org.junit.jupiter.api.Test;
 import ru.multa.entia.conversion.api.value.Value;
 import ru.multa.entia.fakers.impl.Faker;
+import ru.multa.entia.results.api.repository.CodeRepository;
 import ru.multa.entia.results.api.result.Result;
+import ru.multa.entia.results.impl.repository.DefaultCodeRepository;
 import ru.multa.entia.results.utils.Results;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class DefaultContentSerializerTest {
 
+    private static final CodeRepository CR = DefaultCodeRepository.getDefaultInstance();
     @Test
     void shouldCheckSerialization_ifBadAccess() {
         Result<String> result = new DefaultContentSerializer().apply(new BadAccessTestValue());
@@ -18,7 +21,7 @@ class DefaultContentSerializerTest {
         assertThat(Results.comparator(result)
                 .isFail()
                 .seedsComparator()
-                .code(DefaultContentSerializer.Code.BAD_ACCESS.getValue())
+                .code(CR.get(DefaultContentSerializer.Code.BAD_ACCESS))
                 .back()
                 .compare()).isTrue();
     }

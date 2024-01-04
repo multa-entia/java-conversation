@@ -4,17 +4,21 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import ru.multa.entia.conversion.api.Checker;
 import ru.multa.entia.conversion.api.message.Message;
+import ru.multa.entia.results.api.repository.CodeRepository;
 import ru.multa.entia.results.api.seed.Seed;
+import ru.multa.entia.results.impl.repository.DefaultCodeRepository;
 import ru.multa.entia.results.impl.seed.DefaultSeedBuilder;
 
 class DefaultConfirmationChecker implements Checker<Message> {
-    @RequiredArgsConstructor
-    @Getter
     public enum Code {
-        INSTANCE_IS_NULL("confirmation.checker.default-confirmation-checker.instance-is-null"),
-        FIELD_IS_NULL("confirmation.checker.default-confirmation-checker.instance-is-null");
+        INSTANCE_IS_NULL,
+        FIELD_IS_NULL;
+    }
 
-        private final String value;
+    private static final CodeRepository CR = DefaultCodeRepository.getDefaultInstance();
+    static {
+        CR.update(Code.INSTANCE_IS_NULL, "confirmation.checker.default.instance-is-null");
+        CR.update(Code.FIELD_IS_NULL, "confirmation.checker.default.instance-is-null");
     }
 
     @RequiredArgsConstructor
@@ -32,7 +36,7 @@ class DefaultConfirmationChecker implements Checker<Message> {
     public Seed check(final Message instance) {
         return DefaultSeedBuilder.<Object>compute(
                 () -> {
-                    return instance == null ? DefaultSeedBuilder.<Object>seed(Code.INSTANCE_IS_NULL.getValue()) : null;
+                    return instance == null ? DefaultSeedBuilder.<Object>seed(CR.get(Code.INSTANCE_IS_NULL)) : null;
                 },
                 () -> {
                     StringBuilder builder = new StringBuilder();
@@ -43,7 +47,7 @@ class DefaultConfirmationChecker implements Checker<Message> {
 
                     return builder.isEmpty()
                             ? null
-                            : DefaultSeedBuilder.<Object>seed(Code.FIELD_IS_NULL.getValue(), builder.toString());
+                            : DefaultSeedBuilder.<Object>seed(CR.get(Code.FIELD_IS_NULL), builder.toString());
                 }
         );
     }

@@ -9,7 +9,9 @@ import ru.multa.entia.conversion.api.holder.HolderItem;
 import ru.multa.entia.conversion.api.holder.HolderReleaseStrategy;
 import ru.multa.entia.conversion.api.holder.HolderTimeoutStrategy;
 import ru.multa.entia.conversion.api.message.Message;
+import ru.multa.entia.results.api.repository.CodeRepository;
 import ru.multa.entia.results.api.result.Result;
+import ru.multa.entia.results.impl.repository.DefaultCodeRepository;
 import ru.multa.entia.results.utils.Results;
 import utils.FakerUtil;
 
@@ -21,6 +23,8 @@ import java.util.concurrent.TimeUnit;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class DefaultHolderTest {
+
+    private static final CodeRepository CR = DefaultCodeRepository.getDefaultInstance();
 
     @SuppressWarnings("unchecked")
     @SneakyThrows
@@ -59,7 +63,7 @@ class DefaultHolderTest {
         assertThat(Results.comparator(result)
                 .isFail()
                 .seedsComparator()
-                .code(DefaultHolder.Code.MESSAGE_IS_NULL.getValue())
+                .code(CR.get(DefaultHolder.Code.MESSAGE_IS_NULL))
                 .back()
                 .compare()).isTrue();
     }
@@ -74,7 +78,7 @@ class DefaultHolderTest {
         assertThat(Results.comparator(result)
                 .isFail()
                 .seedsComparator()
-                .code(DefaultHolder.Code.MESSAGE_ALREADY_CONTAINED.getValue())
+                .code(CR.get(DefaultHolder.Code.MESSAGE_ALREADY_CONTAINED))
                 .back()
                 .compare()).isTrue();
     }
@@ -88,7 +92,7 @@ class DefaultHolderTest {
         assertThat(Results.comparator(result)
                 .isFail()
                 .seedsComparator()
-                .code(DefaultHolder.Code.STORAGE_IS_FULL.getValue())
+                .code(CR.get(DefaultHolder.Code.STORAGE_IS_FULL))
                 .back()
                 .compare()).isTrue();
     }
@@ -102,7 +106,7 @@ class DefaultHolderTest {
         assertThat(Results.comparator(result)
                 .isFail()
                 .seedsComparator()
-                .code(DefaultHolder.Code.CONFIRMATION_IS_NULL.getValue())
+                .code(CR.get(DefaultHolder.Code.CONFIRMATION_IS_NULL))
                 .back()
                 .compare()).isTrue();
     }
@@ -129,7 +133,7 @@ class DefaultHolderTest {
         assertThat(Results.comparator(result)
                 .isFail()
                 .seedsComparator()
-                .code(DefaultHolder.Code.CONFIRMATION_HAS_BAD_ID.getValue())
+                .code(CR.get(DefaultHolder.Code.CONFIRMATION_HAS_BAD_ID))
                 .back()
                 .compare()).isTrue();
     }

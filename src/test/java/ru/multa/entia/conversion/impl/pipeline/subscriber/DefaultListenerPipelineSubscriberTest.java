@@ -9,8 +9,10 @@ import ru.multa.entia.conversion.api.listener.Listener;
 import ru.multa.entia.conversion.api.listener.ListenerTask;
 import ru.multa.entia.conversion.api.message.Message;
 import ru.multa.entia.fakers.impl.Faker;
+import ru.multa.entia.results.api.repository.CodeRepository;
 import ru.multa.entia.results.api.result.Result;
 import ru.multa.entia.results.api.seed.Seed;
+import ru.multa.entia.results.impl.repository.DefaultCodeRepository;
 import ru.multa.entia.results.utils.Results;
 import utils.FakerUtil;
 import utils.ResultUtil;
@@ -23,6 +25,8 @@ import java.util.function.Supplier;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class DefaultListenerPipelineSubscriberTest {
+    private static final CodeRepository CR = DefaultCodeRepository.getDefaultInstance();
+
     @Test
     void shouldCheckIdGetting_ifItIsNotSetOnCreation() {
         DefaultListenerPipelineSubscriber<Message> subscriber = new DefaultListenerPipelineSubscriber<>(null);
@@ -48,7 +52,7 @@ class DefaultListenerPipelineSubscriberTest {
                 Results.comparator(result)
                         .isFail()
                         .seedsComparator()
-                        .code(DefaultListenerPipelineSubscriber.CODES.get(DefaultListenerPipelineSubscriber.Code.SESSION_ID_ALREADY_RESET))
+                        .code(CR.get(new AbstractPipelineSubscriber.CodeKey(DefaultListenerPipelineSubscriber.class, AbstractPipelineSubscriber.Code.SESSION_ID_ALREADY_RESET)))
                         .back()
                         .compare()
         ).isTrue();
@@ -88,7 +92,7 @@ class DefaultListenerPipelineSubscriberTest {
                 Results.comparator(result)
                         .isFail()
                         .seedsComparator()
-                        .code(DefaultListenerPipelineSubscriber.CODES.get(DefaultListenerPipelineSubscriber.Code.THIS_SESSION_ID_ALREADY_SET))
+                        .code(CR.get(new AbstractPipelineSubscriber.CodeKey(DefaultListenerPipelineSubscriber.class, AbstractPipelineSubscriber.Code.THIS_SESSION_ID_ALREADY_SET)))
                         .back()
                         .compare()
         ).isTrue();
@@ -105,7 +109,7 @@ class DefaultListenerPipelineSubscriberTest {
                 Results.comparator(result)
                         .isFail()
                         .seedsComparator()
-                        .code(DefaultListenerPipelineSubscriber.CODES.get(DefaultListenerPipelineSubscriber.Code.SESSION_ID_ON_BLOCK_OUT_IS_NULL))
+                        .code(CR.get(new AbstractPipelineSubscriber.CodeKey(DefaultListenerPipelineSubscriber.class, AbstractPipelineSubscriber.Code.SESSION_ID_ON_BLOCK_OUT_IS_NULL)))
                         .back()
                         .compare()
         ).isTrue();
@@ -154,7 +158,7 @@ class DefaultListenerPipelineSubscriberTest {
                 Results.comparator(result)
                         .isFail()
                         .seedsComparator()
-                        .code(DefaultListenerPipelineSubscriber.CODES.get(DefaultListenerPipelineSubscriber.Code.SESSION_ID_IS_NOT_SET))
+                        .code(CR.get(new AbstractPipelineSubscriber.CodeKey(DefaultListenerPipelineSubscriber.class, AbstractPipelineSubscriber.Code.SESSION_ID_IS_NOT_SET)))
                         .back()
                         .compare()
         ).isTrue();
@@ -179,7 +183,7 @@ class DefaultListenerPipelineSubscriberTest {
                 Results.comparator(result)
                         .isFail()
                         .seedsComparator()
-                        .code(DefaultListenerPipelineSubscriber.CODES.get(DefaultListenerPipelineSubscriber.Code.DISALLOWED_SESSION_ID))
+                        .code(CR.get(new AbstractPipelineSubscriber.CodeKey(DefaultListenerPipelineSubscriber.class, AbstractPipelineSubscriber.Code.DISALLOWED_SESSION_ID)))
                         .back()
                         .compare()
         ).isTrue();

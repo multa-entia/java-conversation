@@ -25,7 +25,7 @@ ext {
     set('logbackVersion', '1.2.10')
 
     set('javaFakersVersion', '0.2')
-    set('javaResultsVersion', '0.6')
+    set('javaResultsVersion', '0.7.1')
 }
 
 dependencies {

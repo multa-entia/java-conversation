@@ -10,7 +10,9 @@ import ru.multa.entia.conversion.api.pipeline.PipelineBox;
 import ru.multa.entia.conversion.api.pipeline.PipelineReceiver;
 import ru.multa.entia.conversion.api.publisher.PublisherTask;
 import ru.multa.entia.fakers.impl.Faker;
+import ru.multa.entia.results.api.repository.CodeRepository;
 import ru.multa.entia.results.api.result.Result;
+import ru.multa.entia.results.impl.repository.DefaultCodeRepository;
 import ru.multa.entia.results.utils.Results;
 
 import java.lang.reflect.Field;
@@ -24,6 +26,7 @@ import java.util.function.Supplier;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class DefaultPublisherPipelineTest {
+    private static final CodeRepository CR = DefaultCodeRepository.getDefaultInstance();
 
     private static final Supplier<TestPipelineReceiver> TEST_PIPELINE_RECEIVER_SUPPLIER = () -> {
         return Mockito.mock(TestPipelineReceiver.class);
@@ -92,7 +95,7 @@ class DefaultPublisherPipelineTest {
         assertThat(Results.comparator(result)
                 .isFail()
                 .seedsComparator()
-                .code(DefaultPublisherPipeline.CODES.get(DefaultPublisherPipeline.Code.ALREADY_STARTED))
+                .code(CR.get(new AbstractPipeline.CodeKey(DefaultPublisherPipeline.class, AbstractPipeline.Code.ALREADY_STARTED)))
                 .back()
                 .compare()).isTrue();
     }
@@ -113,7 +116,7 @@ class DefaultPublisherPipelineTest {
         assertThat(Results.comparator(result)
                 .isFail()
                 .seedsComparator()
-                .code(DefaultPublisherPipeline.CODES.get(DefaultPublisherPipeline.Code.ALREADY_STOPPED))
+                .code(CR.get(new AbstractPipeline.CodeKey(DefaultPublisherPipeline.class, AbstractPipeline.Code.ALREADY_STOPPED)))
                 .back()
                 .compare()).isTrue();
         assertThat(gottenAlive).isFalse();
@@ -176,7 +179,7 @@ class DefaultPublisherPipelineTest {
         assertThat(Results.comparator(result)
                 .isFail()
                 .seedsComparator()
-                .code(DefaultPublisherPipeline.CODES.get(DefaultPublisherPipeline.Code.OFFER_IF_NOT_STARTED))
+                .code(CR.get(new AbstractPipeline.CodeKey(DefaultPublisherPipeline.class, AbstractPipeline.Code.OFFER_IF_NOT_STARTED)))
                 .back()
                 .compare()).isTrue();
     }
@@ -251,7 +254,7 @@ class DefaultPublisherPipelineTest {
         assertThat(Results.comparator(result)
                 .isFail()
                 .seedsComparator()
-                .code(DefaultPublisherPipeline.CODES.get(DefaultPublisherPipeline.Code.OFFER_QUEUE_IS_FULL))
+                .code(CR.get(new AbstractPipeline.CodeKey(DefaultPublisherPipeline.class, AbstractPipeline.Code.OFFER_QUEUE_IS_FULL)))
                 .back()
                 .compare()).isTrue();
     }

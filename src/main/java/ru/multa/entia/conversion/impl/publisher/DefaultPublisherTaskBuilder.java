@@ -1,7 +1,5 @@
 package ru.multa.entia.conversion.impl.publisher;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import ru.multa.entia.conversion.api.ConversationItem;
 import ru.multa.entia.conversion.api.holder.HolderReleaseStrategy;
 import ru.multa.entia.conversion.api.holder.HolderTimeoutStrategy;
@@ -16,15 +14,8 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class DefaultPublisherTaskBuilder<T extends ConversationItem> implements PublisherTaskBuilder<T> {
-    @RequiredArgsConstructor
-    @Getter
-    public enum Code {
-        SERVICE_IS_NULL("default-publisher-task-builder.service-is-null");
 
-        private final String value;
-    }
-
-    enum StrategiesUsage{
+    enum StrategiesUsage {
         USE_SET,
         USE_DEFAULT,
         DO_NOT_USE

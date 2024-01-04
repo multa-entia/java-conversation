@@ -10,7 +10,9 @@ import ru.multa.entia.conversion.api.pipeline.PipelineBox;
 import ru.multa.entia.conversion.api.pipeline.PipelineSubscriber;
 import ru.multa.entia.conversion.api.publisher.PublisherTask;
 import ru.multa.entia.fakers.impl.Faker;
+import ru.multa.entia.results.api.repository.CodeRepository;
 import ru.multa.entia.results.api.result.Result;
+import ru.multa.entia.results.impl.repository.DefaultCodeRepository;
 import ru.multa.entia.results.impl.result.DefaultResultBuilder;
 import ru.multa.entia.results.utils.Results;
 
@@ -23,6 +25,7 @@ import java.util.function.Function;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class DefaultPublisherPipelineReceiverTest {
+    private static final CodeRepository CR = DefaultCodeRepository.getDefaultInstance();
 
     private static final Function<UUID, TestPipelineSubscriber> TEST_PIPELINE_SUBSCRIBER_FUNCTION = id -> {
         TestPipelineSubscriber subscriber = Mockito.mock(TestPipelineSubscriber.class);
@@ -71,7 +74,7 @@ class DefaultPublisherPipelineReceiverTest {
         assertThat(Results.comparator(result)
                 .isFail()
                 .seedsComparator()
-                .code(DefaultPublisherPipelineReceiver.CODES.get(DefaultPublisherPipelineReceiver.Code.ALREADY_BLOCKED_OUT))
+                .code(CR.get(new AbstractPipelineReceiver.CodeKey(DefaultPublisherPipelineReceiver.class, AbstractPipelineReceiver.Code.ALREADY_BLOCKED_OUT)))
                 .back()
                 .compare()).isTrue();
         assertThat(gottenSessionId.get()).isEqualTo(firstSessionId);
@@ -91,7 +94,7 @@ class DefaultPublisherPipelineReceiverTest {
         assertThat(Results.comparator(result)
                 .isFail()
                 .seedsComparator()
-                .code(DefaultPublisherPipelineReceiver.CODES.get(DefaultPublisherPipelineReceiver.Code.ALREADY_BLOCKED))
+                .code(CR.get(new AbstractPipelineReceiver.CodeKey(DefaultPublisherPipelineReceiver.class, AbstractPipelineReceiver.Code.ALREADY_BLOCKED)))
                 .back()
                 .compare()).isTrue();
         assertThat(gottenSessionId.get()).isNull();
@@ -136,7 +139,7 @@ class DefaultPublisherPipelineReceiverTest {
         assertThat(Results.comparator(result)
                 .isFail()
                 .seedsComparator()
-                .code(DefaultPublisherPipelineReceiver.CODES.get(DefaultPublisherPipelineReceiver.Code.ALREADY_SUBSCRIBED))
+                .code(CR.get(new AbstractPipelineReceiver.CodeKey(DefaultPublisherPipelineReceiver.class, AbstractPipelineReceiver.Code.ALREADY_SUBSCRIBED)))
                 .back()
                 .compare()).isTrue();
     }
@@ -166,7 +169,7 @@ class DefaultPublisherPipelineReceiverTest {
         assertThat(Results.comparator(result)
                 .isFail()
                 .seedsComparator()
-                .code(DefaultPublisherPipelineReceiver.CODES.get(DefaultPublisherPipelineReceiver.Code.ALREADY_UNSUBSCRIBED))
+                .code(CR.get(new AbstractPipelineReceiver.CodeKey(DefaultPublisherPipelineReceiver.class, AbstractPipelineReceiver.Code.ALREADY_UNSUBSCRIBED)))
                 .back()
                 .compare()).isTrue();
     }
@@ -179,7 +182,7 @@ class DefaultPublisherPipelineReceiverTest {
         assertThat(Results.comparator(result)
                 .isFail()
                 .seedsComparator()
-                .code(DefaultPublisherPipelineReceiver.CODES.get(DefaultPublisherPipelineReceiver.Code.IS_BLOCKED))
+                .code(CR.get(new AbstractPipelineReceiver.CodeKey(DefaultPublisherPipelineReceiver.class, AbstractPipelineReceiver.Code.IS_BLOCKED)))
                 .back()
                 .compare()).isTrue();
     }
@@ -204,7 +207,7 @@ class DefaultPublisherPipelineReceiverTest {
         assertThat(Results.comparator(result)
                 .isFail()
                 .seedsComparator()
-                .code(DefaultPublisherPipelineReceiver.CODES.get(DefaultPublisherPipelineReceiver.Code.INVALID_SESSION_ID))
+                .code(CR.get(new AbstractPipelineReceiver.CodeKey(DefaultPublisherPipelineReceiver.class, AbstractPipelineReceiver.Code.INVALID_SESSION_ID)))
                 .back()
                 .compare()).isTrue();
     }
@@ -220,7 +223,7 @@ class DefaultPublisherPipelineReceiverTest {
         assertThat(Results.comparator(result)
                 .isFail()
                 .seedsComparator()
-                .code(DefaultPublisherPipelineReceiver.CODES.get(DefaultPublisherPipelineReceiver.Code.NO_ONE_SUBSCRIBER))
+                .code(CR.get(new AbstractPipelineReceiver.CodeKey(DefaultPublisherPipelineReceiver.class, AbstractPipelineReceiver.Code.NO_ONE_SUBSCRIBER)))
                 .back()
                 .compare()).isTrue();
     }

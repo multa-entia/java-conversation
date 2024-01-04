@@ -5,7 +5,9 @@ import ru.multa.entia.conversion.api.ConversationItem;
 import ru.multa.entia.conversion.api.pipeline.Pipeline;
 import ru.multa.entia.conversion.api.pipeline.PipelineBox;
 import ru.multa.entia.conversion.api.pipeline.PipelineReceiver;
+import ru.multa.entia.results.api.repository.CodeRepository;
 import ru.multa.entia.results.api.result.Result;
+import ru.multa.entia.results.impl.repository.DefaultCodeRepository;
 import ru.multa.entia.results.impl.result.DefaultResultBuilder;
 
 import java.util.Objects;
@@ -26,6 +28,7 @@ abstract public class AbstractPipeline<T extends ConversationItem, TASK> impleme
         OFFER_QUEUE_IS_FULL
     }
 
+    private static final CodeRepository CR = DefaultCodeRepository.getDefaultInstance();
     private static final AtomicInteger threadNameCounter = new AtomicInteger(0);
 
     private static final Function<ThreadParams, ExecutorService> BOX_PROCESSOR_FUNCTION = params -> Executors.newSingleThreadExecutor(r -> {
@@ -58,6 +61,7 @@ abstract public class AbstractPipeline<T extends ConversationItem, TASK> impleme
 
     @Override
     public Result<Object> start() {
+        String code = CR.get(new CodeKey(getClass(), Code.ALREADY_STARTED));
         log.info("The attempt of starting");
         if (alive.compareAndSet(false, true)){
             log.info("Started");
@@ -65,15 +69,15 @@ abstract public class AbstractPipeline<T extends ConversationItem, TASK> impleme
             receiver.blockOut(sessionId);
             boxProcessor = BOX_PROCESSOR_FUNCTION.apply(threadParams);
             boxProcessor.submit(this::processBoxes);
-            return DefaultResultBuilder.<Object>ok(null);
+            code = null;
         }
 
-        // TODO: 30.12.2023 compute it
-        return DefaultResultBuilder.<Object>fail(getCode(Code.ALREADY_STARTED));
+        return DefaultResultBuilder.<Object>compute(null, code);
     }
 
     @Override
     public Result<Object> stop(boolean clear) {
+        String code = CR.get(new CodeKey(getClass(), Code.ALREADY_STOPPED));
         log.info("The attempt of stopping");
         if (alive.compareAndSet(true, false)){
             log.info("Stopped");
@@ -84,25 +88,27 @@ abstract public class AbstractPipeline<T extends ConversationItem, TASK> impleme
             if (clear){
                 queue.clear();
             }
-            return DefaultResultBuilder.<Object>ok(null);
+            code = null;
         }
 
-        // TODO: 30.12.2023 compute it
-        return DefaultResultBuilder.<Object>fail(getCode(Code.ALREADY_STOPPED));
+        return DefaultResultBuilder.<Object>compute(null, code);
     }
 
     @Override
     public Result<TASK> offer(final PipelineBox<TASK> box) {
         log.info("The attempt of offer: {}", box.value());
 
-        Code code = Code.OFFER_IF_NOT_STARTED;
-        if (alive.get()){
-            code = queue.offer(box) ? null : Code.OFFER_QUEUE_IS_FULL;
-        }
-        // TODO: 30.12.2023 compute it
-        return code == null
-                ? DefaultResultBuilder.<TASK>ok(box.value())
-                : DefaultResultBuilder.<TASK>fail(getCode(code));
+        return DefaultResultBuilder.<TASK>computeFromCodes(
+                box::value,
+                () -> {
+                    Code code = Code.OFFER_IF_NOT_STARTED;
+                    if (alive.get()){
+                        code = queue.offer(box) ? null : Code.OFFER_QUEUE_IS_FULL;
+                    }
+
+                    return code != null ? CR.get(new CodeKey(getClass(), code)) : null;
+                }
+        );
     }
 
     private void processBoxes(){
@@ -120,8 +126,6 @@ abstract public class AbstractPipeline<T extends ConversationItem, TASK> impleme
         log.info("Box processing finished");
     }
 
-    protected abstract String getCode(Code code);
-
     public record ThreadParams(String prefix) {
         private static final String DEFAULT_PREFIX = "box-processor-thread";
 
@@ -135,4 +139,6 @@ abstract public class AbstractPipeline<T extends ConversationItem, TASK> impleme
                     : String.format("%s-%s-", DEFAULT_PREFIX, UUID.randomUUID());
         }
     }
+
+    public record CodeKey(Class<?> type, Object key) {}
 }

@@ -10,7 +10,9 @@ import ru.multa.entia.conversion.api.message.Message;
 import ru.multa.entia.conversion.api.pipeline.PipelineBox;
 import ru.multa.entia.conversion.api.pipeline.PipelineReceiver;
 import ru.multa.entia.fakers.impl.Faker;
+import ru.multa.entia.results.api.repository.CodeRepository;
 import ru.multa.entia.results.api.result.Result;
+import ru.multa.entia.results.impl.repository.DefaultCodeRepository;
 import ru.multa.entia.results.utils.Results;
 
 import java.lang.reflect.Field;
@@ -24,6 +26,8 @@ import java.util.function.Supplier;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class DefaultListenerPipelineTest {
+    private static final CodeRepository CR = DefaultCodeRepository.getDefaultInstance();
+
     private static final Supplier<TestPipelineReceiver> TEST_PIPELINE_RECEIVER_SUPPLIER = () -> {
         return Mockito.mock(TestPipelineReceiver.class);
     };
@@ -93,7 +97,7 @@ class DefaultListenerPipelineTest {
                 Results.comparator(result)
                         .isFail()
                         .seedsComparator()
-                        .code(DefaultListenerPipeline.CODES.get(DefaultListenerPipeline.Code.ALREADY_STARTED))
+                        .code(CR.get(new AbstractPipeline.CodeKey(DefaultListenerPipeline.class, AbstractPipeline.Code.ALREADY_STARTED)))
                         .back()
                         .compare()
         ).isTrue();
@@ -117,7 +121,7 @@ class DefaultListenerPipelineTest {
                 Results.comparator(result)
                         .isFail()
                         .seedsComparator()
-                        .code(DefaultListenerPipeline.CODES.get(DefaultListenerPipeline.Code.ALREADY_STOPPED))
+                        .code(CR.get(new AbstractPipeline.CodeKey(DefaultListenerPipeline.class, AbstractPipeline.Code.ALREADY_STOPPED)))
                         .back()
                         .compare()
         ).isTrue();
@@ -182,7 +186,7 @@ class DefaultListenerPipelineTest {
                 Results.comparator(result)
                         .isFail()
                         .seedsComparator()
-                        .code(DefaultListenerPipeline.CODES.get(DefaultListenerPipeline.Code.OFFER_IF_NOT_STARTED))
+                        .code(CR.get(new AbstractPipeline.CodeKey(DefaultListenerPipeline.class, AbstractPipeline.Code.OFFER_IF_NOT_STARTED)))
                         .back()
                         .compare()
         ).isTrue();
@@ -255,11 +259,13 @@ class DefaultListenerPipelineTest {
         pipeline.offer(TEST_PIPELINE_BOX_FUNCTION.apply(TEST_LISTENER_TASK_SUPPLIER.get()));
         Result<ListenerTask<Message>> result = pipeline.offer(TEST_PIPELINE_BOX_FUNCTION.apply(TEST_LISTENER_TASK_SUPPLIER.get()));
 
+        CodeRepository cr = CR;
+
         assertThat(
                 Results.comparator(result)
                         .isFail()
                         .seedsComparator()
-                        .code(DefaultListenerPipeline.CODES.get(DefaultListenerPipeline.Code.OFFER_QUEUE_IS_FULL))
+                        .code(CR.get(new AbstractPipeline.CodeKey(DefaultListenerPipeline.class, AbstractPipeline.Code.OFFER_QUEUE_IS_FULL)))
                         .back()
                         .compare()
         ).isTrue();

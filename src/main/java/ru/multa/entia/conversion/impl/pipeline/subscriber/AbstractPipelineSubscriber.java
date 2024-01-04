@@ -3,7 +3,9 @@ package ru.multa.entia.conversion.impl.pipeline.subscriber;
 import lombok.Getter;
 import ru.multa.entia.conversion.api.ConversationItem;
 import ru.multa.entia.conversion.api.pipeline.PipelineSubscriber;
+import ru.multa.entia.results.api.repository.CodeRepository;
 import ru.multa.entia.results.api.result.Result;
+import ru.multa.entia.results.impl.repository.DefaultCodeRepository;
 import ru.multa.entia.results.impl.result.DefaultResultBuilder;
 
 import java.util.Objects;
@@ -22,6 +24,8 @@ abstract public class AbstractPipelineSubscriber<T extends ConversationItem, TAS
         ALREADY_BLOCKED_OUT;
     }
 
+    private static final CodeRepository CR = DefaultCodeRepository.getDefaultInstance();
+
     @Getter
     private final UUID id;
     private final AtomicReference<UUID> sessionId;
@@ -35,10 +39,10 @@ abstract public class AbstractPipelineSubscriber<T extends ConversationItem, TAS
     public Result<Object> blockOut(final UUID sessionId) {
         return DefaultResultBuilder.<Object>computeFromCodes(
                 () -> {return null;},
-                () -> {return sessionId == null ? getCode(Code.SESSION_ID_ON_BLOCK_OUT_IS_NULL) : null;},
+                () -> {return sessionId == null ? CR.get(new CodeKey(getClass(), Code.SESSION_ID_ON_BLOCK_OUT_IS_NULL)): null;},
                 () -> {
                     UUID previous = this.sessionId.getAndSet(sessionId);
-                    return previous == sessionId ? getCode(Code.THIS_SESSION_ID_ALREADY_SET) : null;
+                    return previous == sessionId ? CR.get(new CodeKey(getClass(), Code.THIS_SESSION_ID_ALREADY_SET)) : null;
                 }
         );
     }
@@ -49,7 +53,7 @@ abstract public class AbstractPipelineSubscriber<T extends ConversationItem, TAS
                 () -> {return null;},
                 () -> {
                     return sessionId.getAndSet(null) == null
-                            ? getCode(Code.SESSION_ID_ALREADY_RESET)
+                            ? CR.get(new CodeKey(getClass(), Code.SESSION_ID_ALREADY_RESET))
                             : null;
                 }
         );
@@ -59,5 +63,5 @@ abstract public class AbstractPipelineSubscriber<T extends ConversationItem, TAS
         return this.sessionId;
     }
 
-    protected abstract String getCode(Code code);
+    public record CodeKey(Class<?> type, Object key) {}
 }

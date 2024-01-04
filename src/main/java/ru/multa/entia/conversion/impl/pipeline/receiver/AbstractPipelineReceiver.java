@@ -5,8 +5,10 @@ import ru.multa.entia.conversion.api.ConversationItem;
 import ru.multa.entia.conversion.api.pipeline.PipelineBox;
 import ru.multa.entia.conversion.api.pipeline.PipelineReceiver;
 import ru.multa.entia.conversion.api.pipeline.PipelineSubscriber;
+import ru.multa.entia.results.api.repository.CodeRepository;
 import ru.multa.entia.results.api.result.Result;
 import ru.multa.entia.results.api.seed.Seed;
+import ru.multa.entia.results.impl.repository.DefaultCodeRepository;
 import ru.multa.entia.results.impl.result.DefaultResultBuilder;
 
 import java.util.ArrayList;
@@ -31,6 +33,7 @@ abstract public class AbstractPipelineReceiver<T extends ConversationItem, TASK>
         SUBSCRIBER_FAIL;
     }
 
+    private static final CodeRepository CR = DefaultCodeRepository.getDefaultInstance();
     private static final AtomicInteger threadNameCounter = new AtomicInteger(0);
 
     private static final Function<ThreadParams, ExecutorService> DEFAULT_BOX_HANDLER_FUNCTION = params -> Executors.newFixedThreadPool(
@@ -64,15 +67,15 @@ abstract public class AbstractPipelineReceiver<T extends ConversationItem, TASK>
     public Result<Object> receive(final UUID sessionId, final PipelineBox<TASK> box) {
         log.info("The attempt of receiving : {} {}", sessionId, box);
         if (this.sessionId.get() == null){
-            return DefaultResultBuilder.<Object>fail(getCode(Code.IS_BLOCKED));
+            return DefaultResultBuilder.<Object>fail(CR.get(new CodeKey(getClass(), Code.IS_BLOCKED)));
         }
 
         if (!this.sessionId.get().equals(sessionId)) {
-            return DefaultResultBuilder.<Object>fail(getCode(Code.INVALID_SESSION_ID));
+            return DefaultResultBuilder.<Object>fail(CR.get(new CodeKey(getClass(), Code.INVALID_SESSION_ID)));
         }
 
         if (subscribers.isEmpty()) {
-            return DefaultResultBuilder.<Object>fail(getCode(Code.NO_ONE_SUBSCRIBER));
+            return DefaultResultBuilder.<Object>fail(CR.get(new CodeKey(getClass(), Code.NO_ONE_SUBSCRIBER)));
         }
 
         ArrayList<Seed> seeds = new ArrayList<>();
@@ -89,7 +92,7 @@ abstract public class AbstractPipelineReceiver<T extends ConversationItem, TASK>
     public Result<Object> block() {
         log.info("The attempt of blocking {}", sessionId);
         if (sessionId.get() == null) {
-            return DefaultResultBuilder.<Object>fail(getCode(Code.ALREADY_BLOCKED));
+            return DefaultResultBuilder.<Object>fail(CR.get(new CodeKey(getClass(), Code.ALREADY_BLOCKED)));
         }
 
         log.info("It is blocked {}", sessionId);
@@ -107,7 +110,7 @@ abstract public class AbstractPipelineReceiver<T extends ConversationItem, TASK>
             boxHandler = DEFAULT_BOX_HANDLER_FUNCTION.apply(threadParams);
             return DefaultResultBuilder.<Object>ok(null);
         }
-        return DefaultResultBuilder.<Object>fail(getCode(Code.ALREADY_BLOCKED_OUT));
+        return DefaultResultBuilder.<Object>fail(CR.get(new CodeKey(getClass(), Code.ALREADY_BLOCKED_OUT)));
     }
 
     @Override
@@ -120,7 +123,7 @@ abstract public class AbstractPipelineReceiver<T extends ConversationItem, TASK>
         }
 
         log.info("Already subscribed: {}", subscriber);
-        return DefaultResultBuilder.<PipelineSubscriber<TASK>>fail(getCode(Code.ALREADY_SUBSCRIBED));
+        return DefaultResultBuilder.<PipelineSubscriber<TASK>>fail(CR.get(new CodeKey(getClass(), Code.ALREADY_SUBSCRIBED)));
     }
 
     @Override
@@ -133,10 +136,8 @@ abstract public class AbstractPipelineReceiver<T extends ConversationItem, TASK>
         }
 
         log.info("Already unsubscribed: {}", subscriber);
-        return DefaultResultBuilder.<PipelineSubscriber<TASK>>fail(getCode(Code.ALREADY_UNSUBSCRIBED));
+        return DefaultResultBuilder.<PipelineSubscriber<TASK>>fail(CR.get(new CodeKey(getClass(), Code.ALREADY_UNSUBSCRIBED)));
     }
-
-    protected abstract String getCode(Code code);
 
     public record ThreadParams(String prefix, int size) {
         private static final String DEFAULT_PREFIX = "box-handler-thread";
@@ -155,4 +156,6 @@ abstract public class AbstractPipelineReceiver<T extends ConversationItem, TASK>
             this.size = size >= MIN_SIZE && size <= MAX_SIZE ? size : DEFAULT_SIZE;
         }
     }
+
+    public record CodeKey(Class<?> type, Object key) {}
 }

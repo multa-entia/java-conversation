@@ -1,25 +1,26 @@
 package ru.multa.entia.conversion.impl.message;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import ru.multa.entia.conversion.api.Checker;
+import ru.multa.entia.results.api.repository.CodeRepository;
 import ru.multa.entia.results.api.seed.Seed;
+import ru.multa.entia.results.impl.repository.DefaultCodeRepository;
 import ru.multa.entia.results.impl.seed.DefaultSeedBuilder;
 
 class DefaultMessageChecker implements Checker<Object> {
-    @RequiredArgsConstructor
-    @Getter
     public enum Code {
-        IS_NULL("message.checker.default-confirmation-checker.is-null");
+        IS_NULL;
+    }
 
-        private final String value;
+    private static final CodeRepository CR = DefaultCodeRepository.getDefaultInstance();
+    static {
+        CR.update(Code.IS_NULL, "checker.message.default.is-null");
     }
 
     @Override
     public Seed check(final Object instance) {
         return DefaultSeedBuilder.<Object>computeFromCodes(
                 () -> {
-                    return instance == null ? Code.IS_NULL.getValue() : null;
+                    return instance == null ? CR.get(Code.IS_NULL) : null;
                 }
         );
     }

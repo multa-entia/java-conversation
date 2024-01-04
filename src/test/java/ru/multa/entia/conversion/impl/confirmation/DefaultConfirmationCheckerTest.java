@@ -3,7 +3,9 @@ package ru.multa.entia.conversion.impl.confirmation;
 import org.junit.jupiter.api.Test;
 import ru.multa.entia.conversion.api.message.Message;
 import ru.multa.entia.fakers.impl.Faker;
+import ru.multa.entia.results.api.repository.CodeRepository;
 import ru.multa.entia.results.api.seed.Seed;
+import ru.multa.entia.results.impl.repository.DefaultCodeRepository;
 import ru.multa.entia.results.utils.Seeds;
 import utils.TestAddress;
 import utils.TestMessage;
@@ -12,11 +14,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class DefaultConfirmationCheckerTest {
 
+    private static final CodeRepository CR = DefaultCodeRepository.getDefaultInstance();
+
     @Test
     void shouldCheckChecking_ifInstanceNull() {
         Seed seed = new DefaultConfirmationChecker().check(null);
 
-        assertThat(Seeds.comparator(seed).code(DefaultConfirmationChecker.Code.INSTANCE_IS_NULL.getValue()).compare()).isTrue();
+        assertThat(Seeds.comparator(seed).code(CR.get(DefaultConfirmationChecker.Code.INSTANCE_IS_NULL)).compare()).isTrue();
     }
 
     @Test
@@ -34,7 +38,7 @@ class DefaultConfirmationCheckerTest {
 
         assertThat(Seeds
                 .comparator(seed)
-                .code(DefaultConfirmationChecker.Code.INSTANCE_IS_NULL.getValue())
+                .code(CR.get(DefaultConfirmationChecker.Code.INSTANCE_IS_NULL))
                 .args(expectedArgs)
                 .compare()).isTrue();
     }
@@ -54,7 +58,7 @@ class DefaultConfirmationCheckerTest {
 
         assertThat(Seeds
                 .comparator(seed)
-                .code(DefaultConfirmationChecker.Code.FIELD_IS_NULL.getValue())
+                .code(CR.get(DefaultConfirmationChecker.Code.FIELD_IS_NULL))
                 .args(expectedArgs)
                 .compare()).isTrue();
     }
@@ -74,7 +78,7 @@ class DefaultConfirmationCheckerTest {
 
         assertThat(Seeds
                 .comparator(seed)
-                .code(DefaultConfirmationChecker.Code.FIELD_IS_NULL.getValue())
+                .code(CR.get(DefaultConfirmationChecker.Code.FIELD_IS_NULL))
                 .args(expectedArgs)
                 .compare()).isTrue();
     }
@@ -94,7 +98,7 @@ class DefaultConfirmationCheckerTest {
 
         assertThat(Seeds
                 .comparator(seed)
-                .code(DefaultConfirmationChecker.Code.FIELD_IS_NULL.getValue())
+                .code(CR.get(DefaultConfirmationChecker.Code.FIELD_IS_NULL))
                 .args(expectedArgs)
                 .compare()).isTrue();
     }
@@ -112,7 +116,7 @@ class DefaultConfirmationCheckerTest {
 
         assertThat(Seeds
                 .comparator(seed)
-                .code(DefaultConfirmationChecker.Code.FIELD_IS_NULL.getValue())
+                .code(CR.get(DefaultConfirmationChecker.Code.FIELD_IS_NULL))
                 .args(expectedArgs)
                 .compare()).isTrue();
     }

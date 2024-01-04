@@ -2,19 +2,23 @@ package ru.multa.entia.conversion.impl.address;
 
 import org.junit.jupiter.api.Test;
 import ru.multa.entia.fakers.impl.Faker;
+import ru.multa.entia.results.api.repository.CodeRepository;
 import ru.multa.entia.results.api.seed.Seed;
+import ru.multa.entia.results.impl.repository.DefaultCodeRepository;
 import ru.multa.entia.results.utils.Seeds;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class DefaultAddressCheckerTest {
 
+    private static final CodeRepository CR = DefaultCodeRepository.getDefaultInstance();
+
     @Test
     void shouldCheckDefaultAddressValueChecker_ifInstanceIsNull() {
         Seed seed = new DefaultAddressChecker().check(null);
 
         boolean result = Seeds.comparator(seed)
-                .code(DefaultAddressChecker.Code.INSTANCE_IS_NULL.getValue())
+                .code(CR.get(DefaultAddressChecker.Code.INSTANCE_IS_NULL))
                 .argsAreEmpty()
                 .compare();
         assertThat(result).isTrue();
@@ -25,7 +29,7 @@ class DefaultAddressCheckerTest {
         Seed seed = new DefaultAddressChecker().check(Faker.int_().random());
 
         boolean result = Seeds.comparator(seed)
-                .code(DefaultAddressChecker.Code.INSTANCE_IS_NOT_STR.getValue())
+                .code(CR.get(DefaultAddressChecker.Code.INSTANCE_IS_NOT_STR))
                 .argsAreEmpty()
                 .compare();
         assertThat(result).isTrue();
@@ -36,7 +40,7 @@ class DefaultAddressCheckerTest {
         Seed seed = new DefaultAddressChecker().check("");
 
         boolean result = Seeds.comparator(seed)
-                .code(DefaultAddressChecker.Code.INSTANCE_IS_BLANK.getValue())
+                .code(CR.get(DefaultAddressChecker.Code.INSTANCE_IS_BLANK))
                 .argsAreEmpty()
                 .compare();
         assertThat(result).isTrue();
@@ -47,7 +51,7 @@ class DefaultAddressCheckerTest {
         Seed seed = new DefaultAddressChecker().check("  ");
 
         boolean result = Seeds.comparator(seed)
-                .code(DefaultAddressChecker.Code.INSTANCE_IS_BLANK.getValue())
+                .code(CR.get(DefaultAddressChecker.Code.INSTANCE_IS_BLANK))
                 .argsAreEmpty()
                 .compare();
         assertThat(result).isTrue();
