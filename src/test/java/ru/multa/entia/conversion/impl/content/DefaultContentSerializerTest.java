@@ -12,7 +12,6 @@ import ru.multa.entia.results.utils.Results;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class DefaultContentSerializerTest {
-
     private static final CodeRepository CR = DefaultCodeRepository.getDefaultInstance();
     @Test
     void shouldCheckSerialization_ifBadAccess() {

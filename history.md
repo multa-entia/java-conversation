@@ -1,3 +1,7 @@
+# v0.1.1
+
+- Codes are changed
+
 # v0.1
 
 - Address's things are added: DefaultAddress, DefaultAddressChecker, DefaultAddressDecorator, DefaultAddressFactory

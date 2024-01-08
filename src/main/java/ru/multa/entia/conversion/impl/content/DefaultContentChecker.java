@@ -18,8 +18,8 @@ class DefaultContentChecker implements Checker<Object> {
 
     private static final CodeRepository CR = DefaultCodeRepository.getDefaultInstance();
     static {
-        CR.update(Code.IS_NULL, "content.checker.default.is-null");
-        CR.update(Code.BAD_PARENT, "content.checker.default.bad-parent");
+        CR.update(Code.IS_NULL, "conversation:content.checker:default.is-null");
+        CR.update(Code.BAD_PARENT, "conversation:content.checker.default:bad-parent");
     }
 
     @Override

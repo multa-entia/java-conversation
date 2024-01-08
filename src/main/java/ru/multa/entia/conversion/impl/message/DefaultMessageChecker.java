@@ -13,7 +13,7 @@ class DefaultMessageChecker implements Checker<Object> {
 
     private static final CodeRepository CR = DefaultCodeRepository.getDefaultInstance();
     static {
-        CR.update(Code.IS_NULL, "checker.message.default.is-null");
+        CR.update(Code.IS_NULL, "conversation:checker.message.default:is-null");
     }
 
     @Override

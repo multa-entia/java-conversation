@@ -29,11 +29,11 @@ public class DefaultHolder implements Holder {
 
     private static final CodeRepository CR = DefaultCodeRepository.getDefaultInstance();
     static {
-        CR.update(Code.MESSAGE_IS_NULL, "holder.default.message-is-null");
-        CR.update(Code.MESSAGE_ALREADY_CONTAINED, "holder.default.message-already-contained");
-        CR.update(Code.STORAGE_IS_FULL, "holder.default.storage-is-full");
-        CR.update(Code.CONFIRMATION_IS_NULL, "holder.default.confirmation-is-null");
-        CR.update(Code.CONFIRMATION_HAS_BAD_ID, "holder.default.confirmation-has-bad-id");
+        CR.update(Code.MESSAGE_IS_NULL, "conversation:holder.default:message-is-null");
+        CR.update(Code.MESSAGE_ALREADY_CONTAINED, "conversation:holder.default:message-already-contained");
+        CR.update(Code.STORAGE_IS_FULL, "conversation:holder.default:storage-is-full");
+        CR.update(Code.CONFIRMATION_IS_NULL, "conversation:holder.default:confirmation-is-null");
+        CR.update(Code.CONFIRMATION_HAS_BAD_ID, "conversation:holder.default:confirmation-has-bad-id");
     }
 
     private final ReadWriteLock lock = new ReentrantReadWriteLock();

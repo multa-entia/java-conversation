@@ -12,10 +12,22 @@ import java.util.concurrent.*;
 public class DefaultPublisherPipeline<T extends ConversationItem> extends AbstractPipeline<T, PublisherTask<T>> {
     private static final CodeRepository CR = DefaultCodeRepository.getDefaultInstance();
     static {
-        CR.update(new CodeKey(DefaultPublisherPipeline.class, Code.ALREADY_STARTED), "pipeline.publisher.default.already-started");
-        CR.update(new CodeKey(DefaultPublisherPipeline.class, Code.ALREADY_STOPPED), "pipeline.publisher.default.already-stopped");
-        CR.update(new CodeKey(DefaultPublisherPipeline.class, Code.OFFER_IF_NOT_STARTED), "pipeline.publisher.default.offer-if-not-started");
-        CR.update(new CodeKey(DefaultPublisherPipeline.class, Code.OFFER_QUEUE_IS_FULL), "pipeline.publisher.default.offer-queue-is-full");
+        CR.update(
+                new CodeKey(DefaultPublisherPipeline.class, Code.ALREADY_STARTED),
+                "conversation:pipeline.publisher.default:already-started"
+        );
+        CR.update(
+                new CodeKey(DefaultPublisherPipeline.class, Code.ALREADY_STOPPED),
+                "conversation:pipeline.publisher.default:already-stopped"
+        );
+        CR.update(
+                new CodeKey(DefaultPublisherPipeline.class, Code.OFFER_IF_NOT_STARTED),
+                "conversation:pipeline.publisher.default:offer-if-not-started"
+        );
+        CR.update(
+                new CodeKey(DefaultPublisherPipeline.class, Code.OFFER_QUEUE_IS_FULL),
+                "conversation:pipeline.publisher.default:offer-queue-is-full"
+        );
     }
 
     public DefaultPublisherPipeline(final BlockingQueue<PipelineBox<PublisherTask<T>>> queue,

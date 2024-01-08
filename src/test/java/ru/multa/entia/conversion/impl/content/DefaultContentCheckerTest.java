@@ -11,7 +11,6 @@ import ru.multa.entia.results.utils.Seeds;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class DefaultContentCheckerTest {
-
     private static final CodeRepository CR = DefaultCodeRepository.getDefaultInstance();
 
     @Test

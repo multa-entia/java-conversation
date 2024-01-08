@@ -12,10 +12,22 @@ import java.util.concurrent.BlockingQueue;
 public class DefaultListenerPipeline<T extends ConversationItem> extends AbstractPipeline<T, ListenerTask<T>> {
     private static final CodeRepository CR = DefaultCodeRepository.getDefaultInstance();
     static {
-        CR.update(new CodeKey(DefaultListenerPipeline.class, Code.ALREADY_STARTED), "pipeline.listener.default.already-started");
-        CR.update(new CodeKey(DefaultListenerPipeline.class, Code.ALREADY_STOPPED), "pipeline.listener.default.already-stopped");
-        CR.update(new CodeKey(DefaultListenerPipeline.class, Code.OFFER_IF_NOT_STARTED), "pipeline.listener.default.offer-if-not-started");
-        CR.update(new CodeKey(DefaultListenerPipeline.class, Code.OFFER_QUEUE_IS_FULL), "pipeline.listener.default.offer-queue-is-full");
+        CR.update(
+                new CodeKey(DefaultListenerPipeline.class, Code.ALREADY_STARTED),
+                "conversation:pipeline.listener.default:already-started"
+        );
+        CR.update(
+                new CodeKey(DefaultListenerPipeline.class, Code.ALREADY_STOPPED),
+                "conversation:pipeline.listener.default:already-stopped"
+        );
+        CR.update(
+                new CodeKey(DefaultListenerPipeline.class, Code.OFFER_IF_NOT_STARTED),
+                "conversation:pipeline.listener.default:offer-if-not-started"
+        );
+        CR.update(
+                new CodeKey(DefaultListenerPipeline.class, Code.OFFER_QUEUE_IS_FULL),
+                "conversation:pipeline.listener.default:offer-queue-is-full"
+        );
     }
 
 

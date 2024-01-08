@@ -10,7 +10,6 @@ import ru.multa.entia.results.utils.Seeds;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class DefaultAddressCheckerTest {
-
     private static final CodeRepository CR = DefaultCodeRepository.getDefaultInstance();
 
     @Test

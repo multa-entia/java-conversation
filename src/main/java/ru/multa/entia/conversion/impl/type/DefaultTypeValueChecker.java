@@ -14,8 +14,8 @@ class DefaultTypeValueChecker implements Checker<Object> {
 
     private static final CodeRepository CR = DefaultCodeRepository.getDefaultInstance();
     static {
-        CR.update(Code.IS_NULL, "checker.type-value.default.it-is-null");
-        CR.update(Code.IS_NOT_STR, "checker.type-value.default.it-is-not-str");
+        CR.update(Code.IS_NULL, "conversation:checker.type-value.default:it-is-null");
+        CR.update(Code.IS_NOT_STR, "conversation:checker.type-value.default:it-is-not-str");
     }
 
     @Override

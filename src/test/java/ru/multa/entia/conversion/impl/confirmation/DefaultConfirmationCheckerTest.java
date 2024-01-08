@@ -13,7 +13,6 @@ import utils.TestMessage;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class DefaultConfirmationCheckerTest {
-
     private static final CodeRepository CR = DefaultCodeRepository.getDefaultInstance();
 
     @Test

@@ -16,35 +16,35 @@ public class DefaultListenerPipelineSubscriber<T extends ConversationItem> exten
     static {
         CR.update(
                 new CodeKey(DefaultListenerPipelineSubscriber.class, Code.SESSION_ID_IS_NOT_SET),
-                "pipeline.subscriber.listener.default.session-is-not-set"
+                "conversation:pipeline.subscriber.listener.default:session-is-not-set"
         );
         CR.update(
                 new CodeKey(DefaultListenerPipelineSubscriber.class, Code.SESSION_ID_ALREADY_RESET),
-                "pipeline.subscriber.listener.default.session-already-reset"
+                "conversation:pipeline.subscriber.listener.default:session-already-reset"
         );
         CR.update(
                 new CodeKey(DefaultListenerPipelineSubscriber.class, Code.THIS_SESSION_ID_ALREADY_SET),
-                "pipeline.subscriber.listener.default.this-session-already-set"
+                "conversation:pipeline.subscriber.listener.default:this-session-already-set"
         );
         CR.update(
                 new CodeKey(DefaultListenerPipelineSubscriber.class, Code.DISALLOWED_SESSION_ID),
-                "pipeline.subscriber.listener.default.disallowed-session-id"
+                "conversation:pipeline.subscriber.listener.default:disallowed-session-id"
         );
         CR.update(
                 new CodeKey(DefaultListenerPipelineSubscriber.class, Code.SESSION_ID_ON_BLOCK_OUT_IS_NULL),
-                "pipeline.subscriber.listener.default.session-id-on-block-out-is-null"
+                "conversation:pipeline.subscriber.listener.default:session-id-on-block-out-is-null"
         );
         CR.update(
                 new CodeKey(DefaultListenerPipelineSubscriber.class, Code.IS_BLOCKED),
-                "pipeline.subscriber.listener.default.is-blocked"
+                "conversation:pipeline.subscriber.listener:default.is-blocked"
         );
         CR.update(
                 new CodeKey(DefaultListenerPipelineSubscriber.class, Code.ALREADY_BLOCKED),
-                "pipeline.subscriber.listener.default.already-blocked"
+                "conversation:pipeline.subscriber.listener.default:already-blocked"
         );
         CR.update(
                 new CodeKey(DefaultListenerPipelineSubscriber.class, Code.ALREADY_BLOCKED_OUT),
-                "pipeline.subscriber.listener.default.already-blocked-out"
+                "conversation:pipeline.subscriber.listener.default:already-blocked-out"
         );
     }
 

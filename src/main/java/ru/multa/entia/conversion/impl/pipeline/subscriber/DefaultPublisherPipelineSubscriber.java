@@ -17,35 +17,35 @@ public class DefaultPublisherPipelineSubscriber<T extends ConversationItem> exte
     static {
         CR.update(
                 new CodeKey(DefaultPublisherPipelineSubscriber.class, Code.SESSION_ID_IS_NOT_SET),
-                "pipeline.subscriber.publisher.default.session-is-not-set"
+                "conversation:pipeline.subscriber.publisher.default:session-is-not-set"
         );
         CR.update(
                 new CodeKey(DefaultPublisherPipelineSubscriber.class, Code.SESSION_ID_ALREADY_RESET),
-                "pipeline.subscriber.publisher.default.session-already-reset"
+                "conversation:pipeline.subscriber.publisher.default:session-already-reset"
         );
         CR.update(
                 new CodeKey(DefaultPublisherPipelineSubscriber.class, Code.THIS_SESSION_ID_ALREADY_SET),
-                "pipeline.subscriber.publisher.default.this-session-already-set"
+                "conversation:pipeline.subscriber.publisher.default:this-session-already-set"
         );
         CR.update(
                 new CodeKey(DefaultPublisherPipelineSubscriber.class, Code.DISALLOWED_SESSION_ID),
-                "pipeline.subscriber.publisher.default.disallowed-session-id"
+                "conversation:pipeline.subscriber.publisher.default:disallowed-session-id"
         );
         CR.update(
                 new CodeKey(DefaultPublisherPipelineSubscriber.class, Code.SESSION_ID_ON_BLOCK_OUT_IS_NULL),
-                "pipeline.subscriber.publisher.default.session-id-on-block-out-is-null"
+                "conversation:pipeline.subscriber.publisher.default:session-id-on-block-out-is-null"
         );
         CR.update(
                 new CodeKey(DefaultPublisherPipelineSubscriber.class, Code.IS_BLOCKED),
-                "pipeline.subscriber.publisher.default.is-blocked"
+                "conversation:pipeline.subscriber.publisher.default:is-blocked"
         );
         CR.update(
                 new CodeKey(DefaultPublisherPipelineSubscriber.class, Code.ALREADY_BLOCKED),
-                "pipeline.subscriber.publisher.default.already-blocked"
+                "conversation:pipeline.subscriber.publisher.default:already-blocked"
         );
         CR.update(
                 new CodeKey(DefaultPublisherPipelineSubscriber.class, Code.ALREADY_BLOCKED_OUT),
-                "pipeline.subscriber.publisher.default.already-blocked-out"
+                "conversation:pipeline.subscriber.publisher.default:already-blocked-out"
         );
     }
 

@@ -38,8 +38,8 @@ public class DefaultMessageFactory implements SimpleFactory<Object, Message> {
 
     private static final CodeRepository CR = DefaultCodeRepository.getDefaultInstance();
     static {
-        CR.update(Code.FROM_ABSENCE, "factory.message.default.from-absence");
-        CR.update(Code.TO_ABSENCE, "factory.message.default.to-absence");
+        CR.update(Code.FROM_ABSENCE, "conversation:factory.message.default:from-absence");
+        CR.update(Code.TO_ABSENCE, "conversation:factory.message.default:to-absence");
     }
 
     private final Checker<Object> checker;

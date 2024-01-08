@@ -10,35 +10,35 @@ public class DefaultListenerPipelineReceiver<T extends ConversationItem> extends
     static {
         CR.update(
                 new CodeKey(DefaultListenerPipelineReceiver.class, Code.ALREADY_BLOCKED_OUT),
-                "pipeline.receiver.listener.default.already-blocked-out"
+                "conversation:pipeline.receiver.listener.default:already-blocked-out"
         );
         CR.update(
                 new CodeKey(DefaultListenerPipelineReceiver.class, Code.ALREADY_BLOCKED),
-                "pipeline.receiver.listener.default.already-blocked"
+                "conversation:pipeline.receiver.listener.default:already-blocked"
         );
         CR.update(
                 new CodeKey(DefaultListenerPipelineReceiver.class, Code.ALREADY_SUBSCRIBED),
-                "pipeline.receiver.listener.default.already-subscribed"
+                "conversation:pipeline.receiver.listener.default:already-subscribed"
         );
         CR.update(
                 new CodeKey(DefaultListenerPipelineReceiver.class, Code.ALREADY_UNSUBSCRIBED),
-                "pipeline.receiver.listener.default.already-unsubscribed"
+                "conversation:pipeline.receiver.listener.default:already-unsubscribed"
         );
         CR.update(
                 new CodeKey(DefaultListenerPipelineReceiver.class, Code.IS_BLOCKED),
-                "pipeline.receiver.listener.default.is-blocked"
+                "conversation:pipeline.receiver.listener.default:is-blocked"
         );
         CR.update(
                 new CodeKey(DefaultListenerPipelineReceiver.class, Code.INVALID_SESSION_ID),
-                "pipeline.receiver.listener.default.invalid-session-id"
+                "conversation:pipeline.receiver.listener.default:invalid-session-id"
         );
         CR.update(
                 new CodeKey(DefaultListenerPipelineReceiver.class, Code.NO_ONE_SUBSCRIBER),
-                "pipeline.receiver.listener.default.no-one-subscriber"
+                "conversation:pipeline.receiver.listener.default:no-one-subscriber"
         );
         CR.update(
                 new CodeKey(DefaultListenerPipelineReceiver.class, Code.SUBSCRIBER_FAIL),
-                "pipeline.receiver.listener.default.subscriber-fail"
+                "conversation:pipeline.receiver.listener.default:subscriber-fail"
         );
     }
 }

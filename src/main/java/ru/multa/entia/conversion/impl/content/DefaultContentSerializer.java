@@ -17,7 +17,7 @@ class DefaultContentSerializer implements Function<Object, Result<String>> {
 
     private static final CodeRepository CR = DefaultCodeRepository.getDefaultInstance();
     static {
-        CR.update(Code.BAD_ACCESS, "serializer.content.default.bad-access");
+        CR.update(Code.BAD_ACCESS, "conversation:serializer.content.default:bad-access");
     }
 
     @Override

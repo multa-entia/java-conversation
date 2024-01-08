@@ -15,9 +15,9 @@ class DefaultAddressChecker implements Checker<Object> {
 
     private static final CodeRepository CR = DefaultCodeRepository.getDefaultInstance();
     static {
-        CR.update(Code.INSTANCE_IS_BLANK, "address.checker.default.instance-is-null");
-        CR.update(Code.INSTANCE_IS_NOT_STR, "address.checker.default.instance-is-not-str");
-        CR.update(Code.INSTANCE_IS_BLANK, "address.checker.default.instance-is-blank");
+        CR.update(Code.INSTANCE_IS_BLANK, "conversation:address.checker.default:instance-is-null");
+        CR.update(Code.INSTANCE_IS_NOT_STR, "conversation:address.checker.default:instance-is-not-str");
+        CR.update(Code.INSTANCE_IS_BLANK, "conversation:address.checker.default:instance-is-blank");
     }
 
     @Override

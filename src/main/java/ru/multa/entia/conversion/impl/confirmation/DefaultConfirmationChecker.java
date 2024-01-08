@@ -17,8 +17,8 @@ class DefaultConfirmationChecker implements Checker<Message> {
 
     private static final CodeRepository CR = DefaultCodeRepository.getDefaultInstance();
     static {
-        CR.update(Code.INSTANCE_IS_NULL, "confirmation.checker.default.instance-is-null");
-        CR.update(Code.FIELD_IS_NULL, "confirmation.checker.default.instance-is-null");
+        CR.update(Code.INSTANCE_IS_NULL, "conversation:confirmation.checker.default:instance-is-null");
+        CR.update(Code.FIELD_IS_NULL, "conversation:confirmation.checker.default:instance-is-null");
     }
 
     @RequiredArgsConstructor

@@ -11,35 +11,35 @@ public class DefaultPublisherPipelineReceiver<T extends ConversationItem> extend
     static {
         CR.update(
                 new CodeKey(DefaultPublisherPipelineReceiver.class, Code.ALREADY_BLOCKED_OUT),
-                "pipeline.receiver.publisher.default.already-blocked-out"
+                "conversation:pipeline.receiver.publisher.default:already-blocked-out"
         );
         CR.update(
                 new CodeKey(DefaultPublisherPipelineReceiver.class, Code.ALREADY_BLOCKED),
-                "pipeline.receiver.publisher.default.already-blocked"
+                "conversation:pipeline.receiver.publisher.default:already-blocked"
         );
         CR.update(
                 new CodeKey(DefaultPublisherPipelineReceiver.class, Code.ALREADY_SUBSCRIBED),
-                "pipeline.receiver.publisher.default.already-subscribed"
+                "conversation:pipeline.receiver.publisher.default:already-subscribed"
         );
         CR.update(
                 new CodeKey(DefaultPublisherPipelineReceiver.class, Code.ALREADY_UNSUBSCRIBED),
-                "pipeline.receiver.publisher.default.already-unsubscribed"
+                "conversation:pipeline.receiver.publisher.default:already-unsubscribed"
         );
         CR.update(
                 new CodeKey(DefaultPublisherPipelineReceiver.class, Code.IS_BLOCKED),
-                "pipeline.receiver.publisher.default.is-blocked"
+                "conversation:pipeline.receiver.publisher.default:is-blocked"
         );
         CR.update(
                 new CodeKey(DefaultPublisherPipelineReceiver.class, Code.INVALID_SESSION_ID),
-                "pipeline.receiver.publisher.default.invalid-session-id"
+                "conversation:pipeline.receiver.publisher.default:invalid-session-id"
         );
         CR.update(
                 new CodeKey(DefaultPublisherPipelineReceiver.class, Code.NO_ONE_SUBSCRIBER),
-                "pipeline.receiver.publisher.default.no-one-subscriber"
+                "conversation:pipeline.receiver.publisher.default:no-one-subscriber"
         );
         CR.update(
                 new CodeKey(DefaultPublisherPipelineReceiver.class, Code.SUBSCRIBER_FAIL),
-                "pipeline.receiver.publisher.default.subscriber-fail"
+                "conversation:pipeline.receiver.publisher.default:subscriber-fail"
         );
     }
 }
