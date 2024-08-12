@@ -8,7 +8,7 @@ java {
 }
 
 group = 'ru.multa.entia'
-version = '0.1.1'
+version = '0.1.2'
 
 repositories {
     mavenCentral()
@@ -24,8 +24,8 @@ ext {
     set('javaTuplesVersion', '1.2')
     set('logbackVersion', '1.2.10')
 
-    set('javaFakersVersion', '0.2')
-    set('javaResultsVersion', '0.7.1')
+    set('javaFakersVersion', '0.3')
+    set('javaResultsVersion', '0.8.2')
 }
 
 dependencies {
